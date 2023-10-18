@@ -1,0 +1,15 @@
+{
+	"description": "The properties of this file are automatically copied to all packages' package.json files",
+	"engines": {
+		"node": ">=14.18.0"
+	},
+	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json",
+	"lint-staged": {
+		"*.{js,css,json,md,scss}": [
+			"prettier"
+		],
+		"*.{ts,tsx}": [
+			"eslint"
+		]
+	}
+}

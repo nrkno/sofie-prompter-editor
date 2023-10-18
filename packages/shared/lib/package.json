@@ -1,0 +1,28 @@
+{
+    "name": "@sofie-prompter-editor/shared-lib",
+    "version": "0.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "license": "MIT",
+    "scripts": {
+        "build:watch": "tsc -p tsconfig.json -w",
+        "build": "yarn rimraf dist && tsc -p tsconfig.json",
+        "__test": "jest"
+    },
+    "engines": {
+        "node": ">=14.18.0"
+    },
+    "peerDependencies": {},
+    "devDependencies": {},
+    "dependencies": {},
+    "lint-staged": {
+        "*.{js,css,json,md,scss}": [
+            "prettier"
+        ],
+        "*.{ts,tsx}": [
+            "eslint"
+        ]
+    },
+    "prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
+}
