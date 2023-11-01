@@ -1,4 +1,4 @@
-import { shared } from '@sofie-prompter-editor/shared-lib'
+import { johan } from '@sofie-prompter-editor/shared-lib'
 
 console.log('starting up...')
-console.log(shared())
+console.log(johan())

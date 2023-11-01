@@ -20,10 +20,7 @@ Initialize repo:
 # install lerna globally
 yarn global add lerna
 
-# set up mono-repo
-yarn setup
-
-# Install all dependencies
+# Set up monorepo and install all dependencies
 yarn
 
 # Spin up dev server & watch for changes
