@@ -4,9 +4,12 @@
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
     "license": "MIT",
+    "type": "module",
     "scripts": {
-        "dev": "node dist/index.js",
-        "build": "yarn rimraf dist && yarn build:main",
+        "dev": "nodemon dist/index.js",
+        "unbuild": "yarn rimraf dist",
+        "build": "yarn build:main",
+        "watch": "yarn build:main -w",
         "build:main": "tsc -p tsconfig.json",
         "__test": "jest"
     },
@@ -14,9 +17,22 @@
         "node": ">=14.18.0"
     },
     "peerDependencies": {},
-    "devDependencies": {},
+    "devDependencies": {
+        "nodemon": "^3.0.1"
+    },
     "dependencies": {
-        "@sofie-prompter-editor/shared-lib": "*"
+        "@feathersjs/errors": "^5.0.11",
+        "@feathersjs/feathers": "^5.0.11",
+        "@feathersjs/koa": "^5.0.11",
+        "@feathersjs/socketio": "^5.0.11",
+        "@feathersjs/socketio-client": "^5.0.11",
+        "@koa/router": "^12.0.0",
+        "@sofie-prompter-editor/shared-lib": "0.0.0",
+        "@sofie-prompter-editor/shared-model": "0.0.0",
+        "eventemitter3": "^5.0.1",
+        "koa": "^2.13.4",
+        "koa-bodyparser": "^4.4.0",
+        "winston": "^3.11.0"
     },
     "lint-staged": {
         "*.{js,css,json,md,scss}": [

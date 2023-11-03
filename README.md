@@ -18,10 +18,13 @@ Initialize repo:
 
 ```bash
 # install lerna globally
-yarn global add lerna
+yarn global add lerna@
 
 # Set up monorepo and install all dependencies
 yarn
+
+# Initial build
+yarn build
 
 # Spin up dev server & watch for changes
 yarn dev

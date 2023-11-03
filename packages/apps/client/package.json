@@ -7,9 +7,10 @@
     "license": "MIT",
     "scripts": {
         "dev": "vite --force",
-        "build": "yarn rimraf dist && yarn build:main",
+        "unbuild": "yarn rimraf dist",
+        "build": "yarn build:main",
+        "watch": "node ../../../scripts/watch-client-deps-changed.js",
         "build:main": "tsc -p tsconfig.json && vite build ",
-        "build:watch": "node ../../../scripts/watch-client-deps-changed.js",
         "__test": "jest"
     },
     "engines": {
@@ -25,13 +26,16 @@
         "eslint": "^8.45.0",
         "eslint-plugin-react-hooks": "^4.6.0",
         "eslint-plugin-react-refresh": "^0.4.3",
-        "typescript": "^5.0.2",
+        "typescript": "^5.2.0",
         "vite": "^4.4.5"
     },
     "dependencies": {
-        "@sofie-prompter-editor/shared-lib": "*",
+        "@sofie-prompter-editor/shared-lib": "0.0.0",
+        "@sofie-prompter-editor/shared-model": "0.0.0",
+        "eventemitter3": "^5.0.1",
         "react": "^18.2.0",
-        "react-dom": "^18.2.0"
+        "react-dom": "^18.2.0",
+        "socket.io-client": "^4.7.2"
     },
     "lint-staged": {
         "*.{js,css,json,md,scss}": [

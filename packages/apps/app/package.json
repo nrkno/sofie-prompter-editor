@@ -17,7 +17,7 @@
     "peerDependencies": {},
     "devDependencies": {},
     "dependencies": {
-        "@sofie-prompter-editor/shared-lib": "*"
+        "@sofie-prompter-editor/shared-lib": "0.0.0"
     },
     "lint-staged": {
         "*.{js,css,json,md,scss}": [

@@ -1,5 +1,5 @@
 {
-    "name": "@sofie-prompter-editor/shared-lib",
+    "name": "@sofie-prompter-editor/shared-model",
     "version": "0.0.0",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
@@ -16,8 +16,13 @@
         "node": ">=14.18.0"
     },
     "peerDependencies": {},
-    "devDependencies": {},
-    "dependencies": {},
+    "devDependencies": {
+        "@feathersjs/feathers": "^5.0.11"
+    },
+    "dependencies": {
+        "@sofie-automation/shared-lib": "^1.49.1",
+        "@sofie-prompter-editor/shared-lib": "0.0.0"
+    },
     "lint-staged": {
         "*.{js,css,json,md,scss}": [
             "prettier"
