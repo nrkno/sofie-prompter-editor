@@ -37,5 +37,5 @@
     "ts-jest": "^29.1.1",
     "typescript": "^5.2.0"
   },
-  "dependencies": {}
+  "packageManager": "yarn@4.0.1"
 }

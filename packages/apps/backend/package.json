@@ -14,9 +14,8 @@
         "__test": "jest"
     },
     "engines": {
-        "node": ">=14.18.0"
+        "node": ">=20.9.0"
     },
-    "peerDependencies": {},
     "devDependencies": {
         "nodemon": "^3.0.1"
     },

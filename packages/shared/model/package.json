@@ -13,9 +13,8 @@
         "__test": "jest"
     },
     "engines": {
-        "node": ">=14.18.0"
+        "node": ">=20.9.0"
     },
-    "peerDependencies": {},
     "devDependencies": {
         "@feathersjs/feathers": "^5.0.11",
         "eventemitter3": "^5.0.1"

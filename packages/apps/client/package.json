@@ -14,9 +14,8 @@
         "__test": "jest"
     },
     "engines": {
-        "node": ">=14.18.0"
+        "node": ">=20.9.0"
     },
-    "peerDependencies": {},
     "devDependencies": {
         "@types/react": "^18.2.15",
         "@types/react-dom": "^18.2.7",

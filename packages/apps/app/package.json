@@ -13,10 +13,8 @@
         "__test": "jest"
     },
     "engines": {
-        "node": ">=14.18.0"
+        "node": ">=20.9.0"
     },
-    "peerDependencies": {},
-    "devDependencies": {},
     "dependencies": {
         "@sofie-prompter-editor/shared-lib": "0.0.0"
     },
