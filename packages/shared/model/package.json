@@ -8,7 +8,7 @@
     "scripts": {
         "unbuild": "yarn rimraf dist",
         "build": "yarn build:main",
-        "watch": "yarn build:main -w",
+        "watch": "yarn build:main -w --preserveWatchOutput",
         "build:main": "tsc -p tsconfig.json",
         "__test": "jest"
     },
@@ -17,7 +17,8 @@
     },
     "peerDependencies": {},
     "devDependencies": {
-        "@feathersjs/feathers": "^5.0.11"
+        "@feathersjs/feathers": "^5.0.11",
+        "eventemitter3": "^5.0.1"
     },
     "dependencies": {
         "@sofie-automation/shared-lib": "^1.49.1",

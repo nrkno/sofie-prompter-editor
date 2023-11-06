@@ -11,23 +11,4 @@ export default defineConfig({
 	optimizeDeps: {
 		include: ['packages/shared/*/dist/*'],
 	},
-
-	// optimizeDeps: {
-	// 	include: ['@sofie-prompter-editor/shared-lib'],
-	// },
-	// build: {
-	// 	commonjsOptions: {
-	// 		include: [/@sofie-prompter-editor\/shared-lib/, /node_modules/],
-	// 	},
-	// },
-
-	// server: {
-	// 	watch: {
-	// 		ignored: ['**/node_modules/**'],
-	// 	},
-	// },
-
-	// optimizeDeps: {
-	// 	link: ['shared-lib'],
-	// },
 })

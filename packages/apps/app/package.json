@@ -7,7 +7,8 @@
     "license": "MIT",
     "scripts": {
         "start": "node --inspect dist/index.js",
-        "build": "yarn rimraf dist && yarn build:main",
+        "unbuild": "yarn rimraf dist",
+        "build": "yarn build:main",
         "build:main": "tsc -p tsconfig.json",
         "__test": "jest"
     },

@@ -1,22 +1,13 @@
 import * as PlaylistServiceDefinition from './PlaylistService.js'
-export { PlaylistServiceDefinition }
+import * as ExampleServiceDefinition from './ExampleService.js'
+
+export { PlaylistServiceDefinition, ExampleServiceDefinition }
 
 export enum Services {
+	Example = 'example',
 	Playlist = 'playlist',
-	Rundown = 'rundown',
 }
 export type ServiceTypes = {
-	[Services.Playlist]: PlaylistServiceDefinition.Methods
-	// [Services.Rundown]: EverythingService
+	[Services.Example]: ExampleServiceDefinition.Service
+	[Services.Playlist]: PlaylistServiceDefinition.Service
 }
-export const ClientMethods: ServiceKeyArrays = {
-	[Services.Playlist]: ['find', 'get', 'create', 'update', 'patch', 'remove'],
-}
-export enum PublishChannels {
-	Playlists = 'playlists/',
-}
-
-type KeyArrays<T> = {
-	[K in keyof T]: Array<keyof T[K]>
-}
-type ServiceKeyArrays = KeyArrays<ServiceTypes>

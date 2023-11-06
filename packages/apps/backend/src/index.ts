@@ -1,20 +1,19 @@
+import { DEFAULT_DEV_API_PORT } from '@sofie-prompter-editor/shared-lib'
 import { ApiServer } from './api-server/ApiServer.js'
 import { initializeLogger, setupLogger } from './lib/logger.js'
 
-const loggerContig = {}
+const loggerConfig = {}
 
-initializeLogger(loggerContig)
-const logger = setupLogger(loggerContig, 'backend')
+initializeLogger(loggerConfig)
+const logger = setupLogger(loggerConfig, 'backend')
 
 async function init() {
 	logger.info('Initializing backend...')
 
-	const API_PORT = 5500
-
-	const httpAPI = new ApiServer(logger, API_PORT)
+	const httpAPI = new ApiServer(logger, DEFAULT_DEV_API_PORT)
 
 	httpAPI.on('connection', () => {
-		logger.debug('new connection!')
+		logger.info('new connection!')
 	})
 
 	await httpAPI.initialized

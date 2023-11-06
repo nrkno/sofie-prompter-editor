@@ -1,14 +1,11 @@
 import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
-import './App.css'
-// import * as SHARED from '@sofie-prompter-editor/shared-lib'
-// import * as SHARED from 'shared-lib'
-// console.log('SHARED', SHARED)
-import { johan } from '@sofie-prompter-editor/shared-lib'
-// import { johan } from 'shared-lib'
+import { TestInterface } from './TestInterface.tsx'
+import { APIConnection } from './api/ApiConnection.ts'
 
-function App() {
+import './App.css'
+function App(props: { api: APIConnection }) {
 	const [count, setCount] = useState(0)
 
 	return (
@@ -29,7 +26,9 @@ function App() {
 				</p>
 			</div>
 			<p className="read-the-docs">Click on the Vite and React logos to learn more!!</p>
-			<p>Testing: {johan()}</p>
+			<div>
+				<TestInterface api={props.api} />
+			</div>
 		</>
 	)
 }

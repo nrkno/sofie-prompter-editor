@@ -6,7 +6,6 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { RundownPlaylist } from '../model.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
@@ -17,9 +16,13 @@ export const ALL_METHODS = [
 	'patch',
 	'remove',
 	//
-	'tmpPing',
+	'pingGeneric',
+	'subscribeToPongCategory',
+	'unsubscribeToPongCategory',
+	'pingCategory',
 ] as const
-/** The methods exposed by this class are exposed in the API */
+
+/** Definitions of all methods */
 interface Methods extends ServiceMethods {
 	find(params?: Params & { paginate?: PaginationParams }): Promise<Data>
 	get(id: Id, params?: Params): Promise<Data>
@@ -28,7 +31,14 @@ interface Methods extends ServiceMethods {
 	patch(id: NullId, data: PartialData, params?: Params): Promise<Result>
 	remove(id: NullId, params?: Params): Promise<Result>
 	//
-	tmpPing(payload: string): Promise<string>
+	/** Ping the server. Server will later reply with a pongGeneric */
+	pingGeneric(payload: string, params?: Params): Promise<string>
+	/** Subscribe to a category of PongSpecific */
+	subscribeToPongCategory(category: string, params?: Params): Promise<void>
+	/** Unsubscribe to a category of PongSpecific */
+	unsubscribeToPongCategory(category: string, params?: Params): Promise<void>
+	/** Ping the server. Server will later reply with a pongSpecific */
+	pingCategory(category: string, payload: string, params?: Params): Promise<string>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 
@@ -39,8 +49,8 @@ export const ALL_EVENTS = [
 	'patched',
 	'removed',
 	//
-	'updated',
-	'tmpPong',
+	'pongGeneric',
+	'pongCategory',
 ] as const
 
 /** Definitions of all events */
@@ -50,11 +60,12 @@ export interface Events {
 	patched: [data: unknown]
 	removed: [data: unknown]
 	//
-	tmpPong: [payload: string]
+	pongGeneric: [payload: string]
+	pongCategory: [{ category: string; payload: string }]
 }
 
 // Helper types for the default service methods:
-export type Data = RundownPlaylist
+export type Data = { _id: string; category: string }
 export type PartialData = Partial<Data>
 export type Result = Pick<Data, '_id'>
 export type Id = Data['_id']

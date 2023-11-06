@@ -8,7 +8,7 @@
     "scripts": {
         "unbuild": "yarn rimraf dist",
         "build": "yarn build:main",
-        "watch": "yarn build:main -w",
+        "watch": "yarn build:main -w --preserveWatchOutput",
         "build:main": "tsc -p tsconfig.json",
         "__test": "jest"
     },

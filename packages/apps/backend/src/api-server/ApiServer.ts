@@ -1,13 +1,13 @@
-import { HookContext, feathers } from '@feathersjs/feathers'
+import { feathers } from '@feathersjs/feathers'
 import { koa, rest, bodyParser, errorHandler, serveStatic, cors } from '@feathersjs/koa'
 import socketio from '@feathersjs/socketio'
 import { EventEmitter } from 'eventemitter3'
-import { ClientMethods, PublishChannels, ServiceTypes, Services } from '@sofie-prompter-editor/shared-model'
-import { PlaylistService, PlaylistServiceDefinition } from './services/PlaylistService.js'
+import { ServiceTypes } from '@sofie-prompter-editor/shared-model'
 import { LoggerInstance } from '../lib/logger.js'
-// lib ==========================================
+import { PublishChannels } from './PublishChannels.js'
+import { PlaylistFeathersService, PlaylistService } from './services/PlaylistService.js'
+import { ExampleFeathersService, ExampleService } from './services/ExampleService.js'
 
-// =============================================
 export type ApiServerEvents = {
 	connection: []
 }
@@ -15,6 +15,8 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 	private app = koa<ServiceTypes>(feathers())
 
 	public initialized: Promise<void>
+	public readonly playlist: PlaylistFeathersService
+	public readonly example: ExampleFeathersService
 
 	constructor(log: LoggerInstance, port: number) {
 		super()
@@ -31,24 +33,23 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		this.app.configure(rest())
 		this.app.configure(socketio({ cors: { origin: '*' } })) // TODO: cors
 
-		this.app.use(
-			Services.Playlist,
-			new PlaylistService(),
-			// this.app
-			{
-				methods: ClientMethods[Services.Playlist],
-				serviceEvents: [],
-				events: [],
-			}
-		)
-		this.app.service(Services.Playlist).publish((data: PlaylistServiceDefinition.Result, _context: HookContext) => {
-			return this.app.channel(`${PublishChannels.Playlists}/${data._id}`)
+		this.playlist = PlaylistService.setupService(this.app)
+		this.example = ExampleService.setupService(this.app)
+
+		this.app.on('connection', (connection) => {
+			// A new client connection has been made
+			this.emit('connection')
+
+			// Add the connection to the Anything channel:
+			this.app.channel(PublishChannels.Everyone()).join(connection)
+		})
+		this.app.on('disconnect', (_connection) => {
+			// A client disconnected.
+			// Note: A disconnected client will leave all channels automatically.
 		})
 
-		this.app.on('connection', (_connection) => {
-			this.emit('connection')
-			// this.app.channel('everybody').join(connection)
-			// this.app.channel(PROJECTS_CHANNEL_PREFIX).join(connection) // TODO: use ids and remove this
+		this.playlist.on('tmpPong', (payload: string) => {
+			console.log('a pong', payload)
 		})
 
 		this.initialized = new Promise<void>((resolve, reject) => {
