@@ -34,6 +34,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: ".node-version"
+          cache: "yarn"
+      - run: corepack enable
       - name: Prepare Environment
         run: |
           yarn config set cache-folder /home/runner/${{ matrix.package-name }}-cache
@@ -70,6 +72,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version-file: ".node-version"
+          cache: "yarn"
+      - run: corepack enable
       - name: Prepare Environment
         run: |
           yarn config set cache-folder /home/runner/test-packages-cache
