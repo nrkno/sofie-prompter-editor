@@ -13,29 +13,31 @@
     "unbuild": "lerna run unbuild",
     "build": "lerna run build",
     "build:changed": "lerna run build --since head --exclude-dependents --stream",
-    "lint": "lerna exec --parallel --no-bail -- eslint . --ext .ts,.tsx",
+    "lint": "lerna run --concurrency 4 --stream lint",
     "lintfix": "yarn lint --fix",
-    "lint:changed": "lerna exec --since origin/main --include-dependents -- eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:changed": "lerna run --since origin/main --include-dependents --concurrency 4 --stream lint",
     "test": "lerna run test --stream",
     "___dev": "concurrently \"npm:dev.*\"",
     "dev": "concurrently \"yarn dev:start\" \"yarn dev:watch\"",
     "dev:start": "lerna run dev --stream",
     "dev:watch": "lerna run watch --parallel --stream",
-    "postinstall": "node scripts/update-packages.js"
+    "postinstall": "node scripts/update-packages.js",
+    "prettier": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/prettier\"",
+    "eslint": "cd $INIT_CWD && \"$PROJECT_CWD/node_modules/.bin/eslint\""
   },
   "devDependencies": {
     "@sofie-automation/code-standard-preset": "^2.5.2",
-    "@types/jest": "^29.5.6",
+    "@types/jest": "^29.5.7",
     "chokidar": "3.5.3",
-    "concurrently": "^8.2.1",
+    "concurrently": "^8.2.2",
     "deep-extend": "^0.6.0",
     "eslint-plugin-file-extension-in-import-ts": "^1.0.2",
     "glob": "^10.3.10",
     "jest": "^29.7.0",
-    "lerna": "^7.4.0",
+    "lerna": "^7.4.2",
     "rimraf": "^5.0.5",
     "ts-jest": "^29.1.1",
-    "typescript": "^5.2.0"
+    "typescript": "^5.2.2"
   },
   "packageManager": "yarn@4.0.1"
 }

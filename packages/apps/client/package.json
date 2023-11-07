@@ -7,26 +7,27 @@
     "license": "MIT",
     "scripts": {
         "dev": "vite --force",
-        "unbuild": "yarn rimraf dist",
-        "build": "yarn build:main",
+        "unbuild": "run -T rimraf dist",
+        "build": "run build:main",
         "watch": "node ../../../scripts/watch-client-deps-changed.js",
         "build:main": "tsc -p tsconfig.json && vite build ",
+        "lint": "run -T eslint --ext .ts --ext .tsx --ext .js --ignore-pattern dist",
         "__test": "jest"
     },
     "engines": {
         "node": ">=20.9.0"
     },
     "devDependencies": {
-        "@types/react": "^18.2.15",
-        "@types/react-dom": "^18.2.7",
-        "@typescript-eslint/eslint-plugin": "^6.0.0",
-        "@typescript-eslint/parser": "^6.0.0",
-        "@vitejs/plugin-react": "^4.0.3",
-        "eslint": "^8.45.0",
+        "@types/react": "^18.2.36",
+        "@types/react-dom": "^18.2.14",
+        "@typescript-eslint/eslint-plugin": "^6.10.0",
+        "@typescript-eslint/parser": "^6.10.0",
+        "@vitejs/plugin-react": "^4.1.1",
+        "eslint": "^8.53.0",
         "eslint-plugin-react-hooks": "^4.6.0",
-        "eslint-plugin-react-refresh": "^0.4.3",
-        "typescript": "^5.2.0",
-        "vite": "^4.4.5"
+        "eslint-plugin-react-refresh": "^0.4.4",
+        "typescript": "^5.2.2",
+        "vite": "^4.5.0"
     },
     "dependencies": {
         "@sofie-prompter-editor/shared-lib": "0.0.0",
