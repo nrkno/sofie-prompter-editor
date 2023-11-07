@@ -14,7 +14,7 @@
     "build": "lerna run build",
     "build:changed": "lerna run build --since head --exclude-dependents --stream",
     "lint": "lerna run --concurrency 4 --stream lint",
-    "lintfix": "yarn lint --fix",
+    "lintfix": "yarn lint -- --fix",
     "lint:changed": "lerna run --since origin/main --include-dependents --concurrency 4 --stream lint",
     "test": "lerna run test --stream",
     "___dev": "concurrently \"npm:dev.*\"",
