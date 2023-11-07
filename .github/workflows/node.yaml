@@ -20,11 +20,11 @@ jobs:
       fail-fast: false
       matrix:
         package-name:
-          - @sofie-prompter-editor/shared-model
-          - @sofie-prompter-editor/shared-lib
-          - @sofie-prompter-editor/apps-app
-          - @sofie-prompter-editor/apps-backend
-          - @sofie-prompter-editor/apps-client
+          - "@sofie-prompter-editor/shared-model"
+          - "@sofie-prompter-editor/shared-lib"
+          - "@sofie-prompter-editor/apps-app"
+          - "@sofie-prompter-editor/apps-backend"
+          - "@sofie-prompter-editor/apps-client"
 
     steps:
       - uses: actions/checkout@v4
@@ -56,11 +56,11 @@ jobs:
       fail-fast: false
       matrix:
         package-name:
-          - @sofie-prompter-editor/shared-model
-          - @sofie-prompter-editor/shared-lib
-          - @sofie-prompter-editor/apps-app
-          - @sofie-prompter-editor/apps-backend
-          - @sofie-prompter-editor/apps-client
+          - "@sofie-prompter-editor/shared-model"
+          - "@sofie-prompter-editor/shared-lib"
+          - "@sofie-prompter-editor/apps-app"
+          - "@sofie-prompter-editor/apps-backend"
+          - "@sofie-prompter-editor/apps-client"
 
     steps:
       - uses: actions/checkout@v4
