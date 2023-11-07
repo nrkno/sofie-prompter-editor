@@ -38,7 +38,6 @@ jobs:
       - run: corepack enable
       - name: Prepare Environment
         run: |
-          yarn config set cache-folder /home/runner/${{ matrix.package-name }}-cache
           yarn install
           yarn lerna run --scope ${{ matrix.package-name }} --include-dependencies --stream build
         env:
@@ -76,7 +75,6 @@ jobs:
       - run: corepack enable
       - name: Prepare Environment
         run: |
-          yarn config set cache-folder /home/runner/test-packages-cache
           yarn install
           yarn lerna run --scope ${{ matrix.package-name }} --include-dependencies --stream build
         env:
