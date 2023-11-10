@@ -21,7 +21,7 @@ export const ALL_METHODS = [
 ] as const
 /** The methods exposed by this class are exposed in the API */
 interface Methods extends ServiceMethods {
-	find(params?: Params & { paginate?: PaginationParams }): Promise<Data>
+	find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
 	get(id: Id, params?: Params): Promise<Data>
 	create(data: Data, params?: Params): Promise<Result>
 	update(id: NullId, data: Data, params?: Params): Promise<Result>

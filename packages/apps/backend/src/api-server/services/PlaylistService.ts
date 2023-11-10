@@ -28,7 +28,7 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 		super()
 	}
 
-	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data> {
+	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
 		throw new Error('Not implemented')
 	}
 	public async get(_id: Id, _params?: Params): Promise<Data> {
