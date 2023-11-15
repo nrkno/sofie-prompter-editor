@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { UISegment } from '../model/UISegment'
 import { Line } from './Line'
 
-const Segment = observer(({ segment }: { segment: UISegment | undefined }): React.JSX.Element | null => {
+const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Element | null => {
 	if (!segment) return null
 
 	return (

@@ -1,4 +1,5 @@
 import React from 'react'
+import { action } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { AppStore } from '../stores/AppStore'
 import { Segment } from './Segment'
@@ -10,9 +11,9 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		return <p>No open rundown</p>
 	}
 
-	function onClose() {
+	const onClose = action(() => {
 		openRundown?.close()
-	}
+	})
 
 	return (
 		<>

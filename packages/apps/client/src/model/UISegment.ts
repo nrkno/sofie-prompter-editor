@@ -1,8 +1,9 @@
-import { action, computed, makeAutoObservable, observable, values } from 'mobx'
+import { action, computed, makeAutoObservable, observable } from 'mobx'
 import { ProtectedString, RundownId, Segment, SegmentId, protectString } from '@sofie-prompter-editor/shared-model'
 import { UILineId, UILine } from './UILine'
 import { RundownStore } from '../stores/RundownStore'
 import { randomId } from '../lib/lib'
+import { UIRundown } from './UIRundown'
 
 export class UISegment {
 	rank: number = 0
@@ -17,11 +18,14 @@ export class UISegment {
 
 	constructor(
 		private store: RundownStore,
+		private owner: UIRundown,
 		public segmentId: SegmentId,
 		public id = protectString<UISegmentId>(randomId())
 	) {
 		makeAutoObservable(this, {
+			updateFromJson: action,
 			linesInOrder: computed,
+			remove: action,
 		})
 
 		this.store.connection.parts
@@ -31,9 +35,9 @@ export class UISegment {
 				},
 			})
 			.then(
-				action('loadParts', (parts) => {
+				action('receiveParts', (parts) => {
 					for (const part of parts) {
-						const newPart = new UILine(this.store, part._id)
+						const newPart = new UILine(this.store, this, part._id)
 						this.lines.set(newPart.id, newPart)
 						newPart.updateFromJson(part)
 					}
@@ -52,13 +56,17 @@ export class UISegment {
 	}
 
 	get linesInOrder(): UILine[] {
-		return values(this.lines)
+		return Array.from(this.lines.values())
 			.slice()
 			.sort((a, b) => a.rank - b.rank)
 	}
 
 	remove(): void {
-		this.store.openRundown?.segments.delete(this.id)
+		this.owner.segments.delete(this.id)
+		this.dispose()
+	}
+
+	dispose(): void {
 		// unregister event handlers
 	}
 }

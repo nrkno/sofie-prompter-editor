@@ -1,7 +1,8 @@
 import { Part, PartDisplayType, PartId, ProtectedString, protectString } from '@sofie-prompter-editor/shared-model'
 import { RundownStore } from '../stores/RundownStore'
 import { randomId } from '../lib/lib'
-import { makeAutoObservable } from 'mobx'
+import { action, makeAutoObservable } from 'mobx'
+import { UISegment } from './UISegment'
 
 export class UILine {
 	slug: string = ''
@@ -24,8 +25,16 @@ export class UILine {
 
 	ready: boolean = false
 
-	constructor(private store: RundownStore, public partId: PartId, public id = protectString<UILineId>(randomId())) {
-		makeAutoObservable(this)
+	constructor(
+		private store: RundownStore,
+		private owner: UISegment,
+		public partId: PartId,
+		public id = protectString<UILineId>(randomId())
+	) {
+		makeAutoObservable(this, {
+			updateFromJson: action,
+			remove: action,
+		})
 
 		void this.store
 	}
@@ -45,7 +54,12 @@ export class UILine {
 		this.ready = true
 	}
 
-	remove() {}
+	remove() {
+		this.owner.lines.delete(this.id)
+		this.dispose()
+	}
+
+	dispose() {}
 }
 
 export type UILineId = ProtectedString<'UILineId', string>

@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx'
+import { action, makeAutoObservable } from 'mobx'
 import { RundownPlaylist, RundownPlaylistId, protectString } from '@sofie-prompter-editor/shared-model'
 import { randomId } from '../lib/lib'
 import { UIRundownId } from './UIRundown'
@@ -15,7 +15,9 @@ export class UIRundownEntry {
 		public playlistId: RundownPlaylistId,
 		public id = protectString<UIRundownId>(randomId())
 	) {
-		makeAutoObservable(this, {})
+		makeAutoObservable(this, {
+			updateFromJson: action,
+		})
 
 		void this.store
 
@@ -33,6 +35,11 @@ export class UIRundownEntry {
 	updateFromJson(json: RundownPlaylist) {
 		this.name = json.label
 		this.ready = true
+	}
+
+	remove(): void {
+		this.store.allRundowns.delete(this.id)
+		this.dispose()
 	}
 
 	dispose(): void {
