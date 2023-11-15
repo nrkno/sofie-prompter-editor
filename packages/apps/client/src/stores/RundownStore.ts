@@ -1,17 +1,16 @@
 import { makeAutoObservable, observable, action } from 'mobx'
-import { RundownPlaylistId } from 'packages/shared/model/dist'
-import { AppStore } from './AppStore'
-import { APIConnection } from '../api/ApiConnection'
-import { UIRundown } from '../model/UIRundown'
+import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { APIConnection, AppStore } from './AppStore'
+import { UIRundown, UIRundownId } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
 
 export class RundownStore {
 	showingOnlyScripts = false
 
-	allRundowns = observable.array<UIRundownEntry>()
+	allRundowns = observable.map<UIRundownId, UIRundownEntry>()
 	openRundown: UIRundown | null = null
 
-	constructor(public appStore: AppStore, public connection: APIConnection) {
+	constructor(public appStore: typeof AppStore, public connection: APIConnection) {
 		makeAutoObservable(this, {})
 
 		// get all rundowns
@@ -21,15 +20,33 @@ export class RundownStore {
 
 	loadAllRudnowns() {
 		this.connection.playlist.find().then(
-			action('receiveRundowns', () => {
+			action('receiveRundowns', (playlists) => {
 				// add UIRundownEntries to allRundowns
+
+				for (const playlist of playlists) {
+					const newRundownEntry = new UIRundownEntry(this, playlist._id)
+					this.allRundowns.set(newRundownEntry.id, newRundownEntry)
+					newRundownEntry.updateFromJson(playlist)
+				}
 			})
 		)
 	}
 
 	loadRundown(id: RundownPlaylistId) {
-		console.log(id)
+		this.openRundown?.close()
 		// get a full rundown from backend and create a UIRundown object
 		// assign to openRundown
+		this.connection.playlist.get(id).then(
+			action('loadRundown', (playlist) => {
+				if (!playlist) {
+					console.error('Playlist not found!')
+					return
+				}
+
+				const newRundown = new UIRundown(this, playlist._id)
+				newRundown.updateFromJson(playlist)
+				this.openRundown = newRundown
+			})
+		)
 	}
 }

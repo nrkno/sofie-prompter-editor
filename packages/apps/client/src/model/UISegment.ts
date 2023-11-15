@@ -1,5 +1,5 @@
-import { computed, makeAutoObservable, observable, values } from 'mobx'
-import { ProtectedString, Segment, SegmentId, protectString } from 'packages/shared/model/dist'
+import { action, computed, makeAutoObservable, observable, values } from 'mobx'
+import { ProtectedString, RundownId, Segment, SegmentId, protectString } from '@sofie-prompter-editor/shared-model'
 import { UILineId, UILine } from './UILine'
 import { RundownStore } from '../stores/RundownStore'
 import { randomId } from '../lib/lib'
@@ -11,6 +11,8 @@ export class UISegment {
 
 	ready: boolean = false
 
+	rundownId: RundownId | null = null
+
 	lines = observable.map<UILineId, UILine>([])
 
 	constructor(
@@ -19,8 +21,24 @@ export class UISegment {
 		public id = protectString<UISegmentId>(randomId())
 	) {
 		makeAutoObservable(this, {
-			lineIdsInOrder: computed,
+			linesInOrder: computed,
 		})
+
+		this.store.connection.parts
+			.find({
+				query: {
+					segmentId: this.segmentId,
+				},
+			})
+			.then(
+				action('loadParts', (parts) => {
+					for (const part of parts) {
+						const newPart = new UILine(this.store, part._id)
+						this.lines.set(newPart.id, newPart)
+						newPart.updateFromJson(part)
+					}
+				})
+			)
 
 		// fetch owned parts and register event handlers for parts
 	}
@@ -28,12 +46,15 @@ export class UISegment {
 	updateFromJson(json: Segment) {
 		this.name = json.label
 		this.rank = json.rank
+		this.rundownId = json.rundownId
 
 		this.ready = true
 	}
 
-	get lineIdsInOrder(): UILineId[] {
-		return values(this.lines).slice().sort((a, b) => a.rank - b.rank).map((line) => line.id)
+	get linesInOrder(): UILine[] {
+		return values(this.lines)
+			.slice()
+			.sort((a, b) => a.rank - b.rank)
 	}
 
 	remove(): void {

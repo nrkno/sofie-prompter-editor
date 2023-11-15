@@ -1,4 +1,4 @@
-import { Part, PartDisplayType, PartId, ProtectedString, protectString } from 'packages/shared/model/dist'
+import { Part, PartDisplayType, PartId, ProtectedString, protectString } from '@sofie-prompter-editor/shared-model'
 import { RundownStore } from '../stores/RundownStore'
 import { randomId } from '../lib/lib'
 import { makeAutoObservable } from 'mobx'

@@ -1,11 +1,11 @@
 import { makeAutoObservable, action } from 'mobx'
 import { RundownStore } from './RundownStore'
-import { APIConnection } from '../api/ApiConnection'
+import { MockConnection } from '../mocks/mockConnection'
 
-export class AppStore {
+class AppStoreClass {
 	connected = false
 	rundownStore: RundownStore
-	connection = new APIConnection()
+	connection = new MockConnection()
 
 	constructor() {
 		makeAutoObservable(this)
@@ -26,3 +26,7 @@ export class AppStore {
 		)
 	}
 }
+
+export const AppStore = new AppStoreClass()
+
+export type APIConnection = MockConnection
