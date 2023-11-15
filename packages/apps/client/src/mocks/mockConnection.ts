@@ -45,6 +45,7 @@ export class MockConnection extends EventEmitter {
 			label: 'Playlist 0',
 			modified: START_TIME,
 			rehearsal: false,
+			startedPlayback: START_TIME,
 		},
 		{
 			_id: PLAYLIST_ID_1,
@@ -53,6 +54,7 @@ export class MockConnection extends EventEmitter {
 			label: 'Playlist 1',
 			modified: START_TIME,
 			rehearsal: false,
+			startedPlayback: undefined,
 		},
 	]
 
@@ -102,7 +104,7 @@ export class MockConnection extends EventEmitter {
 		{
 			_id: SEGMENT_ID_0_0,
 			label: 'Segment 0',
-			rank: 0,
+			rank: 5,
 			rundownId: RUNDOWN_ID_0_0,
 		},
 		{
@@ -310,7 +312,7 @@ type Query<T> = {
 	query: Partial<T>
 }
 
-function match<T extends Record<string, unknown>>(item: T, query: Partial<T>) {
+function match<T extends { [s: string]: unknown }>(item: T, query: Partial<T>) {
 	for (const [key, value] of Object.entries(query)) {
 		if (item[key] !== value) return false
 	}
