@@ -44,6 +44,18 @@ export class UISegment {
 				})
 			)
 
+		this.store.connection.segment.on('changed', (json: Segment) => {
+			if (this.segmentId !== json._id) return
+
+			this.updateFromJson(json)
+		})
+
+		this.store.connection.segment.on('removed', (id: SegmentId) => {
+			if (this.segmentId !== id) return
+
+			this.remove()
+		})
+
 		// fetch owned parts and register event handlers for parts
 	}
 

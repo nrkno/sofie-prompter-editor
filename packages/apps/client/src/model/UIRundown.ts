@@ -68,19 +68,33 @@ export class UIRundown {
 		// register callbacks for events
 
 		// we track playlist changed and removed
-		this.store.connection.playlist.on('changed', (json: RundownPlaylist) => {})
+		this.store.connection.playlist.on('changed', (json: RundownPlaylist) => {
+			if (json._id !== this.playlistId) return
 
-		this.store.connection.playlist.on('removed', (json: RundownPlaylist) => {})
+			this.updateFromJson(json)
+		})
+
+		this.store.connection.playlist.on('removed', (id: RundownPlaylistId) => {
+			if (id !== this.playlistId) return
+
+			this.close()
+		})
 
 		// we track rundown created, changed and removed, because we own Rundowns
 		this.store.connection.rundown.on('created', (json: Rundown) => {})
 
 		this.store.connection.rundown.on('changed', (json: Rundown) => {})
 
-		this.store.connection.rundown.on('removed', (json: Rundown) => {})
+		this.store.connection.rundown.on('removed', (id: RundownId) => {
+			this.rundowns.delete(id)
+		})
 
 		// we track segment created so that we can add new Segments when they are added
-		this.store.connection.segment.on('created', (json: Segment) => {})
+		this.store.connection.segment.on('created', (json: Segment) => {
+			const newSegment = new UISegment(this.store, this, json._id)
+			this.segments.set(newSegment.id, newSegment)
+			newSegment.updateFromJson(json)
+		})
 	}
 
 	updateFromJson(json: RundownPlaylist) {

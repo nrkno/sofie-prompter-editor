@@ -21,15 +21,17 @@ export class UIRundownEntry {
 
 		void this.store
 
-		// get all segments
-		// this.store.connection.segment.find({
-		//     query: {
-		//         playlistId:
-		//     }
-		// })
+		this.store.connection.playlist.on('changed', (json: RundownPlaylist) => {
+			if (this.playlistId !== json._id) return
 
-		// register callbacks for events
-		// this.store.connection.segment.on('created')
+			this.updateFromJson(json)
+		})
+
+		this.store.connection.playlist.on('removed', (id: RundownPlaylistId) => {
+			if (this.playlistId !== id) return
+
+			this.remove()
+		})
 	}
 
 	updateFromJson(json: RundownPlaylist) {
