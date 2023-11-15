@@ -5,6 +5,7 @@ import { TestInterface } from './TestInterface.tsx'
 import { APIConnection } from './api/ApiConnection.ts'
 
 import './App.css'
+import { TestPlaylists } from './TestPlaylists.tsx'
 function App(props: { api: APIConnection }) {
 	const [count, setCount] = useState(0)
 
@@ -28,6 +29,9 @@ function App(props: { api: APIConnection }) {
 			<p className="read-the-docs">Click on the Vite and React logos to learn more!!</p>
 			<div>
 				<TestInterface api={props.api} />
+			</div>
+			<div>
+				<TestPlaylists api={props.api} />
 			</div>
 		</>
 	)

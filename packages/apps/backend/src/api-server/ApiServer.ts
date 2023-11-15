@@ -7,6 +7,7 @@ import { LoggerInstance } from '../lib/logger.js'
 import { PublishChannels } from './PublishChannels.js'
 import { PlaylistFeathersService, PlaylistService } from './services/PlaylistService.js'
 import { ExampleFeathersService, ExampleService } from './services/ExampleService.js'
+import { Store } from '../data-stores/Store.js'
 
 export type ApiServerEvents = {
 	connection: []
@@ -18,8 +19,11 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 	public readonly playlist: PlaylistFeathersService
 	public readonly example: ExampleFeathersService
 
-	constructor(log: LoggerInstance, port: number) {
+	private log: LoggerInstance
+	constructor(log: LoggerInstance, port: number, private store: Store) {
 		super()
+		this.log = log.category('ApiServer')
+
 		this.app.use(serveStatic('src'))
 
 		this.app.use(
@@ -33,7 +37,7 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		this.app.configure(rest())
 		this.app.configure(socketio({ cors: { origin: '*' } })) // TODO: cors
 
-		this.playlist = PlaylistService.setupService(this.app)
+		this.playlist = PlaylistService.setupService(this.app, this.store, this.log)
 		this.example = ExampleService.setupService(this.app)
 
 		this.app.on('connection', (connection) => {
@@ -56,7 +60,7 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 			this.app
 				.listen(port)
 				.then(() => {
-					log.info('Feathers server listening on localhost:' + port)
+					this.log.info('Feathers server listening on localhost:' + port)
 					resolve()
 				})
 				.catch(reject)

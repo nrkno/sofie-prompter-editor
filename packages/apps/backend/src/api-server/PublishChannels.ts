@@ -6,4 +6,8 @@ export const PublishChannels = {
 	ExampleCategory: (category: string): string => {
 		return `example-category/${category}`
 	},
+
+	AllPlaylists: (): string => {
+		return `playlists`
+	},
 }

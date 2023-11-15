@@ -17,6 +17,8 @@ export const ALL_METHODS = [
 	'patch',
 	'remove',
 	//
+	'subscribeToPlaylists',
+	//
 	'tmpPing',
 ] as const
 /** The methods exposed by this class are exposed in the API */
@@ -27,6 +29,8 @@ interface Methods extends ServiceMethods {
 	update(id: NullId, data: Data, params?: Params): Promise<Result>
 	patch(id: NullId, data: PartialData, params?: Params): Promise<Result>
 	remove(id: NullId, params?: Params): Promise<Result>
+	//
+	subscribeToPlaylists(_?: unknown, params?: Params): Promise<void>
 	//
 	tmpPing(payload: string): Promise<string>
 }
@@ -45,10 +49,10 @@ export const ALL_EVENTS = [
 
 /** Definitions of all events */
 export interface Events {
-	created: [data: unknown]
-	updated: [data: unknown]
-	patched: [data: unknown]
-	removed: [data: unknown]
+	created: [data: Data]
+	updated: [data: Data]
+	patched: [data: PartialData]
+	removed: [id: Id]
 	//
 	tmpPong: [payload: string]
 }

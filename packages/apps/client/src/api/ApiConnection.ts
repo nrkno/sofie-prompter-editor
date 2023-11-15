@@ -21,13 +21,20 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 
 	public readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
 	public readonly example: FeathersTypedService<ExampleServiceDefinition.Service>
+	public connected = false
 	constructor() {
 		super()
 		console.log('setupAPIConnection')
 
 		const socket = io(`127.0.0.1:${DEFAULT_DEV_API_PORT}`)
-		socket.on('connect', () => this.emit('connected'))
-		socket.on('disconnect', () => this.emit('disconnected'))
+		socket.on('connect', () => {
+			this.connected = true
+			this.emit('connected')
+		})
+		socket.on('disconnect', () => {
+			this.connected = false
+			this.emit('disconnected')
+		})
 
 		const socketClient = socketio(socket)
 

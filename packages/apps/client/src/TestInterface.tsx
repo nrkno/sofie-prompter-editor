@@ -58,6 +58,20 @@ export const TestInterface: React.FC<{ api: APIConnection }> = ({ api }) => {
 			>
 				Unsubscribe to "cats"
 			</button>
+
+			<button
+				onClick={() => {
+					console.log('subscribing to all playlists...')
+					api.playlist
+						.subscribeToPlaylists()
+						.then(() => {
+							console.log(`subscribed`)
+						})
+						.catch(console.error)
+				}}
+			>
+				Subscribe tp playlists
+			</button>
 		</div>
 	)
 }

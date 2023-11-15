@@ -4,13 +4,16 @@ import { ServiceTypes, Services, PlaylistServiceDefinition as Definition } from 
 export { PlaylistServiceDefinition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
 import { CustomFeathersService } from './lib.js'
+import { Store } from '../../data-stores/Store.js'
+import { Lambda, observe } from 'mobx'
+import { LoggerInstance } from '../../lib/logger.js'
 
 export type PlaylistFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
 /** The methods exposed by this class are exposed in the API */
 export class PlaylistService extends EventEmitter<Definition.Events> implements Definition.Service {
-	static setupService(app: Application<ServiceTypes, any>): PlaylistFeathersService {
-		app.use(Services.Playlist, new PlaylistService(), {
+	static setupService(app: Application<ServiceTypes, any>, store: Store, log: LoggerInstance): PlaylistFeathersService {
+		app.use(Services.Playlist, new PlaylistService(app, store, log.category('PlaylistService')), {
 			methods: Definition.ALL_METHODS,
 			serviceEvents: Definition.ALL_EVENTS,
 		})
@@ -23,13 +26,44 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 		service.publish('tmpPong', (_data, _context) => {
 			return app.channel(PublishChannels.Everyone())
 		})
+
+		service.publish('created', (_data, _context) => {
+			return app.channel(PublishChannels.AllPlaylists())
+		})
+		service.publish('updated', (_data, _context) => {
+			return app.channel(PublishChannels.AllPlaylists())
+		})
+		service.publish('removed', (_data, _context) => {
+			return app.channel(PublishChannels.AllPlaylists())
+		})
 	}
-	constructor() {
+
+	private observers: Lambda[] = []
+	constructor(private app: Application<ServiceTypes, any>, private store: Store, private log: LoggerInstance) {
 		super()
+
+		this.observers.push(
+			observe(this.store.playlists.playlists, (change) => {
+				this.log.info('observed change', change)
+				if (change.type === 'add') {
+					this.emit('created', change.newValue)
+				} else if (change.type === 'update') {
+					this.emit('updated', change.newValue)
+				} else if (change.type === 'delete') {
+					this.emit('removed', change.oldValue._id)
+				}
+			})
+		)
+	}
+	destroy() {
+		// dispose of observers:
+		for (const obs of this.observers) {
+			obs()
+		}
 	}
 
 	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		throw new Error('Not implemented')
+		return Array.from(this.store.playlists.playlists.values())
 	}
 	public async get(_id: Id, _params?: Params): Promise<Data> {
 		throw new Error('Not implemented')
@@ -53,6 +87,10 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 	// 	throw new Error('Not implemented')
 	// }
 
+	public async subscribeToPlaylists(_: unknown, params: Params): Promise<void> {
+		if (!params.connection) throw new Error('No connection!')
+		this.app.channel(PublishChannels.AllPlaylists()).join(params.connection)
+	}
 	public async tmpPing(_payload: string): Promise<string> {
 		console.log('got a ping!')
 		setTimeout(() => {
