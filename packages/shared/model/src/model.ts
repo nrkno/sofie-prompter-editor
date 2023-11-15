@@ -1,11 +1,15 @@
-import { ProtectedString } from './ProtectedString.js'
+import { AnyProtectedString, ProtectedString } from './ProtectedString.js'
 
 /*
  These types are shared between the server and the client
 */
 
+export interface DataObject {
+	_id: AnyProtectedString
+}
+
 export type RundownPlaylistId = ProtectedString<'RundownPlaylistId', string>
-export interface RundownPlaylist {
+export interface RundownPlaylist extends DataObject {
 	_id: RundownPlaylistId
 
 	/** Rundown playlist slug - user-presentable name */
@@ -18,7 +22,7 @@ export interface RundownPlaylist {
 	/** Is the playlist in rehearsal mode (can be used, when active: true) */
 	rehearsal: boolean
 	/** Actual time of playback starting */
-	startedPlayback?: number
+	startedPlayback: number | undefined
 
 	// To be implemented later:
 	// timing: {
@@ -30,7 +34,7 @@ export interface RundownPlaylist {
 }
 
 export type RundownId = ProtectedString<'RundownId', string>
-export interface Rundown {
+export interface Rundown extends DataObject {
 	_id: RundownId
 
 	playlistId: RundownPlaylistId
@@ -47,7 +51,7 @@ export interface Rundown {
 }
 
 export type SegmentId = ProtectedString<'SegmentId', string>
-export interface Segment {
+export interface Segment extends DataObject {
 	_id: SegmentId
 	rundownId: RundownId
 	/** The position of the Segment within its Rundown */
@@ -71,7 +75,7 @@ export interface Segment {
 }
 
 export type PartId = ProtectedString<'PartId', string>
-export interface Part {
+export interface Part extends DataObject {
 	_id: PartId
 	rundownId: RundownId
 	segmentId: SegmentId
