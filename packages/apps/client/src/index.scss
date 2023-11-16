@@ -1,0 +1,15 @@
+/* The following line can be included in a src/App.scss */
+$primary: #1769ff;
+$dark: #252627;
+
+$font-sans-serif: Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+	'Noto Color Emoji';
+
+$link-color: $primary;
+
+$theme-colors: (
+	'primary': $primary,
+	'dark': $dark,
+);
+
+@import 'bootstrap/scss/bootstrap';

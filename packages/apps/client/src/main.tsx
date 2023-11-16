@@ -1,7 +1,7 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import './index.css'
+import './index.scss'
 import { APIConnection } from './api/ApiConnection.ts'
 import { assertType } from '@sofie-prompter-editor/shared-lib'
 import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
