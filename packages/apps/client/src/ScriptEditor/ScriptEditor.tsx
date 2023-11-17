@@ -4,7 +4,7 @@ import { Editor } from './Editor'
 export function ScriptEditor(): React.JSX.Element {
 	return (
 		<>
-			<Editor />
+			<Editor className="bg-black" />
 		</>
 	)
 }
