@@ -20,7 +20,9 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		<>
 			<h1>{openRundown.name}</h1>
 			<p>
-				<Button onClick={onClose}>Close</Button>
+				<Button variant="secondary" onClick={onClose}>
+					Close
+				</Button>
 			</p>
 			<ul>
 				{openRundown.segmentsInOrder.map((segment) => (

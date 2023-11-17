@@ -1,34 +1,42 @@
 import React, { useEffect } from 'react'
-import { TestInterface } from './TestInterface.tsx'
-import { APIConnection } from './api/ApiConnection.ts'
 
 import './App.css'
-import { RundownList } from './RundownList/RundownList.tsx'
-import { CurrentRundown } from './CurrentRundown/CurrentRundown.tsx'
-import { TestPlaylists } from './TestPlaylists.tsx'
-import { Helmet } from 'react-helmet'
-function App(props: { api: APIConnection }): React.JSX.Element {
-	useEffect(() => {
-		window.document.body.dataset['bsTheme'] = 'dark'
-	}, [])
+import { Helmet } from 'react-helmet-async'
+import { Container, Nav, Navbar } from 'react-bootstrap'
+import { Link, Outlet } from 'react-router-dom'
 
+function App(): React.JSX.Element {
 	return (
 		<>
 			<Helmet>
 				<title>App</title>
+				<body data-bs-theme="dark" />
 			</Helmet>
-			<div>
-				<RundownList />
-			</div>
-			<div>
-				<CurrentRundown />
-			</div>
-			<div>
-				<TestInterface api={props.api} />
-			</div>
-			<div>
-				<TestPlaylists api={props.api} />
-			</div>
+			<Navbar>
+				<Container>
+					<Navbar.Brand>Prompter</Navbar.Brand>
+					<Nav className="me-auto">
+						<Nav.Item>
+							<Link className="nav-link" to="/store">
+								MobX playground
+							</Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Link className="nav-link" to="/backend">
+								Backend playground
+							</Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Link className="nav-link" to="/editor">
+								Editor playground
+							</Link>
+						</Nav.Item>
+					</Nav>
+				</Container>
+			</Navbar>
+			<Container>
+				<Outlet />
+			</Container>
 		</>
 	)
 }

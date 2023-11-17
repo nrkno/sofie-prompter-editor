@@ -2,10 +2,17 @@
 $primary: #1769ff;
 $dark: #252627;
 
-$font-sans-serif: Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+$font-family-sans-serif: Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
 	'Noto Color Emoji';
+$font-size-base: 0.875rem;
 
 $link-color: $primary;
+
+$border-radius: 3px;
+
+$btn-padding-x: 0.8em;
+$btn-padding-y: 0.4em;
+$btn-font-weight: 700;
 
 $theme-colors: (
 	'primary': $primary,
@@ -13,3 +20,11 @@ $theme-colors: (
 );
 
 @import 'bootstrap/scss/bootstrap';
+
+.btn {
+	letter-spacing: 0.2px;
+}
+
+:root {
+	-webkit-font-smoothing: antialiased;
+}
