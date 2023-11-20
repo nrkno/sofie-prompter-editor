@@ -10,4 +10,8 @@ export const PublishChannels = {
 	AllPlaylists: (): string => {
 		return `playlists`
 	},
+
+	OneSpecificPlaylist: (playlistId: string): string => {
+		return `playlists/${playlistId}`
+	},
 }

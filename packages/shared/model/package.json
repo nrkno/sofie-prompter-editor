@@ -11,7 +11,7 @@
         "watch": "run build:main -w --preserveWatchOutput",
         "build:main": "tsc -p tsconfig.json",
         "lint": "run -T eslint --ext .ts --ext .tsx --ext .js --ignore-pattern dist",
-        "__test": "jest"
+        "test": "jest"
     },
     "engines": {
         "node": ">=20.9.0"

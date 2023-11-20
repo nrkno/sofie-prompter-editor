@@ -1,7 +1,7 @@
-const base = require('../../../jest.config.base')
-const packageJson = require('./package')
+import base from '../../../jest.config.base.js'
+import packageJson from './package.json' assert { type: "json" }
 
-module.exports = {
+export default {
 	...base,
 	displayName: packageJson.name,
 }

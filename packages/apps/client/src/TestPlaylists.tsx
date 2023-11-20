@@ -1,28 +1,30 @@
 import React, { useEffect } from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
-import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { RundownPlaylist, RundownPlaylistId, patch } from '@sofie-prompter-editor/shared-model'
 
 export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 	const [ready, setReady] = React.useState(false)
 	const [connected, setConnected] = React.useState(false)
 	const [playlists, setPlaylists] = React.useState<Record<RundownPlaylistId, RundownPlaylist>>({})
 
-	const updatePlaylists = React.useCallback((id: RundownPlaylistId, data: RundownPlaylist | null) => {
-		if (data === null) {
+	const updatePlaylists = React.useCallback(
+		(id: RundownPlaylistId, data: (prev: RundownPlaylist | undefined) => RundownPlaylist | null) => {
 			setPlaylists((prev) => {
-				const d = { ...prev }
-				delete d[id]
-				return d
-			})
-		} else {
-			setPlaylists((prev) => {
-				return {
-					...prev,
-					[id]: data,
+				const newData = data(prev[id])
+				if (newData === null) {
+					const d = { ...prev }
+					delete d[id]
+					return d
+				} else {
+					return {
+						...prev,
+						[id]: newData,
+					}
 				}
 			})
-		}
-	}, [])
+		},
+		[]
+	)
 
 	useApiConnection(
 		(connected) => {
@@ -41,20 +43,38 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 				.catch(console.error)
 
 			api.playlist.on('created', (data) => {
-				updatePlaylists(data._id, data)
+				updatePlaylists(data._id, () => data)
 			})
 			api.playlist.on('updated', (data) => {
-				updatePlaylists(data._id, data)
+				updatePlaylists(data._id, () => data)
+			})
+			api.playlist.on('patched', (data) => {
+				updatePlaylists(data._id, (prev) => {
+					if (!prev) {
+						// We need to do a resync:
+						api.playlist
+							.get(data._id)
+							.then((playlist) => {
+								updatePlaylists(playlist._id, () => playlist)
+							})
+							.catch(console.error)
+
+						return patch({} as any, data)
+					} else {
+						return patch(prev, data)
+					}
+				})
 			})
 			api.playlist.on('removed', (id) => {
-				updatePlaylists(id, null)
+				updatePlaylists(id, () => null)
 			})
+
 			// Also fetch initial list:
 			api.playlist
 				.find()
 				.then((list) => {
 					console.log('list', list)
-					list.forEach((playlist) => updatePlaylists(playlist._id, playlist))
+					list.forEach((playlist) => updatePlaylists(playlist._id, () => playlist))
 				})
 				.catch(console.error)
 		},

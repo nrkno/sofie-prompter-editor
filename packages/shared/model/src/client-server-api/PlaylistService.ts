@@ -7,6 +7,7 @@ import {
 	assertConstIncludesAllMethods,
 } from './lib.js'
 import { RundownPlaylist } from '../model.js'
+import { Diff } from '../patch.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
@@ -27,7 +28,7 @@ interface Methods extends ServiceMethods {
 	get(id: Id, params?: Params): Promise<Data>
 	create(data: Data, params?: Params): Promise<Result>
 	update(id: NullId, data: Data, params?: Params): Promise<Result>
-	patch(id: NullId, data: PartialData, params?: Params): Promise<Result>
+	patch(id: NullId, data: PatchData, params?: Params): Promise<Result>
 	remove(id: NullId, params?: Params): Promise<Result>
 	//
 	subscribeToPlaylists(_?: unknown, params?: Params): Promise<void>
@@ -51,7 +52,7 @@ export const ALL_EVENTS = [
 export interface Events {
 	created: [data: Data]
 	updated: [data: Data]
-	patched: [data: PartialData]
+	patched: [data: PatchData]
 	removed: [id: Id]
 	//
 	tmpPong: [payload: string]
@@ -59,7 +60,7 @@ export interface Events {
 
 // Helper types for the default service methods:
 export type Data = RundownPlaylist
-export type PartialData = Partial<Data>
+export type PatchData = Diff<Data>
 export type Result = Pick<Data, '_id'>
 export type Id = Data['_id']
 export type NullId = Id | null

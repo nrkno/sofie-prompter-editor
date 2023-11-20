@@ -1,12 +1,18 @@
 import EventEmitter from 'eventemitter3'
 import { Application, PaginationParams, Params } from '@feathersjs/feathers'
-import { ServiceTypes, Services, PlaylistServiceDefinition as Definition } from '@sofie-prompter-editor/shared-model'
+import {
+	ServiceTypes,
+	Services,
+	PlaylistServiceDefinition as Definition,
+	diff,
+} from '@sofie-prompter-editor/shared-model'
 export { PlaylistServiceDefinition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
 import { CustomFeathersService } from './lib.js'
 import { Store } from '../../data-stores/Store.js'
 import { Lambda, observe } from 'mobx'
 import { LoggerInstance } from '../../lib/logger.js'
+import { Forbidden, NotFound } from '@feathersjs/errors'
 
 export type PlaylistFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
@@ -33,6 +39,9 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 		service.publish('updated', (_data, _context) => {
 			return app.channel(PublishChannels.AllPlaylists())
 		})
+		service.publish('patched', (_data, _context) => {
+			return app.channel(PublishChannels.AllPlaylists())
+		})
 		service.publish('removed', (_data, _context) => {
 			return app.channel(PublishChannels.AllPlaylists())
 		})
@@ -45,10 +54,13 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 		this.observers.push(
 			observe(this.store.playlists.playlists, (change) => {
 				this.log.info('observed change', change)
+
 				if (change.type === 'add') {
 					this.emit('created', change.newValue)
 				} else if (change.type === 'update') {
-					this.emit('updated', change.newValue)
+					const patch = diff(change.oldValue, change.newValue)
+					if (patch) this.emit('patched', patch)
+					// this.emit('updated', change.newValue)
 				} else if (change.type === 'delete') {
 					this.emit('removed', change.oldValue._id)
 				}
@@ -65,20 +77,41 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
 		return Array.from(this.store.playlists.playlists.values())
 	}
-	public async get(_id: Id, _params?: Params): Promise<Data> {
-		throw new Error('Not implemented')
+	public async get(id: Id, _params?: Params): Promise<Data> {
+		const data = this.store.playlists.playlists.get(id)
+		if (!data) throw new NotFound(`Playlist "${id}" not found`)
+		return data
 	}
 	public async create(_data: Data, _params?: Params): Promise<Result> {
-		throw new Error('Not implemented')
+		throw new Forbidden(`Not supported`)
+		// this.store.playlists.create(data)
+		// return this.get(data._id)
 	}
 	public async update(_id: NullId, _data: Data, _params?: Params): Promise<Result> {
-		throw new Error('Not implemented')
+		throw new Forbidden(`Not supported`)
+		// if (id === null) throw new BadRequest(`id must not be null`)
+		// if (id !== data._id) throw new BadRequest(`Cannot change id of playlist`)
+
+		// this.store.playlists.update(data)
+		// return this.get(data._id)
 	}
-	public async patch(_id: NullId, _data: PartialData, _params?: Params): Promise<Result> {
-		throw new Error('Not implemented')
+	public async patch(_id: NullId, _data: PatchData, _params?: Params): Promise<Result> {
+		throw new Forbidden(`Not supported`)
+		// if (id === null) throw new BadRequest(`id must not be null`)
+		// const existing = await this.get(id)
+		// const newData: RundownPlaylist = {
+		// 	...existing,
+		// 	...data,
+		// }
+		// this.store.playlists.update(newData)
+		// return newData
 	}
 	public async remove(_id: NullId, _params?: Params): Promise<Result> {
-		throw new Error('Not implemented')
+		throw new Forbidden(`Not supported`)
+		// if (id === null) throw new BadRequest(`id must not be null`)
+		// const existing = await this.get(id)
+		// this.store.playlists.remove(id)
+		// return existing
 	}
 	// public async setup?(app: Application, path: string): Promise<void> {
 	// 	throw new Error('Not implemented')
@@ -105,4 +138,4 @@ type Result = Definition.Result
 type Id = Definition.Id
 type NullId = Definition.NullId
 type Data = Definition.Data
-type PartialData = Definition.PartialData
+type PatchData = Definition.PatchData

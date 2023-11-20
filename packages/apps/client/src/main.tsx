@@ -19,7 +19,7 @@ api.playlist.on('created', (payload) => {
 	console.log(`playlist created: "${JSON.stringify(payload)}"`)
 })
 api.playlist.on('patched', (payload) => {
-	assertType<Partial<RundownPlaylist>>(payload)
+	// assertType<Partial<RundownPlaylist>>(payload)
 	console.log(`playlist patched: "${JSON.stringify(payload)}"`)
 })
 api.playlist.on('updated', (payload) => {
