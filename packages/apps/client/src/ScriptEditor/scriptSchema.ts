@@ -7,7 +7,7 @@ export const schema = new Schema({
 
 		paragraph: nodes.paragraph,
 
-		partTitle: {
+		lineTitle: {
 			group: 'title',
 			content: 'text*',
 			atom: true,
@@ -17,20 +17,22 @@ export const schema = new Schema({
 			selectable: false,
 			locked: true,
 			toDOM() {
-				return ['h2', { class: 'PartSlug', contenteditable: 'false' }, 0]
+				return ['h3', { class: 'LineSlug', contenteditable: 'false' }, 0]
 			},
 		},
-		part: {
+		line: {
 			group: 'block',
-			content: 'partTitle paragraph*',
-			partId: {
-				default: null,
+			content: 'lineTitle paragraph*',
+			attrs: {
+				lineId: {
+					default: null,
+				},
 			},
 			isolating: true,
 			draggable: false,
 			selectable: false,
 			toDOM() {
-				return ['div', { class: 'part' }, 0]
+				return ['div', { class: 'Line' }, 0]
 			},
 		},
 
@@ -49,12 +51,12 @@ export const schema = new Schema({
 		},
 		segment: {
 			group: 'block',
-			content: 'segmentTitle part*',
+			content: 'segmentTitle line*',
 			isolating: true,
 			draggable: false,
 			selectable: false,
 			toDOM() {
-				return ['div', { class: 'segment' }, 0]
+				return ['div', { class: 'Segment' }, 0]
 			},
 		},
 
@@ -78,7 +80,7 @@ export const schema = new Schema({
 			draggable: false,
 			selectable: false,
 			toDOM() {
-				return ['div', { class: 'rundown' }, 0]
+				return ['div', { class: 'Rundown' }, 0]
 			},
 		},
 

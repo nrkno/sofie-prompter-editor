@@ -27,24 +27,15 @@ export function Editor({
 	void initialValue
 
 	useEffect(() => {
-		function onKeyDown(ev: KeyboardEvent) {
-			console.log(ev)
-			if (ev.key === 'w' && ev.ctrlKey) {
-				ev.preventDefault()
-			}
-		}
-
 		function onBeforeUnload(ev: BeforeUnloadEvent) {
 			ev.stopPropagation()
 			ev.preventDefault()
 			return false
 		}
 
-		window.addEventListener('keydown', onKeyDown)
 		window.addEventListener('beforeunload', onBeforeUnload, { capture: true })
 
 		return () => {
-			window.removeEventListener('keydown', onKeyDown)
 			window.removeEventListener('beforeunload', onBeforeUnload, { capture: true })
 		}
 	}, [])
@@ -57,32 +48,32 @@ export function Editor({
 			schema.node(schema.nodes.segment, undefined, [
 				schema.node(schema.nodes.segmentTitle, undefined, schema.text('Segment Title')),
 				schema.node(
-					schema.nodes.part,
+					schema.nodes.line,
 					{
-						partId: randomId(),
+						lineId: randomId(),
 					},
 					[
-						schema.node(schema.nodes.partTitle, undefined, schema.text('Part title')),
+						schema.node(schema.nodes.lineTitle, undefined, schema.text('Line title')),
 						schema.node(schema.nodes.paragraph, undefined, schema.text('Script...')),
 					]
 				),
 				schema.node(
-					schema.nodes.part,
+					schema.nodes.line,
 					{
-						partId: randomId(),
+						lineId: randomId(),
 					},
 					[
-						schema.node(schema.nodes.partTitle, undefined, schema.text('Part title')),
+						schema.node(schema.nodes.lineTitle, undefined, schema.text('Line title')),
 						schema.node(schema.nodes.paragraph, undefined, schema.text('Script...')),
 					]
 				),
 				schema.node(
-					schema.nodes.part,
+					schema.nodes.line,
 					{
-						partId: randomId(),
+						lineId: randomId(),
 					},
 					[
-						schema.node(schema.nodes.partTitle, undefined, schema.text('Part title')),
+						schema.node(schema.nodes.lineTitle, undefined, schema.text('Line title')),
 						schema.node(schema.nodes.paragraph, undefined, schema.text('Script...')),
 					]
 				),
@@ -98,7 +89,7 @@ export function Editor({
 				keymap(formatingKeymap),
 				keymap(baseKeymap),
 				readOnlyNodeFilter(),
-				updateModel(),
+				updateModel(console.log),
 			],
 			doc,
 		})
