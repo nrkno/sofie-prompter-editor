@@ -3,34 +3,112 @@ import { nodes } from 'prosemirror-schema-basic'
 
 export const schema = new Schema({
 	nodes: {
-		unmarkedText: {
-			inline: true,
-			marks: '',
-		},
 		text: nodes.text,
+
 		paragraph: nodes.paragraph,
-		segmentHeading: {
-			group: 'block',
-			content: 'unmarkedText',
+
+		partTitle: {
+			group: 'title',
+			content: 'text*',
 			atom: true,
+			marks: '',
+			isolating: true,
+			draggable: false,
+			selectable: false,
+			locked: true,
+			toDOM() {
+				return ['h2', { class: 'PartSlug', contenteditable: 'false' }, 0]
+			},
 		},
-		partHeading: {
+		part: {
 			group: 'block',
-			content: 'unmarkedText',
-			atom: true,
+			content: 'partTitle paragraph*',
+			partId: {
+				default: null,
+			},
+			isolating: true,
+			draggable: false,
+			selectable: false,
+			toDOM() {
+				return ['div', { class: 'part' }, 0]
+			},
 		},
-		rundownHeading: {
+
+		segmentTitle: {
+			group: 'title',
+			content: 'text*',
+			atom: true,
+			isolating: true,
+			draggable: false,
+			selectable: false,
+			locked: true,
+			marks: '',
+			toDOM() {
+				return ['h2', { class: 'SegmentTitle', contenteditable: 'false' }, 0]
+			},
+		},
+		segment: {
 			group: 'block',
-			content: 'unmarkedText',
-			atom: true,
+			content: 'segmentTitle part*',
+			isolating: true,
+			draggable: false,
+			selectable: false,
+			toDOM() {
+				return ['div', { class: 'segment' }, 0]
+			},
 		},
-		doc: { content: 'block*' },
+
+		rundownTitle: {
+			group: 'title',
+			content: 'text*',
+			atom: true,
+			isolating: true,
+			draggable: false,
+			selectable: false,
+			locked: true,
+			marks: '',
+			toDOM() {
+				return ['h1', { class: 'RundownTitle', contenteditable: 'false' }, 0]
+			},
+		},
+		rundown: {
+			group: 'block',
+			content: 'rundownTitle segment*',
+			isolating: true,
+			draggable: false,
+			selectable: false,
+			toDOM() {
+				return ['div', { class: 'rundown' }, 0]
+			},
+		},
+
+		doc: { content: 'rundown*' },
 	},
 	marks: {
-		bold: {},
-		italic: {},
-		underline: {},
-		hidden: {},
-		reverse: {},
+		bold: {
+			toDOM() {
+				return ['b', 0]
+			},
+		},
+		italic: {
+			toDOM() {
+				return ['i', 0]
+			},
+		},
+		underline: {
+			toDOM() {
+				return ['u', 0]
+			},
+		},
+		hidden: {
+			toDOM() {
+				return ['s', 0]
+			},
+		},
+		reverse: {
+			toDOM() {
+				return ['rev', 0]
+			},
+		},
 	},
 })

@@ -1,0 +1,48 @@
+.Prompter {
+	--background-color: #000;
+	--foreground-color: #fff;
+	--header-color: #999;
+
+	color: var(--foreground-color);
+	background: var(--background-color);
+
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	white-space: break-spaces;
+}
+
+.Prompter p {
+	margin: 0;
+	padding: 0;
+}
+
+.Prompter b {
+	font-weight: 700;
+}
+
+.Prompter i {
+	font-style: italic;
+}
+
+.Prompter u {
+	text-decoration: underline;
+}
+
+.Prompter s {
+	text-decoration: none;
+	opacity: 0.3;
+}
+
+.Prompter rev {
+	background-color: var(--foreground-color);
+	color: var(--background-color);
+}
+
+.Prompter h1,
+.Prompter h2,
+.Prompter h3 {
+	background-color: var(--header-color);
+	color: var(--background-color);
+	user-select: none;
+	margin: 1em 0;
+}
