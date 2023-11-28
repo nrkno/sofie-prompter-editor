@@ -2,16 +2,17 @@ import React from 'react'
 import { observer } from 'mobx-react-lite'
 import { AppStore } from '../stores/AppStore'
 import { UIRundownId } from '../model/UIRundown'
-import { action } from 'mobx'
 import { Button } from 'react-bootstrap'
+import { useNavigate } from 'react-router-dom'
 
-const RundownEntry = observer(({ rundownId }: { rundownId: UIRundownId }): React.JSX.Element => {
+export const RundownEntry = observer(({ rundownId }: { rundownId: UIRundownId }): React.JSX.Element => {
 	const rundownEntry = AppStore.rundownStore.allRundowns.get(rundownId)
+	const navigate = useNavigate()
 
-	const onOpen = action(() => {
+	const onOpen = () => {
 		if (!rundownEntry) return
-		AppStore.rundownStore.loadRundown(rundownEntry.playlistId)
-	})
+		navigate(`/rundown/${rundownEntry.playlistId}`)
+	}
 
 	return (
 		<p>
@@ -20,5 +21,3 @@ const RundownEntry = observer(({ rundownId }: { rundownId: UIRundownId }): React
 	)
 })
 RundownEntry.displayName = 'RundownEntry'
-
-export { RundownEntry }

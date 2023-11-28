@@ -5,7 +5,7 @@ import { AppStore } from '../stores/AppStore'
 import { UIRundownId } from '../model/UIRundown'
 import { RundownEntry } from './RundownEntry'
 
-const RundownList = observer((): React.JSX.Element => {
+export const RundownList = observer((): React.JSX.Element => {
 	const allRundownIds = keys<UIRundownId>(AppStore.rundownStore.allRundowns)
 
 	return (
@@ -21,5 +21,3 @@ const RundownList = observer((): React.JSX.Element => {
 	)
 })
 RundownList.displayName = 'RundownList'
-
-export { RundownList }

@@ -1,6 +1,8 @@
 /* The following line can be included in a src/App.scss */
 $primary: #1769ff;
-$dark: #252627;
+//$dark: #252627; // this is Origo's original dark color
+$dark: #1d1d1d;
+$body-bg-dark: $dark;
 
 $font-family-sans-serif: Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
 	'Noto Color Emoji';

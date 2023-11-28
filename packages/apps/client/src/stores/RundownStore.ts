@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, action } from 'mobx'
+import { makeAutoObservable, observable, action, flow } from 'mobx'
 import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, AppStore } from './AppStore'
 import { UIRundown, UIRundownId } from '../model/UIRundown'
@@ -22,21 +22,18 @@ export class RundownStore {
 		this.loadAllRudnowns()
 	}
 
-	loadAllRudnowns() {
-		this.connection.playlist.find().then(
-			action('receiveRundowns', (playlists) => {
-				// add UIRundownEntries to allRundowns
+	loadAllRudnowns = flow(function* (this: RundownStore) {
+		const playlists = yield this.connection.playlist.find()
+		// add UIRundownEntries to allRundowns
 
-				this.clearAllRundowns()
+		this.clearAllRundowns()
 
-				for (const playlist of playlists) {
-					const newRundownEntry = new UIRundownEntry(this, playlist._id)
-					this.allRundowns.set(newRundownEntry.id, newRundownEntry)
-					newRundownEntry.updateFromJson(playlist)
-				}
-			})
-		)
-	}
+		for (const playlist of playlists) {
+			const newRundownEntry = new UIRundownEntry(this, playlist._id)
+			this.allRundowns.set(newRundownEntry.id, newRundownEntry)
+			newRundownEntry.updateFromJson(playlist)
+		}
+	})
 
 	clearAllRundowns() {
 		for (const rundown of this.allRundowns.values()) {
@@ -44,21 +41,17 @@ export class RundownStore {
 		}
 	}
 
-	loadRundown(id: RundownPlaylistId) {
+	loadRundown = flow(function* (this: RundownStore, id: RundownPlaylistId) {
 		this.openRundown?.close()
 		// get a full rundown from backend and create a UIRundown object
 		// assign to openRundown
-		this.connection.playlist.get(id).then(
-			action('receiveRundown', (playlist) => {
-				if (!playlist) {
-					console.error('Playlist not found!')
-					return
-				}
+		const playlist = yield this.connection.playlist.get(id)
+		if (!playlist) {
+			throw new Error('Playlist not found')
+		}
 
-				const newRundown = new UIRundown(this, playlist._id)
-				newRundown.updateFromJson(playlist)
-				this.openRundown = newRundown
-			})
-		)
-	}
+		const newRundown = new UIRundown(this, playlist._id)
+		newRundown.updateFromJson(playlist)
+		this.openRundown = newRundown
+	})
 }

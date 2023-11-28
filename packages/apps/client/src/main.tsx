@@ -7,8 +7,13 @@ import { MobXPlayground } from './MobXPlayground/MobXPlayground.tsx'
 import { BackendPlayground } from './BackendPlayground/BackendPlayground.tsx'
 import { ScriptEditor } from './ScriptEditor/ScriptEditor.tsx'
 import { HelmetProvider } from 'react-helmet-async'
+import { RundownScript } from './RundownScript/RundownScript.tsx'
 
 const router = createBrowserRouter([
+	{
+		path: '/rundown/:playlistId',
+		element: <RundownScript />,
+	},
 	{
 		path: '/',
 		element: <App />,
