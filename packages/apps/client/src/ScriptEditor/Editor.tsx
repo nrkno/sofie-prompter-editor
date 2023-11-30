@@ -11,6 +11,7 @@ import { readOnlyNodeFilter } from './plugins/readOnlyNodeFilter'
 import { randomId } from '../lib/lib'
 import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
+import { fromMarkdown } from '../lib/prosemirrorDoc'
 
 export function Editor({
 	initialValue,
@@ -26,18 +27,24 @@ export function Editor({
 
 	void initialValue
 
+	// useEffect(() => {
+	// 	function onBeforeUnload(ev: BeforeUnloadEvent) {
+	// 		ev.stopPropagation()
+	// 		ev.preventDefault()
+	// 		return false
+	// 	}
+
+	// 	window.addEventListener('beforeunload', onBeforeUnload, { capture: true })
+
+	// 	return () => {
+	// 		window.removeEventListener('beforeunload', onBeforeUnload, { capture: true })
+	// 	}
+	// }, [])
+
 	useEffect(() => {
-		function onBeforeUnload(ev: BeforeUnloadEvent) {
-			ev.stopPropagation()
-			ev.preventDefault()
-			return false
-		}
-
-		window.addEventListener('beforeunload', onBeforeUnload, { capture: true })
-
-		return () => {
-			window.removeEventListener('beforeunload', onBeforeUnload, { capture: true })
-		}
+		const test = 'Raz dwa trzy **cztery pięć** sześć. ABC :reverse[Siedem osiem] dziewięć.'
+		const data = fromMarkdown(test)
+		console.log(data)
 	}, [])
 
 	useEffect(() => {
