@@ -67,7 +67,7 @@ export interface Segment extends DataObject {
 	/** User-facing identifier that can be used by the User to identify the contents of a segment in the Rundown source system */
 	// identifier?: string
 
-	timing: {
+	timing?: {
 		expectedStart?: number
 		expectedEnd?: number
 		budgetDuration?: number

@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "packages/apps/*",
-    "packages/shared/*"
+    "packages/shared/*",
+    "packages/libs/*"
   ],
   "scripts": {
     "release:bump-release": "lerna version --conventional-commits --conventional-graduate --exact --no-push",

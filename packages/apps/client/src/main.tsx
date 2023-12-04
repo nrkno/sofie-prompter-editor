@@ -1,45 +1,44 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
-import './index.css'
-import { APIConnection } from './api/ApiConnection.ts'
-import { assertType } from '@sofie-prompter-editor/shared-lib'
-import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import './index.scss'
+import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { MobXPlayground } from './MobXPlayground/MobXPlayground.tsx'
+import { BackendPlayground } from './BackendPlayground/BackendPlayground.tsx'
+import { ScriptEditor } from './ScriptEditor/ScriptEditor.tsx'
+import { HelmetProvider } from 'react-helmet-async'
+import { RundownScript } from './RundownScript/RundownScript.tsx'
 
-const api = new APIConnection()
-api.on('connected', () => console.log('connected'))
-api.on('disconnected', () => console.log('disconnected'))
+const router = createBrowserRouter([
+	{
+		path: '/rundown/:playlistId',
+		element: <RundownScript />,
+	},
+	{
+		path: '/',
+		element: <App />,
+		children: [
+			{
+				path: 'store',
+				element: <MobXPlayground />,
+			},
+			{
+				path: 'backend',
+				element: <BackendPlayground />,
+			},
 
-api.playlist.on('tmpPong', (payload) => {
-	assertType<string>(payload)
-	console.log(`Got a tmpPong message: "${payload}"`)
-})
-api.playlist.on('created', (payload) => {
-	assertType<RundownPlaylist>(payload)
-	console.log(`playlist created: "${JSON.stringify(payload)}"`)
-})
-api.playlist.on('patched', (payload) => {
-	// assertType<Partial<RundownPlaylist>>(payload)
-	console.log(`playlist patched: "${JSON.stringify(payload)}"`)
-})
-api.playlist.on('updated', (payload) => {
-	assertType<RundownPlaylist>(payload)
-	console.log(`playlist updated: "${JSON.stringify(payload)}"`)
-})
-api.playlist.on('removed', (id) => {
-	assertType<RundownPlaylistId>(id)
-	console.log(`playlist removed: "${id}"`)
-})
-api.example.on('pongGeneric', (payload) => {
-	assertType<string>(payload)
-	console.log(`Got a pongGeneric message: "${payload}"`)
-})
-api.example.on('pongCategory', (message) => {
-	console.log(`Got a pongCategory "${message.category}" message: "${message.payload}"`)
-})
+			{
+				path: 'editor',
+				element: <ScriptEditor />,
+			},
+		],
+	},
+])
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
-		<App api={api} />
+		<HelmetProvider>
+			<RouterProvider router={router} />
+		</HelmetProvider>
 	</React.StrictMode>
 )

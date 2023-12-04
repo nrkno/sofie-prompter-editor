@@ -1,38 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import { TestInterface } from './TestInterface.tsx'
-import { APIConnection } from './api/ApiConnection.ts'
+import React, { useEffect } from 'react'
 
 import './App.css'
-import { TestPlaylists } from './TestPlaylists.tsx'
-function App(props: { api: APIConnection }) {
-	const [count, setCount] = useState(0)
+import { Helmet } from 'react-helmet-async'
+import { Container, Nav, Navbar } from 'react-bootstrap'
+import { Link, Outlet } from 'react-router-dom'
 
+function App(): React.JSX.Element {
 	return (
 		<>
-			<div>
-				<a href="https://vitejs.dev" target="_blank">
-					<img src={viteLogo} className="logo" alt="Vite logo" />
-				</a>
-				<a href="https://react.dev" target="_blank">
-					<img src={reactLogo} className="logo react" alt="React logo" />
-				</a>
-			</div>
-			<h1>Vite + React</h1>
-			<div className="card">
-				<button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
-				<p>
-					Edit <code>src/App.tsx</code> and save to test HMR
-				</p>
-			</div>
-			<p className="read-the-docs">Click on the Vite and React logos to learn more!!</p>
-			<div>
-				<TestInterface api={props.api} />
-			</div>
-			<div>
-				<TestPlaylists api={props.api} />
-			</div>
+			<Helmet>
+				<title>App</title>
+				<body data-bs-theme="dark" />
+			</Helmet>
+			<Navbar>
+				<Container>
+					<Navbar.Brand>Prompter</Navbar.Brand>
+					<Nav className="me-auto">
+						<Nav.Item>
+							<Link className="nav-link" to="/store">
+								MobX playground
+							</Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Link className="nav-link" to="/backend">
+								Backend playground
+							</Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Link className="nav-link" to="/editor">
+								Editor playground
+							</Link>
+						</Nav.Item>
+					</Nav>
+				</Container>
+			</Navbar>
+			<Container>
+				<Outlet />
+			</Container>
 		</>
 	)
 }

@@ -1,5 +1,13 @@
-import { computed, makeAutoObservable, observable } from 'mobx'
-import { ProtectedString, RundownPlaylist, RundownPlaylistId, protectString } from 'packages/shared/model/dist'
+import { action, computed, makeAutoObservable, observable } from 'mobx'
+import {
+	ProtectedString,
+	Rundown,
+	RundownId,
+	RundownPlaylist,
+	RundownPlaylistId,
+	Segment,
+	protectString,
+} from '@sofie-prompter-editor/shared-model'
 import { UISegment, UISegmentId } from './UISegment'
 import { RundownStore } from '../stores/RundownStore'
 import { randomId } from '../lib/lib'
@@ -11,26 +19,82 @@ export class UIRundown {
 
 	segments = observable.map<UISegmentId, UISegment>()
 
+	private rundowns = observable.map<RundownId, Rundown>()
+
 	constructor(
 		private store: RundownStore,
 		public playlistId: RundownPlaylistId,
 		public id = protectString<UIRundownId>(randomId())
 	) {
 		makeAutoObservable(this, {
-			segmentIdsInOrder: computed,
+			updateFromJson: action,
+			segmentsInOrder: computed,
+			close: action,
 		})
 
-		void this.store
+		this.store.connection.rundown
+			.find({
+				query: {
+					playlistId: this.playlistId,
+				},
+			})
+			.then(
+				action('receiveRundowns', (rundowns) => {
+					return Promise.all(
+						rundowns.map((rundown) => {
+							this.rundowns.set(rundown._id, rundown)
+							return this.store.connection.segment.find({
+								query: {
+									rundownId: rundown._id,
+								},
+							})
+						})
+					)
+				})
+			)
+			.then((segmentArrays) => segmentArrays.flat())
+			.then(
+				action('receiveSegments', (segments) => {
+					for (const segment of segments) {
+						const newSegment = new UISegment(this.store, this, segment._id)
+						this.segments.set(newSegment.id, newSegment)
+						newSegment.updateFromJson(segment)
+					}
+				})
+			)
 
 		// get all segments
-		// this.store.connection.segment.find({
-		//     query: {
-		//         playlistId:
-		//     }
-		// })
 
 		// register callbacks for events
-		// this.store.connection.segment.on('created')
+
+		// we track playlist changed and removed
+		this.store.connection.playlist.on('changed', (json: RundownPlaylist) => {
+			if (json._id !== this.playlistId) return
+
+			this.updateFromJson(json)
+		})
+
+		this.store.connection.playlist.on('removed', (id: RundownPlaylistId) => {
+			if (id !== this.playlistId) return
+
+			this.close()
+		})
+
+		// we track rundown created, changed and removed, because we own Rundowns
+		this.store.connection.rundown.on('created', (json: Rundown) => {})
+
+		this.store.connection.rundown.on('changed', (json: Rundown) => {})
+
+		this.store.connection.rundown.on('removed', (id: RundownId) => {
+			this.rundowns.delete(id)
+		})
+
+		// we track segment created so that we can add new Segments when they are added
+		this.store.connection.segment.on('created', (json: Segment) => {
+			const newSegment = new UISegment(this.store, this, json._id)
+			this.segments.set(newSegment.id, newSegment)
+			newSegment.updateFromJson(json)
+		})
 	}
 
 	updateFromJson(json: RundownPlaylist) {
@@ -38,8 +102,18 @@ export class UIRundown {
 		this.ready = true
 	}
 
-	get segmentIdsInOrder(): UISegmentId[] {
-		return []
+	get segmentsInOrder(): UISegment[] {
+		return Array.from(this.segments.values()).sort((a, b) => {
+			if (a.rundownId === b.rundownId) return a.rank - b.rank
+			const rundownRankA = a.rundownId ? this.rundowns.get(a.rundownId)?.rank ?? 0 : 0
+			const rundownRankB = b.rundownId ? this.rundowns.get(b.rundownId)?.rank ?? 0 : 0
+			return rundownRankA - rundownRankB
+		})
+	}
+
+	close(): void {
+		this.store.openRundown = null
+		this.dispose()
 	}
 
 	dispose(): void {

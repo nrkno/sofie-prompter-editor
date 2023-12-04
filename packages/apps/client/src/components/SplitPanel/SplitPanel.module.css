@@ -1,0 +1,28 @@
+.SplitPane {
+	--divider-width: 5px;
+	display: grid;
+	grid-template-rows: auto;
+	grid-template-columns: [PaneA] var(--position-a, 1fr) [Divider] var(--divider-width) [PaneB] var(--position-b, 1fr);
+	gap: 2px;
+}
+
+.PaneA {
+	grid-column: PaneA;
+	overflow: auto;
+}
+
+.Divider {
+	grid-column: Divider;
+	--test: 1;
+	cursor: ew-resize;
+}
+
+.Divider:hover,
+.DividerActive {
+	background-color: var(--bs-primary);
+}
+
+.PaneB {
+	grid-column: PaneB;
+	overflow: auto;
+}
