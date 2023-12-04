@@ -60,8 +60,10 @@ export function Editor({
 						lineId: randomId(),
 					},
 					[
-						schema.node(schema.nodes.lineTitle, undefined, schema.text('Line title')),
-						schema.node(schema.nodes.paragraph, undefined, schema.text('Script...')),
+						schema.node(schema.nodes.lineTitle, undefined, [schema.text('Line title')]),
+						...fromMarkdown(
+							'Raz _dwa **trzy**_. :reverse[Cztery.]\n\nPięć _sześć_ siedem.\n\n\n\n\n\nSome more :reverse[Markdown **Here**]'
+						),
 					]
 				),
 				schema.node(

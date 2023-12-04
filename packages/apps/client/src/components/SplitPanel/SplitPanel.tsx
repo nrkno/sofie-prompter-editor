@@ -19,6 +19,7 @@ export function SplitPanel({
 	const beginCoords = useRef<{ x: number; y: number } | null>(null)
 	const initialPos = useRef<number>(position ?? 0.5)
 	const container = useRef<HTMLDivElement>(null)
+	const divider = useRef<HTMLDivElement>(null)
 	const contRect = useRef<DOMRect | null>(null)
 
 	const defaultedPosition = position ?? 0.5
@@ -83,10 +84,28 @@ export function SplitPanel({
 		initialPos.current = defaultedPosition
 	}, [isResizing, defaultedPosition])
 
+	useEffect(() => {
+		if (isResizing) {
+			if (!divider.current) return
+			const style = window.getComputedStyle(divider.current)
+			document.body.style.cursor = style.cursor
+		} else {
+			document.body.style.cursor = ''
+		}
+
+		return () => {
+			document.body.style.cursor = ''
+		}
+	}, [isResizing])
+
 	return (
 		<div className={`${className ?? ''} ${classes.SplitPane}`} style={style} ref={container}>
 			<div className={classes.PaneA}>{childrenBegin}</div>
-			<div className={isResizing ? classes.DividerActive : classes.Divider} onMouseDown={onMouseDown}></div>
+			<div
+				className={isResizing ? classes.DividerActive : classes.Divider}
+				ref={divider}
+				onMouseDown={onMouseDown}
+			></div>
 			<div className={classes.PaneB}>{childrenEnd}</div>
 		</div>
 	)

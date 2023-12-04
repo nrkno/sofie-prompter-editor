@@ -13,12 +13,15 @@
 
 .Divider {
 	grid-column: Divider;
-	--test: 1;
 	cursor: ew-resize;
 }
 
-.Divider:hover,
 .DividerActive {
+	composes: Divider;
+	background-color: var(--bs-primary);
+}
+
+.Divider:hover {
 	background-color: var(--bs-primary);
 }
 

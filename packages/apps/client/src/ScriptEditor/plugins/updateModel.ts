@@ -20,7 +20,7 @@ export function updateModel(onChange?: (lineId: UILineId, contents: SomeContents
 								if (!parent) return
 								if (parent.type.name !== 'line') return
 
-								if (onChange) onChange(lineId, parent.toString())
+								if (onChange) onChange(lineId, parent)
 							})
 						})
 					})
