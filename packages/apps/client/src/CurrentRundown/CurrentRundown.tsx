@@ -4,6 +4,7 @@ import { observer } from 'mobx-react-lite'
 import { AppStore } from '../stores/AppStore'
 import { Segment } from './Segment'
 import { Button } from 'react-bootstrap'
+import classes from './CurrentRundown.module.scss'
 
 const CurrentRundown = observer((): React.JSX.Element => {
 	const openRundown = AppStore.rundownStore.openRundown
@@ -24,9 +25,9 @@ const CurrentRundown = observer((): React.JSX.Element => {
 					Close
 				</Button>
 			</p>
-			<ul>
+			<ul className={classes.SegmentLineList}>
 				{openRundown.segmentsInOrder.map((segment) => (
-					<li key={segment.id}>
+					<li key={segment.id} className={classes.SegmentContainer}>
 						<Segment segment={segment} />
 					</li>
 				))}

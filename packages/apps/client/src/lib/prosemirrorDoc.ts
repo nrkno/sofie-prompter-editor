@@ -5,11 +5,12 @@ import { Node as ProsemirrorNode } from 'prosemirror-model'
 import { directive } from 'micromark-extension-directive'
 import { schema } from '../ScriptEditor/scriptSchema'
 import { directiveFromMarkdown, directiveToMarkdown } from 'mdast-util-directive'
+import { everyLineAParagraph } from './mdExtensions/everyLineAParagraph'
 
 export function fromMarkdown(text: string): ProsemirrorNode[] {
 	const ast = mdAstFromMarkdown(text, 'utf-8', {
 		extensions: [directive()],
-		mdastExtensions: [directiveFromMarkdown()],
+		mdastExtensions: [everyLineAParagraph(), directiveFromMarkdown()],
 	})
 
 	return traverseMdAstNodes(ast.children)
@@ -28,9 +29,10 @@ export function toMarkdown(doc: ProsemirrorNode[]): string {
 }
 
 function mdastToEditorSchemaNode(node: MdAstNode, children?: ProsemirrorNode[]): ProsemirrorNode[] {
-	console.log(node)
 	if (node.type === 'paragraph') {
 		return [schema.node(schema.nodes.paragraph, undefined, children)]
+	} else if (isLeafDirective(node) && node.name === 'emptyPara') {
+		return [schema.node(schema.nodes.paragraph, undefined, [])]
 	} else if (node.type === 'text' && isLiteral(node)) {
 		return [schema.text(node.value)]
 	} else if (node.type === 'strong' && children) {
@@ -39,7 +41,10 @@ function mdastToEditorSchemaNode(node: MdAstNode, children?: ProsemirrorNode[]):
 		return children.map((child) => child.mark([...child.marks, schema.mark(schema.marks.italic)]))
 	} else if (isTextDirective(node) && node.name === 'reverse' && children) {
 		return children.map((child) => child.mark([...child.marks, schema.mark(schema.marks.reverse)]))
+	} else if (node.type === 'break') {
+		return [schema.text('\n')]
 	} else {
+		console.warn(node)
 		return [schema.text('[UNKNOWN]')]
 	}
 }
@@ -69,6 +74,11 @@ function isLiteral(node: MdAstNode): node is MdAstLiteral {
 
 function isTextDirective(node: MdAstNode): node is MdAstTextDirective {
 	if (node.type === 'textDirective' && 'name' in node) return true
+	return false
+}
+
+function isLeafDirective(node: MdAstNode): node is MdAstTextDirective {
+	if (node.type === 'leafDirective' && 'name' in node) return true
 	return false
 }
 
