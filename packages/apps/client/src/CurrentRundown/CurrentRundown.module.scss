@@ -1,9 +1,9 @@
 .SegmentLineList {
 	display: grid;
-	grid-template-columns: 1fr 4em 6em 2fr 5fr 1fr 1fr;
+	grid-template-columns: 1fr 3em 4em 2fr 5fr 1fr 1fr;
 	padding: 0;
 	margin: 0;
-	--table-gap-size: 1px;
+	--table-gap-size: 2px;
 	gap: var(--table-gap-size);
 }
 
@@ -41,6 +41,8 @@
 
 .LineItem {
 	background: var(--color-dark-2);
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 
 .LineIdentifier {

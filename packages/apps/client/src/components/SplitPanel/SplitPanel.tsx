@@ -25,6 +25,7 @@ export function SplitPanel({
 	const defaultedPosition = position ?? 0.5
 
 	function onMouseDown(e: React.MouseEvent) {
+		if (e.button !== 0) return
 		setIsResizing(true)
 		beginCoords.current = { x: e.clientX, y: e.clientY }
 		contRect.current = container.current?.getBoundingClientRect() ?? null
@@ -57,6 +58,7 @@ export function SplitPanel({
 		}
 
 		function onMouseUp(e: MouseEvent) {
+			if (e.button !== 0) return
 			setIsResizing(false)
 		}
 
