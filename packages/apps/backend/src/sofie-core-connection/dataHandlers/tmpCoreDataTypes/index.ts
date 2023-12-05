@@ -4,4 +4,9 @@
  */
 
 export * from './RundownPlaylist'
+export * from './Rundown'
+export * from './Segment'
+export * from './Part'
 export * from './Ids'
+
+export { ProtectedString } from '@sofie-automation/server-core-integration'

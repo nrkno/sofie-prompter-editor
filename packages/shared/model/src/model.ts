@@ -17,6 +17,9 @@ export interface RundownPlaylist extends DataObject {
 	created: number
 	modified: number
 
+	/** Is false while data is being loaded from Core */
+	loaded: boolean
+
 	/** If the playlist is active or not */
 	isActive: boolean
 	/** Is the playlist in rehearsal mode (can be used, when active: true) */
@@ -38,6 +41,10 @@ export interface Rundown extends DataObject {
 	_id: RundownId
 
 	playlistId: RundownPlaylistId
+
+	/** User-presentable name (Slug) for the Title */
+	label: string
+
 	/** The position of the Rundown within its Playlist */
 	rank: number
 
@@ -53,7 +60,9 @@ export interface Rundown extends DataObject {
 export type SegmentId = ProtectedString<'SegmentId', string>
 export interface Segment extends DataObject {
 	_id: SegmentId
+	playlistId: RundownPlaylistId
 	rundownId: RundownId
+
 	/** The position of the Segment within its Rundown */
 	rank: number
 
@@ -77,6 +86,7 @@ export interface Segment extends DataObject {
 export type PartId = ProtectedString<'PartId', string>
 export interface Part extends DataObject {
 	_id: PartId
+	playlistId: RundownPlaylistId
 	rundownId: RundownId
 	segmentId: SegmentId
 	/** The position of the Part within its Segment */

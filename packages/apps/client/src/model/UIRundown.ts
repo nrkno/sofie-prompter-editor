@@ -81,9 +81,9 @@ export class UIRundown {
 		})
 
 		// we track rundown created, changed and removed, because we own Rundowns
-		this.store.connection.rundown.on('created', (json: Rundown) => {})
+		this.store.connection.rundown.on('created', (_json: Rundown) => {})
 
-		this.store.connection.rundown.on('changed', (json: Rundown) => {})
+		this.store.connection.rundown.on('changed', (_json: Rundown) => {})
 
 		this.store.connection.rundown.on('removed', (id: RundownId) => {
 			this.rundowns.delete(id)

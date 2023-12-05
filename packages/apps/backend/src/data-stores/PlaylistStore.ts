@@ -21,7 +21,6 @@ export class PlaylistStore {
 		this._updateIfChanged(playlist)
 	}
 	remove(playlistId: RundownPlaylistId) {
-		console.log('a')
 		this._deleteIfChanged(playlistId)
 	}
 

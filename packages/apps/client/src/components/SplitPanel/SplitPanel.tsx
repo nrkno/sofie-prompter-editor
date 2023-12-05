@@ -44,7 +44,7 @@ export function SplitPanel({
 			if (!beginCoords.current || !contRect.current) return
 
 			const diffX = (e.clientX - beginCoords.current.x) / contRect.current.width
-			const diffY = (e.clientY - beginCoords.current.y) / contRect.current.height
+			// const diffY = (e.clientY - beginCoords.current.y) / contRect.current.height
 
 			const newValue = Math.max(0, Math.min(1, initialPos.current + diffX))
 
@@ -55,7 +55,7 @@ export function SplitPanel({
 			e.preventDefault()
 		}
 
-		function onMouseUp(e: MouseEvent) {
+		function onMouseUp(_e: MouseEvent) {
 			setIsResizing(false)
 		}
 

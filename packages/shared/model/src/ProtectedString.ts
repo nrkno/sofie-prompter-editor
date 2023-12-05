@@ -71,3 +71,7 @@ export function mapToRecord<T extends AnyProtectedString, V>(map: Map<T, V>): Re
 	}
 	return obj
 }
+
+export type ProtectedStringProperties<T, K extends keyof T> = {
+	[P in keyof T]: P extends K ? AnyProtectedString : T[P]
+}

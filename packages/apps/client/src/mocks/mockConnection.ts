@@ -46,6 +46,7 @@ export class MockConnection extends EventEmitter {
 			modified: START_TIME,
 			rehearsal: false,
 			startedPlayback: START_TIME,
+			loaded: true,
 		},
 		{
 			_id: PLAYLIST_ID_1,
@@ -55,6 +56,7 @@ export class MockConnection extends EventEmitter {
 			modified: START_TIME,
 			rehearsal: false,
 			startedPlayback: undefined,
+			loaded: true,
 		},
 	]
 
@@ -80,6 +82,7 @@ export class MockConnection extends EventEmitter {
 			_id: RUNDOWN_ID_0_0,
 			playlistId: PLAYLIST_ID_0,
 			rank: 0,
+			label: 'Rundown 0',
 		},
 	]
 

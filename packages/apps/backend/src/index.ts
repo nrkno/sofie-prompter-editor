@@ -25,16 +25,9 @@ async function init() {
 
 	const store = new Store()
 
-	const httpAPI = new ApiServer(log, DEFAULT_DEV_API_PORT, store)
-
-	httpAPI.on('connection', () => {
-		log.info('new connection!')
-	})
-
-	await httpAPI.initialized
-
+	let coreConnection: SofieCoreConnection | undefined = undefined
 	if (!options.noCore) {
-		const coreConnection = new SofieCoreConnection(log, options, processHandler, store)
+		coreConnection = new SofieCoreConnection(log, options, processHandler, store)
 		coreConnection.on('connected', () => {
 			log.info('Connected to Core')
 		})
@@ -45,6 +38,14 @@ async function init() {
 	} else {
 		log.info('NOT connecting to Core (noCore=true)')
 	}
+
+	const httpAPI = new ApiServer(log, DEFAULT_DEV_API_PORT, store, coreConnection)
+
+	httpAPI.on('connection', () => {
+		log.info('new connection!')
+	})
+
+	await httpAPI.initialized
 
 	log.info('Backend initialized')
 }

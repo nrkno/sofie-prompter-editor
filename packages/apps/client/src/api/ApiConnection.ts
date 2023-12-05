@@ -5,6 +5,9 @@ import socketio, { SocketService } from '@feathersjs/socketio-client'
 import {
 	ExampleServiceDefinition,
 	PlaylistServiceDefinition,
+	RundownServiceDefinition,
+	SegmentServiceDefinition,
+	PartServiceDefinition,
 	ServiceTypes,
 	Services,
 } from '@sofie-prompter-editor/shared-model'
@@ -17,11 +20,15 @@ interface APIConnectionEvents {
 }
 
 export class APIConnection extends EventEmitter<APIConnectionEvents> {
-	private app: Application<AddTypeToProperties<ServiceTypes, SocketService>, unknown>
-
 	public readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
+	public readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
+	public readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
+	public readonly part: FeathersTypedService<PartServiceDefinition.Service>
 	public readonly example: FeathersTypedService<ExampleServiceDefinition.Service>
 	public connected = false
+
+	private app: Application<AddTypeToProperties<ServiceTypes, SocketService>, unknown>
+
 	constructor() {
 		super()
 		console.log('setupAPIConnection')
@@ -51,6 +58,33 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 			)
 			this.playlist = this.app.service(Services.Playlist) as FeathersTypedService<PlaylistServiceDefinition.Service>
 		}
+		{
+			this.app.use(
+				Services.Rundown,
+				socketClient.service(Services.Rundown) as SocketService & ServiceTypes[Services.Rundown],
+				{
+					methods: RundownServiceDefinition.ALL_METHODS,
+				}
+			)
+			this.rundown = this.app.service(Services.Rundown) as FeathersTypedService<RundownServiceDefinition.Service>
+		}
+		{
+			this.app.use(
+				Services.Segment,
+				socketClient.service(Services.Segment) as SocketService & ServiceTypes[Services.Segment],
+				{
+					methods: SegmentServiceDefinition.ALL_METHODS,
+				}
+			)
+			this.segment = this.app.service(Services.Segment) as FeathersTypedService<SegmentServiceDefinition.Service>
+		}
+		{
+			this.app.use(Services.Part, socketClient.service(Services.Part) as SocketService & ServiceTypes[Services.Part], {
+				methods: PartServiceDefinition.ALL_METHODS,
+			})
+			this.part = this.app.service(Services.Part) as FeathersTypedService<PartServiceDefinition.Service>
+		}
+
 		{
 			this.app.use(
 				Services.Example,

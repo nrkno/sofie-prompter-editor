@@ -1,11 +1,15 @@
 import React, { useEffect } from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
 import { RundownPlaylist, RundownPlaylistId, patch } from '@sofie-prompter-editor/shared-model'
+import { TestPlaylist } from './TestPlaylist.tsx'
+import { useApiConnection } from './TestUtil.tsx'
 
 export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 	const [ready, setReady] = React.useState(false)
 	const [connected, setConnected] = React.useState(false)
 	const [playlists, setPlaylists] = React.useState<Record<RundownPlaylistId, RundownPlaylist>>({})
+
+	const [selectedPlaylist, setSelectedPlaylist] = React.useState<RundownPlaylist | null>(null)
 
 	const updatePlaylists = React.useCallback(
 		(id: RundownPlaylistId, data: (prev: RundownPlaylist | undefined) => RundownPlaylist | null) => {
@@ -48,23 +52,23 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 			api.playlist.on('updated', (data) => {
 				updatePlaylists(data._id, () => data)
 			})
-			api.playlist.on('patched', (data) => {
-				updatePlaylists(data._id, (prev) => {
-					if (!prev) {
-						// We need to do a resync:
-						api.playlist
-							.get(data._id)
-							.then((playlist) => {
-								updatePlaylists(playlist._id, () => playlist)
-							})
-							.catch(console.error)
+			// api.playlist.on('patched', (data) => {
+			// 	updatePlaylists(data._id, (prev) => {
+			// 		if (!prev) {
+			// 			// We need to do a resync:
+			// 			api.playlist
+			// 				.get(data._id)
+			// 				.then((playlist) => {
+			// 					updatePlaylists(playlist._id, () => playlist)
+			// 				})
+			// 				.catch(console.error)
 
-						return patch({} as any, data)
-					} else {
-						return patch(prev, data)
-					}
-				})
-			})
+			// 			return patch({} as any, data)
+			// 		} else {
+			// 			return patch(prev, data)
+			// 		}
+			// 	})
+			// })
 			api.playlist.on('removed', (id) => {
 				updatePlaylists(id, () => null)
 			})
@@ -73,7 +77,7 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 			api.playlist
 				.find()
 				.then((list) => {
-					console.log('list', list)
+					console.log('list playlists', list)
 					list.forEach((playlist) => updatePlaylists(playlist._id, () => playlist))
 				})
 				.catch(console.error)
@@ -84,9 +88,9 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 
 	return (
 		<div>
+			<div>Connection status: {connected ? <span>Connected</span> : <span>Not connected</span>}</div>
+			<div>Subscription status: {ready ? <span>Ready</span> : <span>Not ready</span>}</div>
 			<h2>Rundown playlists</h2>
-			<div>Connection status: {connected ? <div>Connected</div> : <div>Not connected</div>}</div>
-			<div>Subscription status: {ready ? <div>Ready</div> : <div>Not ready</div>}</div>
 			<div>
 				<table>
 					<thead>
@@ -104,38 +108,15 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 								<td>{playlist.modified}</td>
 								<td>{playlist.isActive ? 'yes' : 'no'}</td>
 								<td>{playlist.rehearsal ? 'yes' : 'no'}</td>
+								<td>
+									<button onClick={() => setSelectedPlaylist(playlist)}>Select</button>
+								</td>
 							</tr>
 						))}
 					</tbody>
 				</table>
 			</div>
+			<div>{selectedPlaylist && <TestPlaylist api={api} playlist={selectedPlaylist} />}</div>
 		</div>
 	)
-}
-
-function useApiConnection(
-	effect: (connected: boolean) => void,
-	api: APIConnection,
-	deps?: React.DependencyList | undefined
-): void {
-	const [connected, setConnected] = React.useState(api.connected)
-
-	useEffect(() => {
-		const onConnected = () => {
-			setConnected(true)
-		}
-		const onDisconnected = () => {
-			setConnected(false)
-		}
-		api.on('connected', onConnected)
-		api.on('disconnected', onDisconnected)
-		return () => {
-			api.off('connected', onConnected)
-			api.off('disconnected', onDisconnected)
-		}
-	}, [])
-
-	useEffect(() => {
-		effect(connected)
-	}, [connected, ...(deps || [])])
 }

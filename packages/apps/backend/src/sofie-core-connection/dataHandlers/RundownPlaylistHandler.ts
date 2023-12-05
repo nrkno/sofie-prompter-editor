@@ -16,8 +16,6 @@ export class RundownPlaylistHandler extends DataHandler {
 			observer.changed = (id: string) => this.onChanged(protectString(id))
 			observer.removed = (id: string) => this.onRemoved(protectString(id))
 			this.observers.push(observer)
-
-			await this.core.autoSubscribe('rundownPlaylists', {})
 		})
 	}
 	private onAdded(id: Core.RundownPlaylistId): void {
@@ -54,6 +52,7 @@ export class RundownPlaylistHandler extends DataHandler {
 			isActive: Boolean(corePlaylist.activationId),
 			rehearsal: Boolean(corePlaylist.rehearsal),
 			startedPlayback: corePlaylist.startedPlayback,
+			loaded: true, // todo
 		}
 	}
 	private convertId(id: Core.RundownPlaylistId): RundownPlaylistId {
@@ -63,8 +62,8 @@ export class RundownPlaylistHandler extends DataHandler {
 	private get collection(): Collection<Core.DBRundownPlaylist> {
 		const collection = this.core.getCollection<Core.DBRundownPlaylist>('rundownPlaylists')
 		if (!collection) {
-			this.log.error('collection "peripheralDevices" not found!')
-			throw new Error('collection "peripheralDevices" not found!')
+			this.log.error('collection "rundownPlaylists" not found!')
+			throw new Error('collection "rundownPlaylists" not found!')
 		}
 		return collection
 	}
