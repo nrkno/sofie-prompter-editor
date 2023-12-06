@@ -24,11 +24,11 @@ export class PrompterSettingsStore {
 		})
 	}
 
-	create(part: PrompterSettings) {
-		this._updateIfChanged(part)
+	create(data: PrompterSettings) {
+		this._updateIfChanged(data)
 	}
-	update(part: PrompterSettings) {
-		this._updateIfChanged(part)
+	update(data: PrompterSettings) {
+		this._updateIfChanged(data)
 	}
 
 	private _updateIfChanged(prompterSettings: PrompterSettings) {

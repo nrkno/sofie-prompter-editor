@@ -1,7 +1,7 @@
 import React from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
 import { PrompterSettings } from '@sofie-prompter-editor/shared-model'
-import { EditObject, EditValue, useApiConnection } from './TestUtil.tsx'
+import { EditObject, useApiConnection } from './TestUtil.tsx'
 
 export const TestController: React.FC<{ api: APIConnection }> = ({ api }) => {
 	const [ready, setReady] = React.useState(false)
@@ -53,7 +53,7 @@ export const TestController: React.FC<{ api: APIConnection }> = ({ api }) => {
 					<EditObject
 						obj={prompterSettings}
 						onChange={(newData) => {
-							api.prompterSettings.update('', newData)
+							api.prompterSettings.update('', newData).catch(console.error)
 						}}
 					/>
 				</div>

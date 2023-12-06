@@ -1,15 +1,19 @@
+import { z } from 'zod'
+
 /** Set by a user */
-export interface PrompterSettings {
-	fontSize: number // in percentage of viewport height
+export type PrompterSettings = z.infer<typeof PrompterSettingsSchema>
 
-	mirrorHorizontally: boolean
-	mirrorVertically: boolean
+export const PrompterSettingsSchema = z.object({
+	fontSize: z.number().min(0).max(100),
 
-	focusPosition: 'start' | 'center' | 'end'
-	showFocusPosition: boolean
+	mirrorHorizontally: z.boolean(),
+	mirrorVertically: z.boolean(),
+
+	focusPosition: z.union([z.literal('start'), z.literal('center'), z.literal('end')]),
+	showFocusPosition: z.boolean(),
 
 	/** Adds padding between the edge of the screen and the text */
-	marginHorizontal: number
+	marginHorizontal: z.number().min(0).max(100),
 	/** In percentage of viewport height */
-	marginVertical: number
-}
+	marginVertical: z.number().min(0).max(100),
+})
