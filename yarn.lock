@@ -1955,6 +1955,7 @@ __metadata:
     eventemitter3: "npm:^5.0.1"
     mdast-util-directive: "npm:^3.0.0"
     mdast-util-from-markdown: "npm:^2.0.0"
+    mdast-util-to-markdown: "npm:^2.1.0"
     micromark-extension-directive: "npm:^3.0.0"
     micromark-util-types: "npm:^2.0.0"
     mobx: "npm:^6.10.2"
@@ -8153,7 +8154,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mdast-util-to-markdown@npm:^2.0.0":
+"mdast-util-to-markdown@npm:^2.0.0, mdast-util-to-markdown@npm:^2.1.0":
   version: 2.1.0
   resolution: "mdast-util-to-markdown@npm:2.1.0"
   dependencies:

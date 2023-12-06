@@ -41,6 +41,7 @@
         "eventemitter3": "^5.0.1",
         "mdast-util-directive": "^3.0.0",
         "mdast-util-from-markdown": "^2.0.0",
+        "mdast-util-to-markdown": "^2.1.0",
         "micromark-extension-directive": "^3.0.0",
         "mobx": "^6.10.2",
         "mobx-react-lite": "^4.0.5",

@@ -1,0 +1,70 @@
+.SegmentLineList {
+	display: grid;
+	grid-template-columns: 1fr 3em 4em 2fr 5fr 1fr 1fr;
+	padding: 0;
+	margin: 0;
+	--table-gap-size: 2px;
+	gap: var(--table-gap-size);
+}
+
+.SegmentContainer {
+	padding: 0;
+	margin: 0;
+	display: contents;
+}
+
+.SegmentIdentifier {
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.LineContainer {
+	padding: 0;
+	margin: 0;
+	grid-column: 2 / 8;
+	display: grid;
+	grid-template-columns: subgrid;
+	grid-template-rows: auto;
+	gap: var(--table-gap-size);
+}
+
+.Line {
+	grid-column: 1 / 7;
+	display: grid;
+	grid-template-columns: subgrid;
+	gap: var(--table-gap-size);
+	padding: 0;
+	margin: 0;
+}
+
+.LineItem {
+	background: var(--color-dark-2);
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.LineIdentifier {
+	--dummy: 1;
+}
+
+.LineType {
+	--dumy: 1;
+}
+
+.LineSlug {
+	composes: LineItem;
+}
+
+.LineScript {
+	composes: LineItem;
+}
+
+.LineDuration {
+	composes: LineItem;
+}
+
+.LineDuration2 {
+	composes: LineItem;
+}

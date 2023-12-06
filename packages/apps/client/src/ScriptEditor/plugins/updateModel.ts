@@ -1,5 +1,7 @@
 import { Plugin } from 'prosemirror-state'
 import { UILineId } from '../../model/UILine'
+import { Node } from 'prosemirror-model'
+import { schema } from '../scriptSchema'
 
 export function updateModel(onChange?: (lineId: UILineId, contents: SomeContents) => void) {
 	return new Plugin({
@@ -20,7 +22,13 @@ export function updateModel(onChange?: (lineId: UILineId, contents: SomeContents
 								if (!parent) return
 								if (parent.type.name !== 'line') return
 
-								if (onChange) onChange(lineId, parent.toString())
+								const allNodes: Node[] = []
+								parent.content.forEach((node) => {
+									if (node.type === schema.nodes.lineTitle) return
+									allNodes.push(node)
+								})
+								console.log(allNodes)
+								if (onChange) onChange(lineId, allNodes)
 							})
 						})
 					})
