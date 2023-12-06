@@ -1,4 +1,4 @@
-import { DataObject } from './model.js'
+import { DataObject } from './model/index.js'
 
 /*
  * This is a quick and dirty deep diff implementation

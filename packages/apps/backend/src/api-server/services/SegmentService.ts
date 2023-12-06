@@ -1,7 +1,6 @@
 import EventEmitter from 'eventemitter3'
 import { Application, PaginationParams, Params } from '@feathersjs/feathers'
 import { ServiceTypes, Services, SegmentServiceDefinition as Definition } from '@sofie-prompter-editor/shared-model'
-export { PlaylistServiceDefinition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
 import { CustomFeathersService } from './lib.js'
 import { Store } from '../../data-stores/Store.js'
@@ -73,7 +72,7 @@ export class SegmentService extends EventEmitter<Definition.Events> implements D
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
 		const data = this.store.segments.segments.get(id)
-		if (!data) throw new NotFound(`Rundown "${id}" not found`)
+		if (!data) throw new NotFound(`Segment "${id}" not found`)
 		return data
 	}
 	/** @deprecated not supported */

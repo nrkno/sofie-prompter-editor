@@ -9,16 +9,33 @@ export const PublishChannels = {
 		return `example-category/${category}`
 	},
 
+	/** List of RundownPlaylists */
 	AllPlaylists: (): string => {
 		return `playlists`
 	},
 
-	/** All info inside one playlist */
-	Playlist: (playlistId: RundownPlaylistId): string => {
-		return `playlist/${playlistId}`
-	},
-
+	/**
+	 * ALL data inside of a RundownPlaylist
+	 * Such as
+	 * * Rundowns
+	 * * Segments
+	 * * Parts
+	 */
 	RundownsInPlaylist: (playlistId: RundownPlaylistId): string => {
 		return `playlist/${playlistId}/rundowns`
+	},
+
+	/**
+	 * Data for the Controller
+	 */
+	Controller: (): string => {
+		return `controller`
+	},
+
+	/**
+	 * Data for the ViewPort
+	 */
+	ViewPort: (): string => {
+		return `viewport`
 	},
 }

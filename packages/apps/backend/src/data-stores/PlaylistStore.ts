@@ -3,7 +3,6 @@ import isEqual from 'lodash.isequal'
 import { RundownPlaylist, RundownPlaylistId } from 'packages/shared/model/dist'
 
 export class PlaylistStore {
-	ready: boolean = false
 	public readonly playlists = observable.map<RundownPlaylistId, RundownPlaylist>()
 
 	constructor() {

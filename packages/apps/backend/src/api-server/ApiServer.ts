@@ -12,6 +12,8 @@ import { PartFeathersService, PartService } from './services/PartService.js'
 import { ExampleFeathersService, ExampleService } from './services/ExampleService.js'
 import { Store } from '../data-stores/Store.js'
 import { SofieCoreConnection } from '../sofie-core-connection/SofieCoreConnection.js'
+import { ViewPortFeathersService, ViewPortService } from './services/ViewPortService.js'
+import { PrompterSettingsFeathersService, PrompterSettingsService } from './services/PrompterSettingsService.js'
 
 export type ApiServerEvents = {
 	connection: []
@@ -25,6 +27,8 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 	public readonly segment: SegmentFeathersService
 	public readonly part: PartFeathersService
 	public readonly example: ExampleFeathersService
+	public readonly viewPort: ViewPortFeathersService
+	public readonly prompterSettings: PrompterSettingsFeathersService
 
 	private log: LoggerInstance
 	constructor(
@@ -53,6 +57,9 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		this.rundown = RundownService.setupService(this.log, this.app, this.store, this.coreConnection)
 		this.segment = SegmentService.setupService(this.log, this.app, this.store)
 		this.part = PartService.setupService(this.log, this.app, this.store)
+
+		this.viewPort = ViewPortService.setupService(this.log, this.app, this.store)
+		this.prompterSettings = PrompterSettingsService.setupService(this.log, this.app, this.store)
 
 		this.example = ExampleService.setupService(this.app)
 

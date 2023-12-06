@@ -3,7 +3,6 @@ import isEqual from 'lodash.isequal'
 import { Segment, SegmentId } from 'packages/shared/model/dist'
 
 export class SegmentStore {
-	ready: boolean = false
 	public readonly segments = observable.map<SegmentId, Segment>()
 
 	constructor() {

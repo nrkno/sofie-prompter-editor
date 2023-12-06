@@ -6,41 +6,28 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { RundownPlaylist } from '../model/index.js'
-import { Diff } from '../patch.js'
+import { PrompterSettings } from '../model/index.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
 	'find',
 	'get',
-	'create',
+	// 'create',
 	'update',
 	// 'patch',
-	'remove',
+	// 'remove',
 	//
-	'subscribeToPlaylists',
-
-	//
-	'tmpPing',
+	'subscribeToController',
 ] as const
 /** The methods exposed by this class are exposed in the API */
-interface Methods extends Omit<ServiceMethods, 'patch'> {
+interface Methods extends Omit<ServiceMethods, 'patch' | 'remove' | 'create'> {
 	find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
 	get(id: Id, params?: Params): Promise<Data>
-	/** @deprecated not supported  */
-	create(data: Data, params?: Params): Promise<Result>
-	/** @deprecated not supported  */
+	// create(data: Data, params?: Params): Promise<Result>
 	update(id: NullId, data: Data, params?: Params): Promise<Result>
-	/** @deprecated not supported  */
-	// patch(id: NullId, data: PatchData, params?: Params): Promise<Result>
-	/** @deprecated not supported  */
-	remove(id: NullId, params?: Params): Promise<Result>
 
-	/** Subscribe to a list of all playlists */
-	subscribeToPlaylists(_?: unknown, params?: Params): Promise<void>
-
-	//
-	tmpPing(payload: string): Promise<string>
+	/** Subscribe to Controller data */
+	subscribeToController(_?: unknown, params?: Params): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 
@@ -49,9 +36,8 @@ export const ALL_EVENTS = [
 	'created',
 	'updated',
 	// 'patched',
-	'removed',
+	// 'removed',
 	//
-	'tmpPong',
 ] as const
 
 /** Definitions of all events */
@@ -59,16 +45,16 @@ export interface Events {
 	created: [data: Data]
 	updated: [data: Data]
 	// patched: [data: PatchData]
-	removed: [id: Id]
+	// removed: [data: RemovedData]
 	//
-	tmpPong: [payload: string]
 }
 
 // Helper types for the default service methods:
-export type Data = RundownPlaylist
-export type PatchData = Diff<Data>
-export type Result = Pick<Data, '_id'>
-export type Id = Data['_id']
+export type Data = PrompterSettings
+// export type PatchData = Diff<Data>
+// export type RemovedData = { _id: Id; playlistId: Data['playlistId']; rundownId: Data['rundownId'] }
+export type Result = Data
+export type Id = ''
 export type NullId = Id | null
 
 // ============================================================================

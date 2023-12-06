@@ -47,8 +47,9 @@ export const TestSegment: React.FC<{ api: APIConnection; segment: Segment }> = (
 					},
 				})
 				.then((list) => {
-					console.log('list part', list)
-					list.filter((part) => part.segmentId === segment._id).forEach((part) => updateParts(part._id, () => part))
+					const myParts = list.filter((part) => part.segmentId === segment._id)
+					console.log('list part', myParts)
+					myParts.forEach((part) => updateParts(part._id, () => part))
 				})
 				.catch(console.error)
 		},
@@ -65,7 +66,7 @@ export const TestSegment: React.FC<{ api: APIConnection; segment: Segment }> = (
 			<h3>Segment "{segment.label}"</h3>
 			<div>
 				<b>Parts:</b>
-				<div>
+				<div style={{ margin: '0.5em' }}>
 					{sortedParts.map((part) => (
 						<div key={part._id}>Part "{part.label}"</div>
 						// <TestPart key={part._id} api={api} segment={part}></TestPart>

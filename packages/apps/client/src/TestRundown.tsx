@@ -48,10 +48,10 @@ export const TestRundown: React.FC<{ api: APIConnection; rundown: Rundown }> = (
 					},
 				})
 				.then((list) => {
-					console.log('list segment', list)
-					list
-						.filter((segment) => segment.rundownId === rundown._id)
-						.forEach((segment) => updateSegments(segment._id, () => segment))
+					const mySegments = list.filter((segment) => segment.rundownId === rundown._id)
+
+					console.log('list segments', mySegments)
+					mySegments.forEach((segment) => updateSegments(segment._id, () => segment))
 				})
 				.catch(console.error)
 		},
@@ -68,7 +68,7 @@ export const TestRundown: React.FC<{ api: APIConnection; rundown: Rundown }> = (
 			<h3>Rundown "{rundown.label}"</h3>
 			<div>
 				<b>Segments:</b>
-				<div>
+				<div style={{ margin: '0.5em' }}>
 					{sortedSegments.map((segment) => (
 						<TestSegment key={segment._id} api={api} segment={segment}></TestSegment>
 					))}

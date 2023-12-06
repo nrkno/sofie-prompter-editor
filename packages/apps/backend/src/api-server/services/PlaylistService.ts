@@ -40,10 +40,6 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 		service.publish('removed', (_data, _context) => {
 			return app.channel(PublishChannels.AllPlaylists())
 		})
-
-		service.publish('created', (data, _context) => {
-			return app.channel(PublishChannels.Playlist(data._id))
-		})
 	}
 
 	private observers: Lambda[] = []

@@ -6,7 +6,6 @@ import {
 	RundownServiceDefinition as Definition,
 	RundownPlaylistId,
 } from '@sofie-prompter-editor/shared-model'
-export { PlaylistServiceDefinition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
 import { CustomFeathersService } from './lib.js'
 import { Store } from '../../data-stores/Store.js'

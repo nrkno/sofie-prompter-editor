@@ -3,7 +3,6 @@ import isEqual from 'lodash.isequal'
 import { Part, PartId } from 'packages/shared/model/dist'
 
 export class PartStore {
-	ready: boolean = false
 	public readonly parts = observable.map<PartId, Part>()
 
 	constructor() {

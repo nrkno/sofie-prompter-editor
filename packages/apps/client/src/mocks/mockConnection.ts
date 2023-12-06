@@ -108,24 +108,28 @@ export class MockConnection extends EventEmitter {
 			_id: SEGMENT_ID_0_0,
 			label: 'Segment 0',
 			rank: 5,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 		},
 		{
 			_id: SEGMENT_ID_0_1,
 			label: 'Segment 1',
 			rank: 1,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 		},
 		{
 			_id: SEGMENT_ID_0_2,
 			label: 'Segment 2',
 			rank: 2,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 		},
 		{
 			_id: SEGMENT_ID_0_3,
 			label: 'Segment 3',
 			rank: 3,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 		},
 	]
@@ -152,6 +156,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_0_0,
 			label: 'Part 0',
 			rank: 0,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_0,
 			display: {
@@ -165,6 +170,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_0_1,
 			label: 'Part 1',
 			rank: 1,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_0,
 			display: {
@@ -178,6 +184,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_0_2,
 			label: 'Part 2',
 			rank: 2,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_0,
 			display: {
@@ -191,6 +198,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_0_3,
 			label: 'Part 3',
 			rank: 3,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_0,
 			display: {
@@ -204,6 +212,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_1_0,
 			label: 'Part 4',
 			rank: 0,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_1,
 			display: {
@@ -217,6 +226,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_1_1,
 			label: 'Part 5',
 			rank: 1,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_1,
 			display: {
@@ -230,6 +240,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_2_0,
 			label: 'Part 6',
 			rank: 0,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_2,
 			display: {
@@ -243,6 +254,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_2_1,
 			label: 'Part 7',
 			rank: 1,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_2,
 			display: {
@@ -256,6 +268,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_3_0,
 			label: 'Part 8',
 			rank: 0,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_3,
 			display: {
@@ -269,6 +282,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_3_1,
 			label: 'Part 9',
 			rank: 1,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_3,
 			display: {
@@ -282,6 +296,7 @@ export class MockConnection extends EventEmitter {
 			_id: PART_ID_0_3_2,
 			label: 'Part 10',
 			rank: 2,
+			playlistId: PLAYLIST_ID_0,
 			rundownId: RUNDOWN_ID_0_0,
 			segmentId: SEGMENT_ID_0_3,
 			display: {

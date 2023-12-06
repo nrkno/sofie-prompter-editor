@@ -6,7 +6,7 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { Rundown, RundownPlaylistId } from '../model.js'
+import { Rundown, RundownPlaylistId } from '../model/index.js'
 import { Diff } from '../patch.js'
 
 /** List of all method names */

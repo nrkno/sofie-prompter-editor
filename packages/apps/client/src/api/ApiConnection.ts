@@ -8,6 +8,8 @@ import {
 	RundownServiceDefinition,
 	SegmentServiceDefinition,
 	PartServiceDefinition,
+	PrompterSettingsServiceDefinition,
+	ViewPortServiceDefinition,
 	ServiceTypes,
 	Services,
 } from '@sofie-prompter-editor/shared-model'
@@ -24,6 +26,10 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 	public readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
 	public readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
 	public readonly part: FeathersTypedService<PartServiceDefinition.Service>
+
+	public readonly prompterSettings: FeathersTypedService<PrompterSettingsServiceDefinition.Service>
+	public readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
+
 	public readonly example: FeathersTypedService<ExampleServiceDefinition.Service>
 	public connected = false
 
@@ -83,6 +89,29 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 				methods: PartServiceDefinition.ALL_METHODS,
 			})
 			this.part = this.app.service(Services.Part) as FeathersTypedService<PartServiceDefinition.Service>
+		}
+
+		{
+			this.app.use(
+				Services.PrompterSettings,
+				socketClient.service(Services.PrompterSettings) as SocketService & ServiceTypes[Services.PrompterSettings],
+				{
+					methods: PrompterSettingsServiceDefinition.ALL_METHODS,
+				}
+			)
+			this.prompterSettings = this.app.service(
+				Services.PrompterSettings
+			) as FeathersTypedService<PrompterSettingsServiceDefinition.Service>
+		}
+		{
+			this.app.use(
+				Services.ViewPort,
+				socketClient.service(Services.ViewPort) as SocketService & ServiceTypes[Services.ViewPort],
+				{
+					methods: ViewPortServiceDefinition.ALL_METHODS,
+				}
+			)
+			this.viewPort = this.app.service(Services.ViewPort) as FeathersTypedService<ViewPortServiceDefinition.Service>
 		}
 
 		{

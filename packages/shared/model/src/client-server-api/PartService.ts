@@ -6,7 +6,7 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { Part } from '../model.js'
+import { Part } from '../model/index.js'
 import { Diff } from '../patch.js'
 
 /** List of all method names */

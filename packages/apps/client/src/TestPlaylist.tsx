@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
 import { Rundown, RundownId, RundownPlaylist } from '@sofie-prompter-editor/shared-model'
 import { TestRundown } from './TestRundown.tsx'

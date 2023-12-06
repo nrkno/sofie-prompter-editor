@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
-import { RundownPlaylist, RundownPlaylistId, patch } from '@sofie-prompter-editor/shared-model'
+import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { TestPlaylist } from './TestPlaylist.tsx'
 import { useApiConnection } from './TestUtil.tsx'
 
@@ -88,6 +88,7 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 
 	return (
 		<div>
+			<h1>Playlists</h1>
 			<div>Connection status: {connected ? <span>Connected</span> : <span>Not connected</span>}</div>
 			<div>Subscription status: {ready ? <span>Ready</span> : <span>Not ready</span>}</div>
 			<h2>Rundown playlists</h2>

@@ -78,7 +78,7 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
 		const data = this.store.parts.parts.get(id)
-		if (!data) throw new NotFound(`Rundown "${id}" not found`)
+		if (!data) throw new NotFound(`Part "${id}" not found`)
 		return data
 	}
 	/** @deprecated not supported */
