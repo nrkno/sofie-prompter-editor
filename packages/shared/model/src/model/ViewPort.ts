@@ -19,6 +19,8 @@ export interface ViewPort {
 
 	/** Current position of the viewport */
 	position: ViewPortPosition
+
+	// last controller message?
 }
 /** Defines a position of the viewport */
 export interface ViewPortPosition {
