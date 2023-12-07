@@ -11,8 +11,6 @@ This is the _Sofie Prompter Editor_ application of the [_**Sofie** TV Automation
 ---
 ## Developer Information
 
-Be sure to read the [Developer documentation](/DEVELOPER.md).
-
 Note: This monorepo uses [_Yarn_](https://yarnpkg.com) and [_Lerna_](https://github.com/lerna/lerna), so most commands can be run on the root folder (no need to `cd` into each package).
 
 ### File Structure
