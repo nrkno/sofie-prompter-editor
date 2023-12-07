@@ -31,6 +31,10 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 	// patch(id: NullId, data: PatchData, params?: Params): Promise<Result>
 	/** @deprecated not supported  */
 	remove(id: NullId, params?: Params): Promise<Result>
+
+	/** updates .isNew */
+	// setIsNew(read: boolean): Promise<void>
+	// updateScript(scriptContents?: ScriptContents): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

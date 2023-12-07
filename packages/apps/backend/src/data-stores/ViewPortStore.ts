@@ -1,11 +1,11 @@
-import { action, makeAutoObservable, observable } from 'mobx'
+import { action, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { ViewPort, ViewPortSchema } from '@sofie-prompter-editor/shared-model'
 
 export class ViewPortStore {
-	public viewPort = observable<ViewPort>({
+	public viewPort = observable.object<ViewPort>({
 		// TODO: load these from persistent store upon startup?
-		_id: 'viewport',
+		_id: '',
 		instanceId: '',
 		position: {
 			scrollOffset: 0,
@@ -17,7 +17,7 @@ export class ViewPortStore {
 	private readonly seenInstanceIds = new Set()
 
 	constructor() {
-		makeAutoObservable(this, {
+		makeObservable(this, {
 			create: action,
 			update: action,
 			registerInstance: action,
@@ -35,6 +35,7 @@ export class ViewPortStore {
 		if (!this.seenInstanceIds.has(instanceId)) {
 			// Is a new instanceId, so we are in control:
 			this.seenInstanceIds.add(instanceId)
+
 			this.viewPort.instanceId = instanceId
 		}
 		return this.viewPort.instanceId === instanceId

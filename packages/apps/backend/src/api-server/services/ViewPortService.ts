@@ -7,6 +7,7 @@ import { Store } from '../../data-stores/Store.js'
 import { Lambda, observe } from 'mobx'
 import { LoggerInstance } from '../../lib/logger.js'
 import { BadRequest, NotFound } from '@feathersjs/errors'
+import { assertNever } from '@sofie-prompter-editor/shared-lib'
 
 export type ViewPortFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
@@ -40,16 +41,13 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 		this.observers.push(
 			observe(this.store.viewPort.viewPort, (change) => {
 				this.log.debug('observed change', change)
-
 				if (change.type === 'add') {
-					this.emit('created', change.newValue)
+					this.emit('created', change.object)
 				} else if (change.type === 'update') {
-					this.emit('updated', change.newValue)
+					this.emit('updated', change.object)
 				} else if (change.type === 'remove') {
-					this.emit('removed', {
-						_id: change.oldValue._id,
-					})
-				}
+					this.emit('updated', change.object)
+				} else assertNever(change)
 			})
 		)
 	}

@@ -7,11 +7,12 @@ import {
 import { LoggerInstance, getLogLevel, isLogLevel, setLogLevel } from '../../lib/logger.js'
 import { Store } from '../../data-stores/Store.js'
 import { DataHandler } from './DataHandler.js'
+import { Transformers } from '../dataTransformers/Transformers.js'
 
 export class SettingsHandler extends DataHandler {
 	public initialized: Promise<void>
-	constructor(log: LoggerInstance, core: CoreConnection, store: Store) {
-		super(log.category('SettingsHandler'), core, store)
+	constructor(log: LoggerInstance, core: CoreConnection, store: Store, transformers: Transformers) {
+		super(log.category('SettingsHandler'), core, store, transformers)
 
 		this.initialized = Promise.resolve().then(async () => {
 			await this.core.autoSubscribe('peripheralDeviceForDevice', this.core.deviceId)

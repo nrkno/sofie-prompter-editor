@@ -1928,6 +1928,7 @@ __metadata:
     koa-bodyparser: "npm:^4.4.1"
     lodash.isequal: "npm:^4.5.0"
     mobx: "npm:^6.11.0"
+    mobx-utils: "npm:^6.0.8"
     nodemon: "npm:^3.0.1"
     winston: "npm:^3.11.0"
     yargs: "npm:^17.7.2"
@@ -8764,6 +8765,15 @@ __metadata:
     react-native:
       optional: true
   checksum: 6c8f69646ee9fb50155062c8a43e6d222a7b9dbd28f139648dcbb2a097d9ea660d643dd94529355e7f6926561e37c0206ca9e477f01784aedafbed607daceda6
+  languageName: node
+  linkType: hard
+
+"mobx-utils@npm:^6.0.8":
+  version: 6.0.8
+  resolution: "mobx-utils@npm:6.0.8"
+  peerDependencies:
+    mobx: ^6.0.0
+  checksum: 0f37925bb47c43dd38acaf74e89d253373889bfc233cadb76dd7e0cfd331f503af8a74e9113d6f0fcc993156c1306f2fe4d5dfd0e32448f3ee43e5f9d92ac054
   languageName: node
   linkType: hard
 

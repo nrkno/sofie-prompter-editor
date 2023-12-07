@@ -2,13 +2,14 @@ import { Collection, CoreConnection, protectString } from '@sofie-automation/ser
 import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { LoggerInstance } from '../../lib/logger.js'
 import { Store } from '../../data-stores/Store.js'
-import * as Core from './tmpCoreDataTypes/index.js'
+import * as Core from '../CoreDataTypes/index.js'
 import { DataHandler } from './DataHandler.js'
+import { Transformers } from '../dataTransformers/Transformers.js'
 
 export class RundownPlaylistHandler extends DataHandler {
 	public initialized: Promise<void>
-	constructor(log: LoggerInstance, core: CoreConnection, store: Store) {
-		super(log.category('RundownPlaylistHandler'), core, store)
+	constructor(log: LoggerInstance, core: CoreConnection, store: Store, transformers: Transformers) {
+		super(log.category('RundownPlaylistHandler'), core, store, transformers)
 
 		this.initialized = Promise.resolve().then(async () => {
 			const observer = this.core.observe('rundownPlaylists')

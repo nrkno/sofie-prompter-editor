@@ -24,7 +24,7 @@ export const ViewPortPositionSchema = z.object({
 export type TextMarkerId = ProtectedString<'TextMarkerId', string>
 
 export const ViewPortSchema = z.object({
-	_id: z.literal('viewport'),
+	_id: z.literal(''),
 	/**
 	 * When a ViewPort starts up, it randomizes its instanceId and sends it to the Server.
 	 * If the ViewPorts' instanceId is the "last one" it is in control.

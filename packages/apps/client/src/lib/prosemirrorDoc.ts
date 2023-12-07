@@ -16,7 +16,7 @@ export function fromMarkdown(text: string): ProsemirrorNode[] {
 	return traverseMdAstNodes(ast.children)
 }
 
-export function toMarkdown(doc: ProsemirrorNode[]): string {
+export function toMarkdown(_doc: ProsemirrorNode[]): string {
 	return mdAstToMarkdown(
 		{
 			type: 'root',

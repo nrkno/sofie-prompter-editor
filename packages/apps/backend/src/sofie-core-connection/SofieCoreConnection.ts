@@ -21,10 +21,14 @@ import { DataHandler } from './dataHandlers/DataHandler.js'
 import { SettingsHandler } from './dataHandlers/SettingsHandler.js'
 import { RundownPlaylistHandler } from './dataHandlers/RundownPlaylistHandler.js'
 import { SubscriberManager } from './SubscriberManager.js'
-import { observe } from 'mobx'
+import { autorun, observe } from 'mobx'
 import { RundownHandler } from './dataHandlers/RundownHandler.js'
 import { SegmentHandler } from './dataHandlers/SegmentHandler.js'
 import { PartHandler } from './dataHandlers/PartHandler.js'
+import { Transformers } from './dataTransformers/Transformers.js'
+import { PieceHandler } from './dataHandlers/PieceHandler.js'
+import { ShowStyleBaseHandler } from './dataHandlers/ShowStyleBaseHandler.js'
+import { assertNever } from '@sofie-prompter-editor/shared-lib'
 
 interface SofieCoreConnectionEvents {
 	connected: []
@@ -39,6 +43,7 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 	private log: LoggerInstance
 	private statuses: Map<string, { status: StatusCode; message: string }> = new Map()
 
+	private transformers: Transformers
 	private coreDataHandlers: DataHandler[] = []
 
 	private subscriberManager = new SubscriberManager()
@@ -63,6 +68,9 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		}
 
 		this.core = new CoreConnection(coreOptions)
+		this.transformers = new Transformers()
+
+		this.store.connectTransformers(this.transformers)
 
 		this.initialized = Promise.resolve().then(async () => {
 			// connect to core
@@ -87,6 +95,7 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 			await this.core.init(ddpConfig)
 
 			await this.setupDataHandlers()
+			await this.setupSubscriptionManager()
 			await this.setupCoreSubscriptions()
 
 			const peripheralDevice = await this.core.getPeripheralDevice()
@@ -154,28 +163,69 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		this.log.info('Setting up subscriptions..')
 		this.log.info('DeviceId: ' + this.core.deviceId)
 
-		this.coreDataHandlers.push(new SettingsHandler(this.log, this.core, this.store))
-		this.coreDataHandlers.push(new RundownPlaylistHandler(this.log, this.core, this.store))
-		this.coreDataHandlers.push(new RundownHandler(this.log, this.core, this.store))
-		this.coreDataHandlers.push(new SegmentHandler(this.log, this.core, this.store))
-		this.coreDataHandlers.push(new PartHandler(this.log, this.core, this.store))
+		this.coreDataHandlers.push(new SettingsHandler(this.log, this.core, this.store, this.transformers))
+
+		this.coreDataHandlers.push(new RundownPlaylistHandler(this.log, this.core, this.store, this.transformers))
+
+		this.coreDataHandlers.push(new RundownHandler(this.log, this.core, this.store, this.transformers))
+		this.coreDataHandlers.push(new SegmentHandler(this.log, this.core, this.store, this.transformers))
+		this.coreDataHandlers.push(new PartHandler(this.log, this.core, this.store, this.transformers))
+		this.coreDataHandlers.push(new PieceHandler(this.log, this.core, this.store, this.transformers))
+
+		this.coreDataHandlers.push(new ShowStyleBaseHandler(this.log, this.core, this.store, this.transformers))
 
 		// Wait for all DataHandlers to be initialized:
 		await Promise.all(this.coreDataHandlers.map((handler) => handler.initialized))
 	}
 	/* Maps hash -> Array<subscriptionId>*/
-	private subscriptions: Map<string, Promise<string>[]> = new Map()
+	private subscriptions: Map<string, Promise<string | void>[]> = new Map()
 	private addSubscription(hash: string, subId: Promise<string>): void {
 		let subs = this.subscriptions.get(hash)
 		if (!subs) {
 			subs = []
 			this.subscriptions.set(hash, subs)
 		}
-		subs.push(subId)
+		subs.push(
+			subId.catch(
+				// (subId) => subId,
+				(err) => {
+					this.log.error(`Error subscribing to ${hash}: ${err}`)
+				}
+			)
+		)
+	}
+	private removeSubscription(hash: string): void {
+		const subs = this.subscriptions.get(hash)
+		if (!subs) return
+
+		subs.forEach((sub) => {
+			sub.then((subscriptionId) => {
+				if (subscriptionId) this.core.unsubscribe(subscriptionId)
+			})
+		})
+		this.subscriptions.delete(hash)
 	}
 
 	// private activeCoreSubscriptions: Map<string> = new Set()
 
+	private async setupSubscriptionManager(): Promise<void> {
+		// Set up subscriptions to all rundowns we know about:
+		observe(this.transformers.rundowns.rundownIds, (change) => {
+			if (change.type === 'add') {
+				this.subscriberManager.subscribeToRundown(change.newValue)
+			} else if (change.type === 'delete') {
+				this.subscriberManager.unsubscribeFromRundown(change.oldValue)
+			} else assertNever(change)
+		})
+		// Set up subscriptions to all showStyles we know about:
+		autorun(() => {
+			this.subscriberManager.setShowStyleBaseSubscriptions(this.transformers.rundowns.showStyleBaseIds)
+		})
+		// Set up subscriptions to all showStyle variants we know about:
+		autorun(() => {
+			this.subscriberManager.setShowStyleVariantSubscriptions(this.transformers.rundowns.showStyleVariantIds)
+		})
+	}
 	private async setupCoreSubscriptions(): Promise<void> {
 		// We always subscribe to these:
 		await this.core.autoSubscribe('rundownPlaylists', {})
@@ -204,28 +254,11 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 				)
 				this.addSubscription(subHash, this.core.autoSubscribe('rundowns', [playlistId], null))
 			} else if (change.type === 'update') {
-				console.log('update  ', change.newValue)
+				// console.log('update  ', change.newValue)
 				// this.emit('updated', change.newValue)
 			} else if (change.type === 'delete') {
-				console.log('removed', change.oldValue)
-
-				const subs = this.subscriptions.get(subHash) || []
-
-				// No one is subscribed to this anymore, so unsubscribe:
-				subs.forEach((sub) => {
-					sub.then((subscriptionId) => {
-						this.core.unsubscribe(subscriptionId)
-					})
-				})
-				this.subscriptions.delete(subHash)
-			}
-		})
-
-		observe(this.store.rundowns.rundowns, (change) => {
-			if (change.type === 'add') {
-				this.subscriberManager.subscribeToRundown(change.name)
-			} else if (change.type === 'delete') {
-				this.subscriberManager.unsubscribeFromRundown(change.name)
+				// console.log('removed', change.oldValue)
+				this.removeSubscription(subHash)
 			}
 		})
 		// Subscribe to all data in rundowns:
@@ -249,22 +282,25 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 						startRundownId: rundownId,
 					})
 				)
-				// } else if (change.type === 'update') {
-				// 	console.log('update  ', change.newValue)
-				// this.emit('updated', change.newValue)
 			} else if (change.type === 'delete') {
-				const subHash = `rundown_${change.oldValue}`
-				console.log('removed', change.oldValue)
+				this.removeSubscription(`rundown_${change.oldValue}`)
+			}
+		})
+		// Subscribe to showStyleBases:
+		observe(this.subscriberManager.showStyleBases, (change) => {
+			if (change.type === 'add') {
+				const showStyleBaseId = change.newValue
+				const subHash = `showStyleBase_${showStyleBaseId}`
+				this.log.info('Subscribing to ShowStyleBase ' + showStyleBaseId)
 
-				const subs = this.subscriptions.get(subHash) || []
-
-				// No one is subscribed to this anymore, so unsubscribe:
-				subs.forEach((sub) => {
-					sub.then((subscriptionId) => {
-						this.core.unsubscribe(subscriptionId)
+				this.addSubscription(
+					subHash,
+					this.core.autoSubscribe('showStyleBases', {
+						_id: showStyleBaseId,
 					})
-				})
-				this.subscriptions.delete(subHash)
+				)
+			} else if (change.type === 'delete') {
+				this.removeSubscription(`showStyleBase_${change.oldValue}`)
 			}
 		})
 

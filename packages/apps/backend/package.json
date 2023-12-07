@@ -39,6 +39,7 @@
         "koa-bodyparser": "^4.4.1",
         "lodash.isequal": "^4.5.0",
         "mobx": "^6.11.0",
+        "mobx-utils": "^6.0.8",
         "winston": "^3.11.0",
         "yargs": "^17.7.2"
     },
