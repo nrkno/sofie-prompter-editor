@@ -49,4 +49,8 @@ async function init() {
 
 	log.info('Backend initialized')
 }
-init().catch(log.error)
+init().catch((err) => {
+	log.error(`Error during init`)
+	log.error(err)
+	log.error(err.stack)
+})

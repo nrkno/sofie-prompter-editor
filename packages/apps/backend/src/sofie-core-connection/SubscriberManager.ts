@@ -1,65 +1,70 @@
-import { action, makeAutoObservable, observable } from 'mobx'
+import { action, autorun, makeObservable, observable } from 'mobx'
 import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
-import { RealTimeConnection } from '@feathersjs/feathers'
 import * as Core from './CoreDataTypes/index.js'
 
 export class SubscriberManager {
-	public readonly playlists = observable.map<
-		RundownPlaylistId,
-		{
-			connections: RealTimeConnection[]
-		}
-	>()
+	public readonly playlists = observable.map<RundownPlaylistId, true>()
 	public readonly rundowns = observable.set<Core.RundownId>()
 	public readonly showStyleBases = observable.set<Core.ShowStyleBaseId>()
 	public readonly showStyleVariants = observable.set<Core.ShowStyleVariantId>()
 
 	constructor() {
-		makeAutoObservable(this, {
+		makeObservable(this, {
 			subscribeToPlaylist: action,
-			unsubscribeFromPlaylists: action,
-			subscribeToRundown: action,
-			unsubscribeFromRundown: action,
+			unsubscribeFromPlaylist: action,
+
+			subscribeToRundowns: action,
+			setShowStyleBaseSubscriptions: action,
+			setShowStyleVariantSubscriptions: action,
+		})
+		autorun(() => {
+			console.log('playlists', Array.from(this.playlists.keys()))
 		})
 	}
 
-	public subscribeToPlaylist(connection: RealTimeConnection, playlistId: RundownPlaylistId) {
-		// Add connection to a subscription
-		let sub = this.playlists.get(playlistId) || { connections: [] }
-		sub.connections.push(connection)
-		this.playlists.set(playlistId, sub)
-	}
-	public unsubscribeFromPlaylists(connection: RealTimeConnection) {
-		// Remove connection from all subscriptions
-
-		for (const [playlistId, sub] of this.playlists.entries()) {
-			let changed = false
-			const i = sub.connections.indexOf(connection)
-			if (i !== -1) {
-				sub.connections.splice(i, 1)
-				changed = true
-			}
-
-			if (changed) {
-				if (sub.connections.length === 0) {
-					this.playlists.delete(playlistId)
-				} else {
-					this.playlists.set(playlistId, sub)
-				}
-			}
+	public subscribeToPlaylist(playlistId: RundownPlaylistId) {
+		console.log('subscribeToPlaylist')
+		if (!this.playlists.has(playlistId)) {
+			this.playlists.set(playlistId, true)
 		}
 	}
-	public subscribeToRundown(rundownId: Core.RundownId) {
-		if (!this.rundowns.has(rundownId)) {
-			this.rundowns.add(rundownId)
-		}
-	}
-	public unsubscribeFromRundown(rundownId: Core.RundownId) {
-		if (this.rundowns.has(rundownId)) {
-			this.rundowns.delete(rundownId)
-		}
+	public getSubscribedPlaylists(): RundownPlaylistId[] {
+		return Array.from(this.playlists.keys())
 	}
 
+	public unsubscribeFromPlaylist(playlistId: RundownPlaylistId) {
+		console.log('unsubscribeFromPlaylists')
+		if (this.playlists.has(playlistId)) {
+			this.playlists.delete(playlistId)
+		}
+	}
+	// public unsubscribeFromPlaylists(connection: RealTimeConnection) {
+	// 	console.log('unsubscribeFromPlaylists', connection)
+	// 	// Remove connection from all subscriptions
+
+	// 	for (const [playlistId, sub] of this.playlists.entries()) {
+	// 		let changed = false
+	// 		const i = sub.connections.findIndex((c) => isEqual(c, connection))
+	// 		console.log('p length', sub.connections.length)
+	// 		console.log('p', playlistId, i)
+	// 		if (i !== -1) {
+	// 			sub.connections.splice(i, 1)
+	// 			changed = true
+	// 		}
+	// 		console.log('p length', sub.connections.length)
+
+	// 		if (changed) {
+	// 			if (sub.connections.length === 0) {
+	// 				this.playlists.delete(playlistId)
+	// 			} else {
+	// 				this.playlists.set(playlistId, sub)
+	// 			}
+	// 		}
+	// 	}
+	// }
+	public subscribeToRundowns(rundownIds: Core.RundownId[]) {
+		updateSet(this.rundowns, rundownIds)
+	}
 	public setShowStyleBaseSubscriptions(showStyleBaseIds: Core.ShowStyleBaseId[]) {
 		updateSet(this.showStyleBases, showStyleBaseIds)
 	}

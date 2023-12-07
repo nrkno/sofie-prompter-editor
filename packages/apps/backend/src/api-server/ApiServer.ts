@@ -70,11 +70,19 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 			// Add the connection to the Anything channel:
 			this.app.channel(PublishChannels.Everyone()).join(connection)
 		})
-		this.app.on('disconnect', (connection: RealTimeConnection) => {
+		this.app.on('disconnect', (_connection: RealTimeConnection) => {
 			// A client disconnected.
 			// Note: A disconnected client will leave all channels automatically.
 
-			this.coreConnection?.unsubscribe(connection)
+			if (this.coreConnection) {
+				for (const playlistId of this.coreConnection.getSubscribedPlaylists()) {
+					const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
+					if (subscriberCount === 0) {
+						// Noone is listening to this playlist, so unsubscribe from it:
+						this.coreConnection.unsubscribeFromPlaylist(playlistId)
+					}
+				}
+			}
 		})
 
 		this.playlist.on('tmpPong', (payload: string) => {

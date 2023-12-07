@@ -26,6 +26,7 @@ export class Store {
 	}
 
 	connectTransformers(transformers: Transformers) {
+		this.rundowns.connectTransformers(transformers)
 		this.parts.connectTransformers(transformers)
 	}
 }

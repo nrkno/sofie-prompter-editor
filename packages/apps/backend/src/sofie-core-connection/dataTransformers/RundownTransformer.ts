@@ -18,8 +18,8 @@ export class RundownTransformer {
 			showStyleVariantIds: computed,
 		})
 	}
-	get rundownIds(): Set<Core.RundownId> {
-		return new Set(Array.from(this.coreRundowns.keys()))
+	get rundownIds(): Core.RundownId[] {
+		return Array.from(this.coreRundowns.keys())
 	}
 	public transformRundownId(id: Core.RundownId): RundownId {
 		return this.convertId<Core.RundownId, RundownId>(id)
@@ -30,10 +30,24 @@ export class RundownTransformer {
 	public getPlaylistIdOfRundown = computedFn((rundownId: Core.RundownId): Core.RundownPlaylistId | undefined => {
 		return this.coreRundowns.get(rundownId)?.playlistId
 	})
-
-	public getTransformedRundown = computedFn((rundownId: RundownId): Rundown | undefined => {
-		const coreRundownId = this.convertId<RundownId, Core.RundownId>(rundownId)
-
+	public getShowStyleOfRundown = computedFn(
+		(
+			rundownId: Core.RundownId
+		):
+			| {
+					showStyleBaseId: Core.ShowStyleBaseId
+					showStyleVariantId: Core.ShowStyleVariantId
+			  }
+			| undefined => {
+			const rundown = this.coreRundowns.get(rundownId)
+			if (!rundown) return undefined
+			return {
+				showStyleBaseId: rundown.showStyleBaseId,
+				showStyleVariantId: rundown.showStyleVariantId,
+			}
+		}
+	)
+	public getTransformedRundown = computedFn((coreRundownId: Core.RundownId): Rundown | undefined => {
 		const coreRundown = this.coreRundowns.get(coreRundownId)
 		if (!coreRundown) return undefined
 
@@ -47,22 +61,13 @@ export class RundownTransformer {
 	})
 
 	updateCoreRundown(coreRundownId: Core.RundownId, coreRundown: Core.Rundown | undefined) {
-		// const rundownId = this.convertId<Core.RundownId, RundownId>(coreRundownId)
-
 		if (coreRundown) {
 			if (!isEqual(this.coreRundowns.get(coreRundownId), coreRundown)) {
 				this.coreRundowns.set(coreRundownId, coreRundown)
-
-				// Also update store.rundowns:
-				// const rundown = this.convert(coreRundown)
-				// this.store.rundowns.updateRundown(rundownId, rundown)
 			}
 		} else {
 			if (this.coreRundowns.has(coreRundownId)) {
 				this.coreRundowns.delete(coreRundownId)
-
-				// Also update store.rundowns:
-				// this.store.rundowns.updateRundown(rundownId, undefined)
 			}
 		}
 	}

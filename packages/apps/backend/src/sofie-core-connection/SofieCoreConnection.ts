@@ -6,7 +6,6 @@ import {
 	JSONBlobStringify,
 	StatusCode,
 } from '@sofie-automation/server-core-integration'
-import { RealTimeConnection } from '@feathersjs/feathers'
 import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import {
 	PeripheralDeviceCategory,
@@ -28,7 +27,6 @@ import { PartHandler } from './dataHandlers/PartHandler.js'
 import { Transformers } from './dataTransformers/Transformers.js'
 import { PieceHandler } from './dataHandlers/PieceHandler.js'
 import { ShowStyleBaseHandler } from './dataHandlers/ShowStyleBaseHandler.js'
-import { assertNever } from '@sofie-prompter-editor/shared-lib'
 
 interface SofieCoreConnectionEvents {
 	connected: []
@@ -125,13 +123,17 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		await this.updateCoreStatus()
 		await this.core.destroy()
 	}
-	public subscribeToPlaylist(connection: RealTimeConnection, playlistId: RundownPlaylistId) {
+	public subscribeToPlaylist(playlistId: RundownPlaylistId) {
 		// Add connection as a subscriber to the playlist:
-		this.subscriberManager.subscribeToPlaylist(connection, playlistId)
+		this.subscriberManager.subscribeToPlaylist(playlistId)
 	}
-	public unsubscribe(connection: RealTimeConnection) {
+	public getSubscribedPlaylists() {
+		// Return all subscriptions
+		return this.subscriberManager.getSubscribedPlaylists()
+	}
+	public unsubscribeFromPlaylist(playlistId: RundownPlaylistId) {
 		// Remove connection from all subscriptions
-		this.subscriberManager.unsubscribeFromPlaylists(connection)
+		this.subscriberManager.unsubscribeFromPlaylist(playlistId)
 	}
 	private setStatus(id: string, status: StatusCode, message: string): void {
 		this.statuses.set(id, { status, message })
@@ -210,12 +212,8 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 
 	private async setupSubscriptionManager(): Promise<void> {
 		// Set up subscriptions to all rundowns we know about:
-		observe(this.transformers.rundowns.rundownIds, (change) => {
-			if (change.type === 'add') {
-				this.subscriberManager.subscribeToRundown(change.newValue)
-			} else if (change.type === 'delete') {
-				this.subscriberManager.unsubscribeFromRundown(change.oldValue)
-			} else assertNever(change)
+		autorun(() => {
+			this.subscriberManager.subscribeToRundowns(this.transformers.rundowns.rundownIds)
 		})
 		// Set up subscriptions to all showStyles we know about:
 		autorun(() => {

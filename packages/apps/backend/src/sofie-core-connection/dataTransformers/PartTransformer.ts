@@ -1,4 +1,4 @@
-import { computed, makeObservable, observable } from 'mobx'
+import { action, computed, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import {
 	AnyProtectedString,
@@ -28,8 +28,10 @@ export class PartTransformer {
 	constructor(private transformers: Transformers) {
 		makeObservable(this, {
 			partIds: computed,
-			// updateCorePart: action,
-			// updateCorePiece: action,
+			updateCorePart: action,
+			updateCorePiece: action,
+			updateCoreShowStyleBase: action,
+			updateCoreShowStyleVariant: action,
 			// partPieces: computed,
 			// parts: computed,
 		})
@@ -41,8 +43,8 @@ export class PartTransformer {
 		// })
 	}
 
-	public get partIds(): Set<Core.PartId> {
-		return new Set(Array.from(this.coreParts.keys()))
+	public get partIds(): Core.PartId[] {
+		return Array.from(this.coreParts.keys())
 	}
 	public transformPartId(id: Core.PartId): PartId {
 		return this.convertId<Core.PartId, PartId>(id)
@@ -58,11 +60,14 @@ export class PartTransformer {
 		const corePlaylistId = this.transformers.rundowns.getPlaylistIdOfRundown(corePart.rundownId)
 		if (!corePlaylistId) return undefined
 
+		const showStyle = this.transformers.rundowns.getShowStyleOfRundown(corePart.rundownId)
+		if (!showStyle) return undefined
+
 		const rundownId: RundownId = this.convertId<Core.RundownId, RundownId>(corePart.rundownId)
 		const segmentId = this.convertId<Core.SegmentId, SegmentId>(corePart.segmentId)
 		const playlistId = this.convertId<Core.RundownPlaylistId, RundownPlaylistId>(corePlaylistId)
 
-		// const pieces = this.corePartPieces.get(corePartId) || []
+		const pieces = this.corePartPieces.get(corePartId) || []
 
 		return literal<Part>({
 			_id: partId,
@@ -73,6 +78,9 @@ export class PartTransformer {
 
 			isOnAir: false,
 			isNext: false,
+
+			// @ts-ignore
+			// pieces: pieces,
 
 			label: corePart.title,
 			// prompterLabel?: string

@@ -1,8 +1,7 @@
-import { IReactionDisposer, autorun, observable, observe } from 'mobx'
+import { IReactionDisposer, autorun, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { Part, PartId } from '@sofie-prompter-editor/shared-model'
 import { Transformers } from '../sofie-core-connection/dataTransformers/Transformers.js'
-import { assertNever } from '@sofie-prompter-editor/shared-lib'
 
 import * as Core from '../sofie-core-connection/CoreDataTypes/index.js'
 
@@ -19,10 +18,26 @@ export class PartStore {
 	}
 	connectTransformers(transformers: Transformers) {
 		// Observe and retrieve parts from the transformer:
-		observe(transformers.parts.partIds, (change) => {
-			if (change.type === 'add') {
-				const corePartId = change.newValue
+		autorun(() => {
+			const corePartIds = transformers.parts.partIds
 
+			const corePartIdSet = new Set(corePartIds)
+
+			// Removed:
+			for (const corePartId of this.partAutoruns.keys()) {
+				if (!corePartIdSet.has(corePartId)) {
+					const disposer = this.partAutoruns.get(corePartId)
+					if (disposer) {
+						disposer()
+						this.partAutoruns.delete(corePartId)
+
+						const partId = transformers.parts.transformPartId(corePartId)
+						if (this.parts.has(partId)) this.parts.delete(partId)
+					}
+				}
+			}
+			// Added:
+			for (const corePartId of corePartIds) {
 				if (!this.partAutoruns.has(corePartId)) {
 					this.partAutoruns.set(
 						corePartId,
@@ -38,18 +53,7 @@ export class PartStore {
 						})
 					)
 				}
-			} else if (change.type === 'delete') {
-				const corePartId = change.oldValue
-
-				const disposer = this.partAutoruns.get(corePartId)
-				if (disposer) {
-					disposer()
-					this.partAutoruns.delete(corePartId)
-
-					const partId = transformers.parts.transformPartId(corePartId)
-					if (this.parts.has(partId)) this.parts.delete(partId)
-				}
-			} else assertNever(change)
+			}
 		})
 	}
 }

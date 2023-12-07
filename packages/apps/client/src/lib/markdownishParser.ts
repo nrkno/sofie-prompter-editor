@@ -1,5 +1,3 @@
-import { assertType } from 'packages/shared/lib/dist'
-
 interface NodeBase {
 	type: string
 }

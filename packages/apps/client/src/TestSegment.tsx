@@ -2,6 +2,7 @@ import React from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
 import { Segment, Part, PartId } from '@sofie-prompter-editor/shared-model'
 import { useApiConnection } from './TestUtil.tsx'
+import { TestPart } from './TestPart.tsx'
 
 export const TestSegment: React.FC<{ api: APIConnection; segment: Segment }> = ({ api, segment }) => {
 	const [parts, setParts] = React.useState<Record<PartId, Part>>({})
@@ -68,8 +69,7 @@ export const TestSegment: React.FC<{ api: APIConnection; segment: Segment }> = (
 				<b>Parts:</b>
 				<div style={{ margin: '0.5em' }}>
 					{sortedParts.map((part) => (
-						<div key={part._id}>Part "{part.label}"</div>
-						// <TestPart key={part._id} api={api} segment={part}></TestPart>
+						<TestPart key={part._id} api={api} part={part}></TestPart>
 					))}
 				</div>
 			</div>
