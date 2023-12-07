@@ -37,4 +37,6 @@ export const ViewPortSchema = z.object({
 	width: z.number(),
 	/** Current position of the viewport */
 	position: ViewPortPositionSchema,
+
+	// last controller message?
 })

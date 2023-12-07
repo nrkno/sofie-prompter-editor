@@ -42,12 +42,6 @@ export function Editor({
 	// }, [])
 
 	useEffect(() => {
-		const test = 'Raz dwa trzy **cztery pięć** sześć. ABC :reverse[Siedem osiem] dziewięć.'
-		const data = fromMarkdown(test)
-		console.log(data)
-	}, [])
-
-	useEffect(() => {
 		if (!containerEl.current) return
 
 		const rundown = schema.node(schema.nodes.rundown, undefined, [
@@ -62,7 +56,7 @@ export function Editor({
 					[
 						schema.node(schema.nodes.lineTitle, undefined, [schema.text('Line title')]),
 						...fromMarkdown(
-							'Raz _dwa **trzy**_. :reverse[Cztery.]\n\nPięć _sześć_ siedem.  \nRaz\n\n\n\n\n Some more :reverse[Markdown **Here**]'
+							'Raz _dwa **trzy**_. ~Cztery.~\n\nPięć _sześć_ siedem.\nRaz\n\n\n\n\n Some more ~Markdown **Here**~'
 						),
 					]
 				),
