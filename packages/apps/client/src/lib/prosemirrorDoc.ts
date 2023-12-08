@@ -1,6 +1,7 @@
 import { Node as ProsemirrorNode } from 'prosemirror-model'
 import { schema } from '../ScriptEditor/scriptSchema'
-import { astFromMarkdownish, Node as MdAstNode } from './markdownishParser'
+import { Node as MdAstNode } from './mdParser/astNodes'
+import { astFromMarkdownish } from './mdParser'
 
 export function fromMarkdown(text: string): ProsemirrorNode[] {
 	const ast = astFromMarkdownish(text)
