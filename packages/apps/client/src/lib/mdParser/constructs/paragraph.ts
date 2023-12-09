@@ -1,4 +1,4 @@
-import { NodeConstruct, ParserState } from '..'
+import { NodeConstruct, ParserState, CharHandlerResult } from '../parserState'
 import { ParagraphNode } from '../astNodes'
 
 export function paragraph(): NodeConstruct {
@@ -11,7 +11,7 @@ export function paragraph(): NodeConstruct {
 		state.replaceStack(newParagraph)
 	}
 
-	function paragraphEnd(char: string, state: ParserState) {
+	function paragraphEnd(char: string, state: ParserState): CharHandlerResult {
 		if (state.nodeCursor === null) {
 			paragraphStart(char, state)
 		}
@@ -19,7 +19,7 @@ export function paragraph(): NodeConstruct {
 		state.flushBuffer()
 		state.nodeCursor = null
 
-		return false
+		return CharHandlerResult.StopProcessingNoBuffer
 	}
 
 	return {

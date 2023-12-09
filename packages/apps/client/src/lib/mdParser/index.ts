@@ -3,20 +3,7 @@ import { emphasisAndStrong } from './constructs/emphasisAndStrong'
 import { escape } from './constructs/escape'
 import { paragraph } from './constructs/paragraph'
 import { reverse } from './constructs/reverse'
-
-export interface ParserState {
-	readonly nodeStack: ParentNodeBase[]
-	nodeCursor: ParentNodeBase | null
-	buffer: string
-	charCursor: number
-	readonly dataStore: Record<string, unknown>
-	flushBuffer: () => void
-	pushNode: (node: ParentNodeBase) => void
-	popNode: () => void
-	replaceStack: (node: ParentNodeBase) => void
-	peek: () => string | undefined
-	consume: () => void
-}
+import { CharHandler, CharHandlerResult, NodeConstruct, ParserState } from './parserState'
 
 export class ParserStateImpl implements ParserState {
 	readonly nodeStack: ParentNodeBase[] = []
@@ -60,27 +47,15 @@ export class ParserStateImpl implements ParserState {
 		return this.text[this.charCursor + 1]
 	}
 	consume = () => {
+		if (this.text[this.charCursor + 1] === undefined) throw new Error('No more text available to parse')
 		this.charCursor++
+		return this.text[this.charCursor]
 	}
 }
 
-export type CharHandler = (char: string, state: ParserState) => void | undefined | boolean
+export type Parser = (text: string) => RootNode
 
-export interface NodeConstruct {
-	name?: string
-	char: Record<string, CharHandler>
-}
-
-export function astFromMarkdownish(text: string): RootNode {
-	performance.mark('astFromMarkdownishBegin')
-
-	const document: RootNode = {
-		type: 'root',
-		children: [],
-	}
-
-	const state = new ParserStateImpl(document, text)
-
+export default function createParser(): Parser {
 	const nodeConstructs: NodeConstruct[] = [paragraph(), escape(), emphasisAndStrong(), reverse()]
 
 	const charHandlers: Record<string, CharHandler[]> = {}
@@ -92,36 +67,47 @@ export function astFromMarkdownish(text: string): RootNode {
 		}
 	}
 
-	function runAll(handlers: CharHandler[], char: string, state: ParserState): void | undefined | boolean {
+	function runAll(handlers: CharHandler[], char: string, state: ParserState): void | undefined | CharHandlerResult {
 		for (const handler of handlers) {
 			const result = handler(char, state)
-			if (typeof result === 'boolean') return result
+			if (typeof result === 'number') return result
 		}
 	}
 
-	for (state.charCursor = 0; state.charCursor < text.length; state.charCursor++) {
-		const char = text[state.charCursor]
-		let preventOthers = false
-		if (!preventOthers && charHandlers['any']) {
-			const result = runAll(charHandlers['any'], char, state)
-			if (result === false) continue
-			if (result === true) preventOthers = true
+	return function astFromMarkdownish(text: string): RootNode {
+		performance.mark('astFromMarkdownishBegin')
+
+		const document: RootNode = {
+			type: 'root',
+			children: [],
 		}
-		if (!preventOthers && charHandlers[char]) {
-			const result = runAll(charHandlers[char], char, state)
-			if (result === false) continue
-			if (result === true) preventOthers = true
+
+		const state = new ParserStateImpl(document, text)
+
+		for (state.charCursor = 0; state.charCursor < text.length; state.charCursor++) {
+			const char = text[state.charCursor]
+			let preventOthers = false
+			if (!preventOthers && charHandlers['any']) {
+				const result = runAll(charHandlers['any'], char, state)
+				if (result === CharHandlerResult.StopProcessingNoBuffer) continue
+				if (result === CharHandlerResult.StopProcessing) preventOthers = true
+			}
+			if (!preventOthers && charHandlers[char]) {
+				const result = runAll(charHandlers[char], char, state)
+				if (result === CharHandlerResult.StopProcessingNoBuffer) continue
+				if (result === CharHandlerResult.StopProcessing) preventOthers = true
+			}
+			state.buffer += char
 		}
-		state.buffer += char
+
+		if (charHandlers['end']) runAll(charHandlers['end'], 'end', state)
+
+		performance.mark('astFromMarkdownishEnd')
+
+		console.log(performance.measure('astFromMarkdownish', 'astFromMarkdownishBegin', 'astFromMarkdownishEnd'))
+
+		console.log(document)
+
+		return document
 	}
-
-	if (charHandlers['end']) runAll(charHandlers['end'], 'end', state)
-
-	performance.mark('astFromMarkdownishEnd')
-
-	console.log(performance.measure('astFromMarkdownish', 'astFromMarkdownishBegin', 'astFromMarkdownishEnd'))
-
-	console.log(document)
-
-	return document
 }

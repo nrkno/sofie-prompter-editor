@@ -1,18 +1,18 @@
-import { NodeConstruct, ParserState } from '..'
-import { EmphasisNode, StrongNode } from '../astNodes'
+import { NodeConstruct, ParserState, CharHandlerResult } from '../parserState'
+import { EmphasisNode, StrongNode, Node, ParentNodeBase } from '../astNodes'
 
 export function emphasisAndStrong(): NodeConstruct {
-	function emphasisOrStrong(char: string, state: ParserState) {
+	function emphasisOrStrong(char: string, state: ParserState): CharHandlerResult | void {
 		if (state.nodeCursor === null) throw new Error('cursor === null assertion')
-		if ((state.nodeCursor.type === 'emphasis' || state.nodeCursor.type === 'strong') && 'code' in state.nodeCursor) {
-			if (state.nodeCursor.code === char) {
+		if (state.nodeCursor && isEmphasisOrStrongNode(state.nodeCursor)) {
+			if (state.nodeCursor.code.startsWith(char)) {
 				if (state.peek() === char) {
 					state.consume()
 				}
 
 				state.flushBuffer()
 				state.popNode()
-				return false
+				return CharHandlerResult.StopProcessingNoBuffer
 			}
 		}
 
@@ -22,7 +22,7 @@ export function emphasisAndStrong(): NodeConstruct {
 
 		if (state.peek() === char) {
 			type = 'strong'
-			state.consume()
+			char += state.consume()
 		}
 
 		const emphasisOrStrongNode: EmphasisNode | StrongNode = {
@@ -32,7 +32,7 @@ export function emphasisAndStrong(): NodeConstruct {
 		}
 		state.pushNode(emphasisOrStrongNode)
 
-		return false
+		return CharHandlerResult.StopProcessingNoBuffer
 	}
 
 	return {
@@ -42,4 +42,8 @@ export function emphasisAndStrong(): NodeConstruct {
 			_: emphasisOrStrong,
 		},
 	}
+}
+
+function isEmphasisOrStrongNode(node: Node | ParentNodeBase): node is EmphasisNode | StrongNode {
+	return node.type === 'emphasis' || node.type === 'strong'
 }
