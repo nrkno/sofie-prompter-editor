@@ -29,6 +29,7 @@ export function SplitPanel({
 		setIsResizing(true)
 		beginCoords.current = { x: e.clientX, y: e.clientY }
 		contRect.current = container.current?.getBoundingClientRect() ?? null
+		e.preventDefault()
 	}
 
 	const style = useMemo<React.CSSProperties>(() => {
