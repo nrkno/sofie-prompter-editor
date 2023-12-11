@@ -50,11 +50,11 @@ export interface Part extends DataObject {
 }
 
 export enum PartDisplayType {
-	KAM,
-	FULL,
-	STK,
-	SPL,
-	DIR,
+	Camera = 'camera',
+	VT = 'vt',
+	LiveSpeak = 'liveSpeak',
+	Split = 'split',
+	Remote = 'remote',
 }
 
 /** Stored as markdown */
