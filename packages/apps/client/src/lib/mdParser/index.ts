@@ -104,9 +104,9 @@ export default function createParser(): Parser {
 
 		performance.mark('astFromMarkdownishEnd')
 
-		console.log(performance.measure('astFromMarkdownish', 'astFromMarkdownishBegin', 'astFromMarkdownishEnd'))
+		// console.log(performance.measure('astFromMarkdownish', 'astFromMarkdownishBegin', 'astFromMarkdownishEnd'))
 
-		console.log(document)
+		// console.log(document)
 
 		return document
 	}

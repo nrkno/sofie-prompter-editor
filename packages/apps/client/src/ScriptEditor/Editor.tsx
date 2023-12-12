@@ -1,14 +1,14 @@
 import React, { useEffect, useRef } from 'react'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
-import { EditorState, SelectionBookmark, TextSelection } from 'prosemirror-state'
+import { EditorState, SelectionBookmark } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { Fragment, Node, Slice } from 'prosemirror-model'
 import { baseKeymap } from 'prosemirror-commands'
-import { ReplaceStep, replaceStep } from 'prosemirror-transform'
+import { replaceStep } from 'prosemirror-transform'
 import { schema } from './scriptSchema'
 import 'prosemirror-view/style/prosemirror.css'
-import { updateModel } from './plugins/updateModel'
+import { EXTERNAL_STATE_CHANGE, updateModel } from './plugins/updateModel'
 import { readOnlyNodeFilter } from './plugins/readOnlyNodeFilter'
 import { randomId } from '../lib/lib'
 import { formatingKeymap } from './keymaps'
@@ -101,7 +101,7 @@ export function Editor({
 				keymap(formatingKeymap),
 				keymap(baseKeymap),
 				readOnlyNodeFilter(),
-				updateModel(() => {}),
+				updateModel((lineId, change) => console.log(lineId, change)),
 			],
 			doc,
 		})
@@ -169,6 +169,7 @@ export function Editor({
 			if (!step) return
 
 			const tr = editorState.tr.step(step)
+			tr.setMeta(EXTERNAL_STATE_CHANGE, true)
 			let newState = editorState.apply(tr)
 
 			if (selectionBookmark) newState = restoreSelection(newState, selectionBookmark)

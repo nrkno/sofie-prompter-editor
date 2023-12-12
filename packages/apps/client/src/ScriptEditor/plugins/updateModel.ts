@@ -3,6 +3,8 @@ import { UILineId } from '../../model/UILine'
 import { Node } from 'prosemirror-model'
 import { schema } from '../scriptSchema'
 
+export const EXTERNAL_STATE_CHANGE = 'externalStateChange'
+
 export function updateModel(onChange?: (lineId: UILineId, contents: SomeContents) => void) {
 	return new Plugin({
 		appendTransaction: (trs, oldState, newState) => {
@@ -10,6 +12,7 @@ export function updateModel(onChange?: (lineId: UILineId, contents: SomeContents
 			if (!anyChanges) return null
 
 			for (const tr of trs) {
+				if (tr.getMeta(EXTERNAL_STATE_CHANGE)) return
 				for (const step of tr.steps) {
 					step.getMap().forEach((oldStart, oldEnd, newStart, newEnd) => {
 						oldState.doc.nodesBetween(oldStart, oldEnd, (_node, _pos, parent) => {
