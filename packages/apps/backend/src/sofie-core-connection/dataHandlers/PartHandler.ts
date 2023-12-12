@@ -75,7 +75,7 @@ export class PartHandler extends DataHandler {
 				isNext: false, // TODO
 				display: {
 					label: '', // TODO
-					type: PartDisplayType.FULL, // TODO
+					type: PartDisplayType.VT, // TODO
 				},
 			},
 		}

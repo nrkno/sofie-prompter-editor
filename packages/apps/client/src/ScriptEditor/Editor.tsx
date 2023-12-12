@@ -1,9 +1,11 @@
 import React, { useEffect, useRef } from 'react'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
-import { EditorState } from 'prosemirror-state'
+import { EditorState, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
+import { Fragment, Node, Slice } from 'prosemirror-model'
 import { baseKeymap } from 'prosemirror-commands'
+import { ReplaceStep, replaceStep } from 'prosemirror-transform'
 import { schema } from './scriptSchema'
 import 'prosemirror-view/style/prosemirror.css'
 import { updateModel } from './plugins/updateModel'
@@ -20,6 +22,10 @@ const LOREM_IPSUM =
 	'Duis mollis ut enim vitae lobortis. ~Nulla mi libero~, blandit sit amet congue eu, vehicula vel sem. Donec maximus lacus \\~ac nisi blandit sodales. Fusce sed lectus iaculis, tempus quam lacinia, gravida velit. In imperdiet, sem sit amet commodo eleifend, turpis tellus lobortis metus, et rutrum mi sapien vel nisl. Pellentesque at est non tortor efficitur tincidunt vitae in ex. In gravida pulvinar ligula eget pellentesque. Nullam viverra orci velit, at dictum diam imperdiet sit amet. Morbi consequat est vitae mi consequat fringilla. Phasellus pharetra turpis nulla, at molestie nunc hendrerit ut. \n' +
 	'Aenean ut nulla ut diam imperdiet laoreet sed sed enim. **Vivamus bibendum** tempus metus ac consectetur. Aliquam ut nisl sed mauris sodales dignissim. Integer consectetur sapien quam, sit amet blandit quam cursus ac. Quisque vel convallis erat. Aliquam ac interdum nisi. Praesent id sapien vitae sem venenatis sollicitudin. '
 
+const LINE_1_ID = randomId()
+const LINE_2_ID = randomId()
+const LINE_3_ID = randomId()
+
 export function Editor({
 	initialValue,
 	className,
@@ -30,7 +36,6 @@ export function Editor({
 }): React.JSX.Element {
 	const containerEl = useRef<HTMLDivElement>(null)
 	const editorView = useRef<EditorView>()
-	const editorState = useRef<EditorState>()
 
 	void initialValue
 
@@ -58,7 +63,7 @@ export function Editor({
 				schema.node(
 					schema.nodes.line,
 					{
-						lineId: randomId(),
+						lineId: LINE_1_ID,
 					},
 					[
 						schema.node(schema.nodes.lineTitle, undefined, [schema.text('Line title')]),
@@ -70,14 +75,14 @@ export function Editor({
 				schema.node(
 					schema.nodes.line,
 					{
-						lineId: randomId(),
+						lineId: LINE_2_ID,
 					},
 					[schema.node(schema.nodes.lineTitle, undefined, schema.text('Line title')), ...fromMarkdown(LOREM_IPSUM)]
 				),
 				schema.node(
 					schema.nodes.line,
 					{
-						lineId: randomId(),
+						lineId: LINE_3_ID,
 					},
 					[
 						schema.node(schema.nodes.lineTitle, undefined, schema.text('Line title')),
@@ -105,14 +110,79 @@ export function Editor({
 		})
 
 		editorView.current = view
-		editorState.current = state
 
 		return () => {
 			view.destroy()
 		}
 	}, [])
 
+	useEffect(() => {
+		const loop = setInterval(() => {
+			if (!editorView.current) return
+
+			const editorState = editorView.current.state
+
+			const line = find(editorState.doc, (node) => node.attrs['lineId'] === LINE_2_ID)
+
+			if (!line) return
+
+			const ranges: { offset: number; size: number }[] = []
+
+			line.node.forEach((node, offset) => {
+				if (node.type !== schema.nodes.paragraph) return
+				ranges.push({ offset, size: node.nodeSize })
+			})
+			ranges.sort((a, b) => a.offset - b.offset)
+			const beginOffset = line.pos + 1 + ranges[0].offset
+			const endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
+			const selectionBookmark = editorState.selection.getBookmark()
+			const step = replaceStep(
+				editorState.doc,
+				beginOffset,
+				endOffset,
+				Slice.maxOpen(
+					Fragment.fromArray([
+						schema.node(schema.nodes.paragraph, undefined, schema.text(`Script... ${new Date().toString()}`)),
+					])
+				)
+			)
+			if (!step) return
+
+			const tr = editorState.tr.step(step)
+
+			let newState = editorState.apply(tr)
+
+			const restoreSelectionTr = newState.tr.setSelection(selectionBookmark.resolve(newState.doc))
+			newState = newState.apply(restoreSelectionTr)
+
+			editorView.current.updateState(newState)
+		}, 5000)
+
+		return () => {
+			clearInterval(loop)
+		}
+	}, [])
+
 	return <div ref={containerEl} className={className} spellCheck="false"></div>
+}
+
+function find(
+	node: Node,
+	predicate: (needle: Node, offset: number, index: number) => boolean
+): undefined | NodeWithPosition {
+	let found: NodeWithPosition | undefined = undefined
+	node.descendants((maybeNode, pos, _, index) => {
+		if (found) return
+		const isOK = predicate(maybeNode, pos, index)
+		if (isOK) found = { node: maybeNode, pos }
+	})
+
+	return found
+}
+
+type NodeWithPosition = {
+	node: Node
+	pos: number
 }
 
 type OnChangeEvent = {
