@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
-import { EditorState, TextSelection } from 'prosemirror-state'
+import { EditorState, SelectionBookmark, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { Fragment, Node, Slice } from 'prosemirror-model'
 import { baseKeymap } from 'prosemirror-commands'
@@ -101,7 +101,7 @@ export function Editor({
 				keymap(formatingKeymap),
 				keymap(baseKeymap),
 				readOnlyNodeFilter(),
-				updateModel(console.log),
+				updateModel(() => {}),
 			],
 			doc,
 		})
@@ -135,27 +135,47 @@ export function Editor({
 			ranges.sort((a, b) => a.offset - b.offset)
 			const beginOffset = line.pos + 1 + ranges[0].offset
 			const endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
-			const selectionBookmark = editorState.selection.getBookmark()
-			const step = replaceStep(
-				editorState.doc,
-				beginOffset,
-				endOffset,
-				Slice.maxOpen(
-					Fragment.fromArray([
-						schema.node(schema.nodes.paragraph, undefined, schema.text(`Script... ${new Date().toString()}`)),
-					])
-				)
-			)
+
+			let selectionBookmark: SelectionBookmark | undefined
+
+			const fragment = Fragment.fromArray([
+				...fromMarkdown(
+					LOREM_IPSUM.substring(0, Math.floor(LOREM_IPSUM.length * Math.random())) + `\n\n${new Date().toString()}`
+				),
+			])
+
+			const top = getSelectionTop()
+
+			if (beginOffset < editorState.selection.$head.pos && endOffset > editorState.selection.$head.pos) {
+				// TODO: Handle a heuristic for keeping the caret at the very end of the Segment script
+				selectionBookmark = preserveSelection(editorState)
+				selectionBookmark = selectionBookmark.map({
+					map: (pos) => {
+						return Math.min(pos, beginOffset + fragment.size - 1)
+					},
+					mapResult: (pos) => {
+						return {
+							pos: Math.min(pos, beginOffset + fragment.size - 1),
+							deleted: false,
+							deletedAcross: false,
+							deletedAfter: false,
+							deletedBefore: false,
+						}
+					},
+				})
+			}
+
+			const step = replaceStep(editorState.doc, beginOffset, endOffset, Slice.maxOpen(fragment))
 			if (!step) return
 
 			const tr = editorState.tr.step(step)
-
 			let newState = editorState.apply(tr)
 
-			const restoreSelectionTr = newState.tr.setSelection(selectionBookmark.resolve(newState.doc))
-			newState = newState.apply(restoreSelectionTr)
+			if (selectionBookmark) newState = restoreSelection(newState, selectionBookmark)
 
 			editorView.current.updateState(newState)
+
+			if (top && containerEl.current) restoreSelectionTop(top, containerEl.current)
 		}, 5000)
 
 		return () => {
@@ -164,6 +184,42 @@ export function Editor({
 	}, [])
 
 	return <div ref={containerEl} className={className} spellCheck="false"></div>
+}
+
+function restoreSelectionTop(top: number, overflowEl: HTMLElement) {
+	const afterUpdateTop = getSelectionTop()
+	if (afterUpdateTop) {
+		const diff = afterUpdateTop - top
+		if (overflowEl && diff) {
+			const el = overflowEl
+			el.scrollBy({
+				top: diff,
+				behavior: 'instant',
+			})
+		}
+	}
+}
+
+function getSelectionTop(): number | undefined {
+	const selection = document.getSelection()
+	if (!selection) return
+	const el = nearestElement(selection.focusNode)
+	if (!el) return
+	const rect = el.getBoundingClientRect()
+	return rect.top
+}
+
+function preserveSelection(state: EditorState): SelectionBookmark {
+	return state.selection.getBookmark()
+}
+
+function restoreSelection(state: EditorState, preservedSelection: SelectionBookmark): EditorState {
+	const restoreSelectionTr = state.tr.setSelection(preservedSelection.resolve(state.doc))
+	return state.apply(restoreSelectionTr)
+}
+
+function nearestElement(node: globalThis.Node | null): HTMLElement | null {
+	return node?.parentElement ?? null
 }
 
 function find(

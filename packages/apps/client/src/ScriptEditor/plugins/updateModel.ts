@@ -27,7 +27,7 @@ export function updateModel(onChange?: (lineId: UILineId, contents: SomeContents
 									if (node.type === schema.nodes.lineTitle) return
 									allNodes.push(node)
 								})
-								console.log(allNodes)
+								// console.log(allNodes)
 								if (onChange) onChange(lineId, allNodes)
 							})
 						})
