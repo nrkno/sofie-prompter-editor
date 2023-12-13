@@ -184,7 +184,33 @@ export function Editor({
 		}
 	}, [])
 
-	return <div ref={containerEl} className={className} spellCheck="false"></div>
+	function onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+		if (!containerEl.current) return
+		if (!(!e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey)) return
+
+		switch (e.code) {
+			case 'ArrowUp':
+				window.getSelection()?.modify('move', 'backward', 'line')
+				containerEl.current.scrollBy({
+					top: -1 * getLineHeight(),
+					behavior: 'smooth',
+				})
+				break
+			case 'ArrowDown':
+				window.getSelection()?.modify('move', 'forward', 'line')
+				containerEl.current.scrollBy({
+					top: getLineHeight(),
+					behavior: 'smooth',
+				})
+				break
+		}
+	}
+
+	return <div ref={containerEl} className={className} spellCheck="false" onKeyDown={onKeyDown}></div>
+}
+
+function getLineHeight(): number {
+	return 21
 }
 
 function restoreSelectionTop(top: number, overflowEl: HTMLElement) {
