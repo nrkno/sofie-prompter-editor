@@ -193,14 +193,14 @@ export function Editor({
 				window.getSelection()?.modify('move', 'backward', 'line')
 				containerEl.current.scrollBy({
 					top: -1 * getLineHeight(),
-					behavior: 'smooth',
+					behavior: 'instant',
 				})
 				break
 			case 'ArrowDown':
 				window.getSelection()?.modify('move', 'forward', 'line')
 				containerEl.current.scrollBy({
 					top: getLineHeight(),
-					behavior: 'smooth',
+					behavior: 'instant',
 				})
 				break
 		}
