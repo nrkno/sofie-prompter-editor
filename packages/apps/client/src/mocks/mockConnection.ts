@@ -151,7 +151,7 @@ export class MockConnection extends EventEmitter {
 		},
 	}
 
-	private _parts = [
+	private _parts: Part[] = [
 		{
 			_id: PART_ID_0_0_0,
 			label: 'Part 0',
@@ -179,6 +179,8 @@ export class MockConnection extends EventEmitter {
 			},
 			isOnAir: true,
 			isNext: false,
+			scriptContents:
+				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sollicitudin ipsum at lacinia sodales. *Sed* in **pharetra _mauris_**, id facilisis nibh. Curabitur eget erat bibendum, aliquam ligula ac, interdum orci.',
 		},
 		{
 			_id: PART_ID_0_0_2,
@@ -207,6 +209,8 @@ export class MockConnection extends EventEmitter {
 			},
 			isOnAir: true,
 			isNext: false,
+			scriptContents:
+				'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sollicitudin ipsum at lacinia sodales. *Sed* in **pharetra _mauris_**, id facilisis nibh. Curabitur eget erat bibendum, aliquam ligula ac, interdum orci.',
 		},
 		{
 			_id: PART_ID_0_1_0,
@@ -235,6 +239,8 @@ export class MockConnection extends EventEmitter {
 			},
 			isOnAir: true,
 			isNext: false,
+			scriptContents:
+				'Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum.',
 		},
 		{
 			_id: PART_ID_0_2_0,
@@ -277,6 +283,8 @@ export class MockConnection extends EventEmitter {
 			},
 			isOnAir: true,
 			isNext: false,
+			scriptContents:
+				'Donec ac rhoncus ex. Pellentesque _eleifend_ ante id maximus *mollis*. Duis in mauris vel ligula __venenatis__ gravida.\n\n\\*Mauris blandit arcu a lorem cursus ornare. Vestibulum ~at ligula vel~ nisi eleifend pretium.',
 		},
 		{
 			_id: PART_ID_0_3_1,
@@ -305,6 +313,8 @@ export class MockConnection extends EventEmitter {
 			},
 			isOnAir: true,
 			isNext: false,
+			scriptContents:
+				'Aenean ut nulla ut _diam imperdiet_ laoreet sed sed enim. **Vivamus bibendum** tempus metus ac consectetur. Aliquam ut nisl sed mauris sodales dignissim. ~Integer **consectetur sapien**~ quam, sit amet blandit quam cursus ac.',
 		},
 	]
 
