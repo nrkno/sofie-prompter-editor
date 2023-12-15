@@ -36,7 +36,14 @@ const PLAYLIST_ID_1 = generateId('playlist')
 
 const START_TIME = Date.now()
 
-export class MockConnection extends EventEmitter {
+type Handler<T = object> = (arg: T) => void
+
+type EventTypes = 'created' | 'changed' | 'removed'
+type Services = 'playlist' | 'rundown' | 'segment' | 'part'
+
+type Events = `${Services}_${EventTypes}`
+
+export class MockConnection extends EventEmitter<Events> {
 	private _playlists = [
 		{
 			_id: PLAYLIST_ID_0,
@@ -69,11 +76,11 @@ export class MockConnection extends EventEmitter {
 			await sleep(500)
 			return this._playlists.find((item) => item._id === id)
 		},
-		on: (type: string, e: unknown) => {
-			void e, type
+		on: (type: EventTypes, fn: Handler) => {
+			this.on(`playlist_${type}`, fn)
 		},
-		off: (type: string, e: unknown) => {
-			void e, type
+		off: (type: EventTypes, fn: Handler) => {
+			this.off(`playlist_${type}`, fn)
 		},
 	}
 
@@ -95,11 +102,11 @@ export class MockConnection extends EventEmitter {
 			await sleep(500)
 			return this._rundowns.find((item) => item._id === id)
 		},
-		on: (type: string, e: unknown) => {
-			void e, type
+		on: (type: EventTypes, fn: Handler) => {
+			this.on(`rundown_${type}`, fn)
 		},
-		off: (type: string, e: unknown) => {
-			void e, type
+		off: (type: EventTypes, fn: Handler) => {
+			this.off(`rundown_${type}`, fn)
 		},
 	}
 
@@ -143,11 +150,11 @@ export class MockConnection extends EventEmitter {
 			await sleep(500)
 			return this._segments.find((item) => item._id === id)
 		},
-		on: (type: string, e: unknown) => {
-			void e, type
+		on: (type: EventTypes, fn: Handler) => {
+			this.on(`segment_${type}`, fn)
 		},
-		off: (type: string, e: unknown) => {
-			void e, type
+		off: (type: EventTypes, fn: Handler) => {
+			this.off(`segment_${type}`, fn)
 		},
 	}
 
@@ -321,18 +328,39 @@ export class MockConnection extends EventEmitter {
 	parts = {
 		find: async (args?: Query<Part>): Promise<Part[]> => {
 			await sleep(500)
-			return this._parts.filter((part) => !args || match(part, args.query))
+			return this._parts.filter((part) => !args || match(part as unknown as { [s: string]: unknown }, args.query))
 		},
 		get: async (id: PartId): Promise<Part | undefined> => {
 			await sleep(500)
 			return this._parts.find((item) => item._id === id)
 		},
-		on: (type: string, e: unknown) => {
-			void e, type
+		on: (type: EventTypes, fn: Handler<Part>) => {
+			this.on(`part_${type}`, fn)
 		},
-		off: (type: string, e: unknown) => {
-			void e, type
+		off: (type: EventTypes, fn: Handler<Part | Partial<Part>>) => {
+			this.off(`part_${type}`, fn)
 		},
+	}
+
+	constructor() {
+		super()
+		setInterval(() => {
+			this.emit('part_changed', {
+				_id: PART_ID_0_0_1,
+				label: 'Part 1',
+				rank: 1,
+				playlistId: PLAYLIST_ID_0,
+				rundownId: RUNDOWN_ID_0_0,
+				segmentId: SEGMENT_ID_0_0,
+				display: {
+					label: 'KAM',
+					type: PartDisplayType.Camera,
+				},
+				isOnAir: true,
+				isNext: false,
+				scriptContents: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\n${new Date().toString()}`,
+			})
+		}, 2000)
 	}
 }
 

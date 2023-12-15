@@ -3,7 +3,9 @@ import { schema } from '../ScriptEditor/scriptSchema'
 import { Node as MdAstNode } from './mdParser/astNodes'
 import createMdParser from './mdParser'
 
-export function fromMarkdown(text: string): ProsemirrorNode[] {
+export function fromMarkdown(text: string | null): ProsemirrorNode[] {
+	if (text === null) return []
+
 	const astFromMarkdownish = createMdParser()
 	const ast = astFromMarkdownish(text)
 

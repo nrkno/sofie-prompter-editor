@@ -15,6 +15,7 @@ import { deselectAll } from './commands/deselectAll'
 import { fromMarkdown } from '../lib/prosemirrorDoc'
 import { AppStore } from '../stores/AppStore'
 import { UILineId } from '../model/UILine'
+import { IReactionDisposer, autorun, reaction } from 'mobx'
 
 export function Editor({
 	className,
@@ -28,44 +29,9 @@ export function Editor({
 	useEffect(() => {
 		if (!containerEl.current) return
 
-		const openRundown = AppStore.rundownStore.openRundown
+		const doc = schema.node(schema.nodes.doc, undefined, [])
 
-		if (!openRundown) return
-
-		const rundown = schema.node(schema.nodes.rundown, undefined, [
-			schema.node(schema.nodes.rundownTitle, undefined, schema.text(openRundown.name)),
-			...openRundown.segmentsInOrder.map((segment) =>
-				schema.node(schema.nodes.segment, undefined, [
-					schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name)),
-					...segment.linesInOrder.map((lines) =>
-						schema.node(
-							schema.nodes.line,
-							{
-								lineId: lines.id,
-							},
-							[
-								schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug)]),
-								...fromMarkdown(lines.script ?? ''),
-							]
-						)
-					),
-				])
-			),
-		])
-		const doc = schema.node(schema.nodes.doc, undefined, [rundown])
-
-		const state = EditorState.create({
-			plugins: [
-				history(),
-				keymap({ 'Mod-z': undo, 'Mod-y': redo }),
-				keymap({ Escape: deselectAll }),
-				keymap(formatingKeymap),
-				keymap(baseKeymap),
-				readOnlyNodeFilter(),
-				updateModel((lineId, change) => console.log(lineId, change)),
-			],
-			doc,
-		})
+		const state = makeNewEditorState(doc)
 		const view = new EditorView(containerEl.current, {
 			state,
 		})
@@ -77,7 +43,7 @@ export function Editor({
 		}
 	}, [])
 
-	const updateLineScript = useCallback((lineId: UILineId, script: string) => {
+	const updateLineScript = useCallback((lineId: UILineId, script: string | null) => {
 		if (!editorView.current) return
 
 		const editorState = editorView.current.state
@@ -135,6 +101,77 @@ export function Editor({
 		if (top && containerEl.current) restoreSelectionTopOffset(top, containerEl.current)
 	}, [])
 
+	useEffect(() => {
+		const destructors: IReactionDisposer[] = []
+
+		const reactionDestructor = reaction(
+			() => {
+				const openRundown = AppStore.rundownStore.openRundown
+
+				if (!openRundown) return null
+
+				return {
+					name: openRundown.name,
+					segmentsInOrder: openRundown.segmentsInOrder.map((segment) => ({
+						id: segment.id,
+						name: segment.name,
+						linesInOrder: segment.linesInOrder.map((line) => ({
+							id: line.id,
+							slug: line.slug,
+							reactiveObj: line,
+						})),
+					})),
+				}
+			},
+			(data) => {
+				destructors.forEach((destr) => destr())
+
+				const openRundown = AppStore.rundownStore.openRundown
+
+				if (!data || !editorView.current || !openRundown) return
+
+				const rundown = schema.node(schema.nodes.rundown, undefined, [
+					schema.node(schema.nodes.rundownTitle, undefined, schema.text(data.name)),
+					...data.segmentsInOrder.map((segment) =>
+						schema.node(schema.nodes.segment, undefined, [
+							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name)),
+							...segment.linesInOrder.map((lines) => {
+								destructors.push(
+									autorun(() => {
+										updateLineScript(lines.id, lines.reactiveObj.script)
+									})
+								)
+
+								return schema.node(
+									schema.nodes.line,
+									{
+										lineId: lines.id,
+									},
+									[
+										schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug)]),
+										...fromMarkdown(lines.reactiveObj.script),
+									]
+								)
+							}),
+						])
+					),
+				])
+
+				const doc = schema.node(schema.nodes.doc, undefined, [rundown])
+
+				editorView.current.updateState(makeNewEditorState(doc))
+			},
+			{
+				fireImmediately: true,
+			}
+		)
+
+		return () => {
+			reactionDestructor()
+			destructors.forEach((destr) => destr())
+		}
+	}, [updateLineScript])
+
 	function onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
 		if (!containerEl.current) return
 		if (!(!e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey)) return
@@ -158,6 +195,21 @@ export function Editor({
 	}
 
 	return <div ref={containerEl} className={className} spellCheck="false" onKeyDown={onKeyDown}></div>
+}
+
+function makeNewEditorState(doc: Node): EditorState {
+	return EditorState.create({
+		plugins: [
+			history(),
+			keymap({ 'Mod-z': undo, 'Mod-y': redo }),
+			keymap({ Escape: deselectAll }),
+			keymap(formatingKeymap),
+			keymap(baseKeymap),
+			readOnlyNodeFilter(),
+			updateModel((lineId, change) => console.log(lineId, change)),
+		],
+		doc,
+	})
 }
 
 function getLineHeight(): number {
