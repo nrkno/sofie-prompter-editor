@@ -50,13 +50,20 @@ export class UISegment {
 			this.updateFromJson(json)
 		})
 
-		this.store.connection.segment.on('removed', (id: SegmentId) => {
-			if (this.segmentId !== id) return
+		this.store.connection.segment.on('removed', (json: Segment) => {
+			if (this.segmentId !== json._id) return
 
 			this.remove()
 		})
 
-		// fetch owned parts and register event handlers for parts
+		// we track segment created so that we can add new Segments when they are added
+		this.store.connection.parts.on('created', (json) => {
+			if (json.segmentId !== this.segmentId) return
+
+			const newPart = new UILine(this.store, this, json._id)
+			this.lines.set(newPart.id, newPart)
+			newPart.updateFromJson(json)
+		})
 	}
 
 	updateFromJson(json: Segment) {

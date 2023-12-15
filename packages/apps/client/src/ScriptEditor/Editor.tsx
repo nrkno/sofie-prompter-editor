@@ -59,8 +59,14 @@ export function Editor({
 			ranges.push({ offset, size: node.nodeSize })
 		})
 		ranges.sort((a, b) => a.offset - b.offset)
-		const beginOffset = line.pos + 1 + ranges[0].offset
-		const endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
+
+		let beginOffset: number = line.node.nodeSize - 1
+		let endOffset: number = beginOffset
+
+		if (ranges.length !== 0) {
+			beginOffset = line.pos + 1 + ranges[0].offset
+			endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
+		}
 
 		let selectionBookmark: SelectionBookmark | undefined
 
@@ -102,9 +108,9 @@ export function Editor({
 	}, [])
 
 	useEffect(() => {
-		const destructors: IReactionDisposer[] = []
+		const lineReactionDisposers: IReactionDisposer[] = []
 
-		const reactionDestructor = reaction(
+		const mainDisposer = reaction(
 			() => {
 				const openRundown = AppStore.rundownStore.openRundown
 
@@ -124,7 +130,7 @@ export function Editor({
 				}
 			},
 			(data) => {
-				destructors.forEach((destr) => destr())
+				lineReactionDisposers.forEach((destr) => destr())
 
 				const openRundown = AppStore.rundownStore.openRundown
 
@@ -136,7 +142,7 @@ export function Editor({
 						schema.node(schema.nodes.segment, undefined, [
 							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name)),
 							...segment.linesInOrder.map((lines) => {
-								destructors.push(
+								lineReactionDisposers.push(
 									autorun(() => {
 										updateLineScript(lines.id, lines.reactiveObj.script)
 									})
@@ -167,8 +173,8 @@ export function Editor({
 		)
 
 		return () => {
-			reactionDestructor()
-			destructors.forEach((destr) => destr())
+			mainDisposer()
+			lineReactionDisposers.forEach((destr) => destr())
 		}
 	}, [updateLineScript])
 

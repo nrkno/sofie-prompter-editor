@@ -91,6 +91,9 @@ export class UIRundown {
 
 		// we track segment created so that we can add new Segments when they are added
 		this.store.connection.segment.on('created', (json: Segment) => {
+			if (json.playlistId !== this.playlistId) return
+			if (!this.rundowns.has(json.rundownId)) return
+
 			const newSegment = new UISegment(this.store, this, json._id)
 			this.segments.set(newSegment.id, newSegment)
 			newSegment.updateFromJson(json)

@@ -31,12 +31,13 @@ const SEGMENT_ID_0_3 = generateId('segment')
 const PART_ID_0_3_0 = generateId('part')
 const PART_ID_0_3_1 = generateId('part')
 const PART_ID_0_3_2 = generateId('part')
+const PART_ID_0_3_4_INSERTED = generateId('part')
 
 const PLAYLIST_ID_1 = generateId('playlist')
 
 const START_TIME = Date.now()
 
-type Handler<T = object> = (arg: T) => void
+type Handler<T = unknown> = (arg: T) => void
 
 type EventTypes = 'created' | 'changed' | 'removed'
 type Services = 'playlist' | 'rundown' | 'segment' | 'part'
@@ -150,10 +151,10 @@ export class MockConnection extends EventEmitter<Events> {
 			await sleep(500)
 			return this._segments.find((item) => item._id === id)
 		},
-		on: (type: EventTypes, fn: Handler) => {
+		on: (type: EventTypes, fn: Handler<Segment>) => {
 			this.on(`segment_${type}`, fn)
 		},
-		off: (type: EventTypes, fn: Handler) => {
+		off: (type: EventTypes, fn: Handler<Segment | Partial<Segment>>) => {
 			this.off(`segment_${type}`, fn)
 		},
 	}
@@ -344,6 +345,7 @@ export class MockConnection extends EventEmitter<Events> {
 
 	constructor() {
 		super()
+
 		setInterval(() => {
 			this.emit('part_changed', {
 				_id: PART_ID_0_0_1,
@@ -361,6 +363,24 @@ export class MockConnection extends EventEmitter<Events> {
 				scriptContents: `Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\n${new Date().toString()}`,
 			})
 		}, 2000)
+
+		setTimeout(() => {
+			this.emit('part_created', {
+				_id: PART_ID_0_3_4_INSERTED,
+				label: 'Part 1.5 - inserted',
+				rank: 1.5,
+				playlistId: PLAYLIST_ID_0,
+				rundownId: RUNDOWN_ID_0_0,
+				segmentId: SEGMENT_ID_0_0,
+				display: {
+					label: 'KAM',
+					type: PartDisplayType.Camera,
+				},
+				isOnAir: true,
+				isNext: false,
+				scriptContents: `~[INSERTED]~ Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\n${new Date().toString()}`,
+			})
+		}, 10000)
 	}
 }
 
