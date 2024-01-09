@@ -231,6 +231,7 @@ export class MockConnection extends EventEmitter<Events> {
 				label: 'FULL',
 				type: PartDisplayType.VT,
 			},
+			identifier: 'A1',
 			isOnAir: true,
 			isNext: false,
 		},
@@ -245,10 +246,11 @@ export class MockConnection extends EventEmitter<Events> {
 				label: 'KAM',
 				type: PartDisplayType.Camera,
 			},
+			identifier: 'A2',
 			isOnAir: true,
 			isNext: false,
 			scriptContents:
-				'Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum.',
+				'Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum. Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum. Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum. Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum. Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum. Duis congue molestie neque, et sollicitudin lacus porta eget. *Etiam* massa dui, cursus vitae lacus sit **amet**, aliquet bibendum elit. Morbi tincidunt quis metus ut luctus. Proin tincidunt suscipit vestibulum.',
 		},
 		{
 			_id: PART_ID_0_2_0,

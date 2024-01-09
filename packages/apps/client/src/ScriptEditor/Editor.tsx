@@ -74,7 +74,7 @@ export function Editor({
 
 		const top = getSelectionTopOffset()
 
-		if (beginOffset < editorState.selection.$head.pos && endOffset > editorState.selection.$head.pos) {
+		if (beginOffset < editorState.selection.head && endOffset > editorState.selection.head) {
 			// TODO: Handle a heuristic for keeping the caret at the very end of the Segment script
 			selectionBookmark = preserveSelection(editorState)
 			selectionBookmark = selectionBookmark.map({
@@ -184,18 +184,10 @@ export function Editor({
 
 		switch (e.code) {
 			case 'ArrowUp':
-				window.getSelection()?.modify('move', 'backward', 'line')
-				containerEl.current.scrollBy({
-					top: -1 * getLineHeight(),
-					behavior: 'instant',
-				})
+				scrollContainerWithCaret(containerEl.current, 'up')
 				break
 			case 'ArrowDown':
-				window.getSelection()?.modify('move', 'forward', 'line')
-				containerEl.current.scrollBy({
-					top: getLineHeight(),
-					behavior: 'instant',
-				})
+				scrollContainerWithCaret(containerEl.current, 'down')
 				break
 		}
 	}
@@ -218,8 +210,28 @@ function makeNewEditorState(doc: Node): EditorState {
 	})
 }
 
-function getLineHeight(): number {
-	return 21
+function scrollContainerWithCaret(container: HTMLElement, upOrDown: 'up' | 'down') {
+	const backwardsForwards = upOrDown === 'down' ? 'forward' : 'backward'
+	const currentSelection = window.getSelection()
+	if (!currentSelection) return
+	const bounds = currentSelection.getRangeAt(0).getBoundingClientRect()
+	currentSelection.modify('move', backwardsForwards, 'line')
+	const modifiedSelection = window.getSelection()
+	if (!modifiedSelection) return
+	const modifiedBounds = modifiedSelection.getRangeAt(0).getBoundingClientRect()
+	let scrollAmount = modifiedBounds.top - bounds.top
+	if (scrollAmount === 0) {
+		if (modifiedBounds.left !== bounds.left) {
+			scrollAmount = modifiedBounds.left < bounds.left ? -19 : 19
+		}
+	}
+
+	console.log(scrollAmount, bounds, modifiedBounds)
+
+	container.scrollBy({
+		top: scrollAmount,
+		behavior: 'instant',
+	})
 }
 
 function restoreSelectionTopOffset(top: number, overflowEl: HTMLElement) {
