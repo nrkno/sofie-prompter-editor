@@ -67,7 +67,7 @@ export class PartTransformer {
 		const segmentId = this.convertId<Core.SegmentId, SegmentId>(corePart.segmentId)
 		const playlistId = this.convertId<Core.RundownPlaylistId, RundownPlaylistId>(corePlaylistId)
 
-		const pieces = this.corePartPieces.get(corePartId) || []
+		// const pieces = this.corePartPieces.get(corePartId) || []
 
 		return literal<Part>({
 			_id: partId,
