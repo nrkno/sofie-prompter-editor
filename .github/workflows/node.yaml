@@ -30,12 +30,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - run: corepack enable
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version-file: ".node-version"
           cache: "yarn"
-      - run: corepack enable
       - name: Prepare Environment
         run: |
           yarn install
@@ -67,12 +67,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - run: corepack enable
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version-file: ".node-version"
           cache: "yarn"
-      - run: corepack enable
       - name: Prepare Environment
         run: |
           yarn install

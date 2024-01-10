@@ -42,8 +42,8 @@ export class UILine {
 			this.updateFromJson(json)
 		})
 
-		this.store.connection.parts.on('removed', (id: PartId) => {
-			if (this.partId !== id) return
+		this.store.connection.parts.on('removed', (json: Part) => {
+			if (this.partId !== json._id) return
 
 			this.remove()
 		})

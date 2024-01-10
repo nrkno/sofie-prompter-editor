@@ -13,7 +13,7 @@
 
 .Divider {
 	grid-column: Divider;
-	cursor: ew-resize;
+	cursor: col-resize;
 }
 
 .DividerActive {

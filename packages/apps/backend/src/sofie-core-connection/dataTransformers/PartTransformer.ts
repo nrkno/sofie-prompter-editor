@@ -89,7 +89,7 @@ export class PartTransformer {
 			expectedDuration: corePart.expectedDuration,
 			isNew: false,
 			display: {
-				type: PartDisplayType.FULL, // ie sourceLayer.type in Sofie
+				type: PartDisplayType.VT, // ie sourceLayer.type in Sofie
 				label: '', // ie sourceLayer.name in Sofie
 			},
 			// scriptContents?: ScriptContents

@@ -9,6 +9,14 @@
 	word-wrap: break-word;
 	white-space: pre-wrap;
 	white-space: break-spaces;
+
+	padding: 0 2em 100vh;
+	height: 100%;
+	overflow: auto;
+	box-sizing: border-box;
+
+	font-size: 16px;
+	line-height: 21px;
 }
 
 .Prompter p {
@@ -45,4 +53,8 @@
 	color: var(--background-color);
 	user-select: none;
 	margin: 1em 0;
+}
+
+.Prompter .ProseMirror {
+	outline: none;
 }
