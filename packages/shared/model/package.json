@@ -22,7 +22,8 @@
     },
     "dependencies": {
         "@sofie-automation/shared-lib": "^1.49.1",
-        "@sofie-prompter-editor/shared-lib": "0.0.0"
+        "@sofie-prompter-editor/shared-lib": "0.0.0",
+        "zod": "^3.22.4"
     },
     "lint-staged": {
         "*.{js,css,json,md,scss}": [

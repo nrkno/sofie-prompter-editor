@@ -37,12 +37,13 @@ const PLAYLIST_ID_1 = generateId('playlist')
 
 const START_TIME = Date.now()
 
-type Handler<T = unknown> = (arg: T) => void
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Handler<T = any> = (arg: T) => void
 
 type EventTypes = 'created' | 'changed' | 'removed'
 type Services = 'playlist' | 'rundown' | 'segment' | 'part'
 
-type Events = `${Services}_${EventTypes}`
+type Events = `${Services}_${EventTypes}` | 'connected' | 'disconnected'
 
 export class MockConnection extends EventEmitter<Events> {
 	private _playlists = [

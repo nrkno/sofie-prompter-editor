@@ -3,10 +3,14 @@
  * This is temporary, until we have a better way of exposing the data types from Core.
  */
 
+export * from './Ids'
+export { ProtectedString } from '@sofie-automation/server-core-integration'
+
 export * from './RundownPlaylist'
 export * from './Rundown'
 export * from './Segment'
 export * from './Part'
-export * from './Ids'
+export * from './Piece'
 
-export { ProtectedString } from '@sofie-automation/server-core-integration'
+export * from './ShowStyleBase.js'
+export * from './ShowStyleVariant.js'

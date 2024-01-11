@@ -108,11 +108,7 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		if (!params.connection) throw new Error('No connection!')
 
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
-
-		this.coreConnection?.subscribeToPlaylist(params.connection, playlistId)
-
-		// this.app.channel(PublishChannels.SegmentsInRundown(rId)).join(params.connection)
-		// this.app.channel(PublishChannels.PartsInRundown(rId)).join(params.connection)
+		this.coreConnection?.subscribeToPlaylist(playlistId)
 	}
 }
 type Result = Definition.Result

@@ -1,6 +1,6 @@
 import { action, makeAutoObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
-import { RundownPlaylist, RundownPlaylistId } from 'packages/shared/model/dist'
+import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 
 export class PlaylistStore {
 	public readonly playlists = observable.map<RundownPlaylistId, RundownPlaylist>()

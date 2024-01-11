@@ -1,36 +1,65 @@
-import { action, makeAutoObservable, observable } from 'mobx'
+import { IReactionDisposer, action, autorun, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
-import { Part, PartId } from 'packages/shared/model/dist'
+import { Part, PartId } from '@sofie-prompter-editor/shared-model'
+import { Transformers } from '../sofie-core-connection/dataTransformers/Transformers.js'
+
+import * as Core from '../sofie-core-connection/CoreDataTypes/index.js'
 
 export class PartStore {
 	public readonly parts = observable.map<PartId, Part>()
 
+	private partAutoruns = new Map<Core.PartId, IReactionDisposer>()
+
 	constructor() {
-		makeAutoObservable(this, {
-			create: action,
-			update: action,
-			remove: action,
+		makeObservable(this, {
+			_updatePart: action,
+			_removePart: action,
 		})
 	}
+	connectTransformers(transformers: Transformers) {
+		// Observe and retrieve parts from the transformer:
+		autorun(() => {
+			const corePartIds = transformers.parts.partIds
 
-	create(part: Part) {
-		this._updateIfChanged(part)
-	}
-	update(part: Part) {
-		this._updateIfChanged(part)
-	}
-	remove(partId: PartId) {
-		this._deleteIfChanged(partId)
-	}
+			const corePartIdSet = new Set(corePartIds)
 
-	private _updateIfChanged(part: Part) {
-		if (!isEqual(this.parts.get(part._id), part)) {
-			this.parts.set(part._id, part)
-		}
+			// Removed:
+			for (const corePartId of this.partAutoruns.keys()) {
+				if (!corePartIdSet.has(corePartId)) {
+					const disposer = this.partAutoruns.get(corePartId)
+					if (disposer) {
+						disposer()
+						this.partAutoruns.delete(corePartId)
+
+						const partId = transformers.parts.transformPartId(corePartId)
+						if (this.parts.has(partId)) this.parts.delete(partId)
+					}
+				}
+			}
+			// Added:
+			for (const corePartId of corePartIds) {
+				if (!this.partAutoruns.has(corePartId)) {
+					this.partAutoruns.set(
+						corePartId,
+						autorun(() => {
+							const part = transformers.parts.getTransformedPart(corePartId)
+							const partId = transformers.parts.transformPartId(corePartId)
+
+							if (part) {
+								if (!isEqual(this.parts.get(part._id), part)) this._updatePart(partId, part)
+							} else {
+								if (this.parts.has(partId)) this._removePart(partId)
+							}
+						})
+					)
+				}
+			}
+		})
 	}
-	private _deleteIfChanged(partId: PartId) {
-		if (this.parts.has(partId)) {
-			this.parts.delete(partId)
-		}
+	_updatePart(partId: PartId, part: Part) {
+		this.parts.set(partId, part)
+	}
+	_removePart(partId: PartId) {
+		this.parts.delete(partId)
 	}
 }

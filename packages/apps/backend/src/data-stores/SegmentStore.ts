@@ -1,12 +1,12 @@
-import { action, makeAutoObservable, observable } from 'mobx'
+import { action, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
-import { Segment, SegmentId } from 'packages/shared/model/dist'
+import { Segment, SegmentId } from '@sofie-prompter-editor/shared-model'
 
 export class SegmentStore {
 	public readonly segments = observable.map<SegmentId, Segment>()
 
 	constructor() {
-		makeAutoObservable(this, {
+		makeObservable(this, {
 			create: action,
 			update: action,
 			remove: action,

@@ -1,7 +1,7 @@
 import React from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
 import { ViewPort } from '@sofie-prompter-editor/shared-model'
-import { EditObject, EditValue, useApiConnection } from './TestUtil.tsx'
+import { EditObject, useApiConnection } from './TestUtil.tsx'
 
 export const TestViewPort: React.FC<{ api: APIConnection }> = ({ api }) => {
 	const [ready, setReady] = React.useState(false)
@@ -32,7 +32,7 @@ export const TestViewPort: React.FC<{ api: APIConnection }> = ({ api }) => {
 
 			// Also fetch initial settings:
 			api.viewPort
-				.get('viewport')
+				.get('')
 				.then((data) => {
 					setViewPort(data)
 				})
@@ -53,7 +53,7 @@ export const TestViewPort: React.FC<{ api: APIConnection }> = ({ api }) => {
 					<EditObject
 						obj={viewPort}
 						onChange={(newViewPort) => {
-							api.viewPort.update('viewport', newViewPort)
+							api.viewPort.update('', newViewPort).catch(console.error)
 						}}
 					/>
 				</div>

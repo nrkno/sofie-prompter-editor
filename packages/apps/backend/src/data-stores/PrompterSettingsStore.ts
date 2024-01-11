@@ -1,6 +1,6 @@
 import { action, makeAutoObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
-import { PrompterSettings } from 'packages/shared/model/dist'
+import { PrompterSettings } from '@sofie-prompter-editor/shared-model'
 
 export class PrompterSettingsStore {
 	public prompterSettings = observable<PrompterSettings>({
@@ -24,11 +24,11 @@ export class PrompterSettingsStore {
 		})
 	}
 
-	create(part: PrompterSettings) {
-		this._updateIfChanged(part)
+	create(data: PrompterSettings) {
+		this._updateIfChanged(data)
 	}
-	update(part: PrompterSettings) {
-		this._updateIfChanged(part)
+	update(data: PrompterSettings) {
+		this._updateIfChanged(data)
 	}
 
 	private _updateIfChanged(prompterSettings: PrompterSettings) {

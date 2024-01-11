@@ -21,7 +21,7 @@ export function useApiConnection(
 			api.off('connected', onConnected)
 			api.off('disconnected', onDisconnected)
 		}
-	}, [])
+	}, [api])
 
 	useEffect(() => {
 		effect(connected)
@@ -83,7 +83,7 @@ export const EditValue: React.FC<{ value: any; onChange: (value: any) => void }>
 			type="number"
 			value={value}
 			onChange={(e) => {
-				onChange(e.target.value)
+				onChange(Number.parseFloat(e.target.value))
 			}}
 		/>
 	) : valueType === 'boolean' ? (
