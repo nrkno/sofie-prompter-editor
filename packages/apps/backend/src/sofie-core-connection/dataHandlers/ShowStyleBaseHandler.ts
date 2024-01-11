@@ -1,4 +1,4 @@
-import { CoreConnection, protectString } from '@sofie-automation/server-core-integration'
+import { Collection, CoreConnection, protectString } from '@sofie-automation/server-core-integration'
 import { LoggerInstance } from '../../lib/logger.js'
 import { Store } from '../../data-stores/Store.js'
 import * as Core from '../CoreDataTypes/index.js'
@@ -23,14 +23,15 @@ export class ShowStyleBaseHandler extends DataHandler {
 	}
 
 	private _updateData(_id: Core.ShowStyleBaseId): void {
-		// this.transformers. parts.asdf(id, this.showStyleBases.findOne(id))
+		const showStyleBase = this.showStyleBases.findOne(_id)
+		this.transformers.parts.updateCoreShowStyleBase(_id, showStyleBase)
 	}
-	// private get showStyleBases(): Collection<Core.DBShowStyleBase> {
-	// 	const collection = this.core.getCollection<Core.DBShowStyleBase>('showStyleBases')
-	// 	if (!collection) {
-	// 		this.log.error('collection "pieces" not found!')
-	// 		throw new Error('collection "pieces" not found!')
-	// 	}
-	// 	return collection
-	// }
+	private get showStyleBases(): Collection<Core.DBShowStyleBase> {
+		const collection = this.core.getCollection<Core.DBShowStyleBase>('showStyleBases')
+		if (!collection) {
+			this.log.error('collection "showStyleBases" not found!')
+			throw new Error('collection "showStyleBases" not found!')
+		}
+		return collection
+	}
 }

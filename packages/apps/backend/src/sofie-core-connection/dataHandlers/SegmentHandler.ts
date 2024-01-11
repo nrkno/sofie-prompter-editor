@@ -20,7 +20,7 @@ export class SegmentHandler extends DataHandler {
 		})
 	}
 	private onAdded(id: Core.SegmentId): void {
-		this.log.info('onAdded ' + id)
+		this.log.debug('onAdded ' + id)
 		const segment = this.collection.findOne(id)
 
 		if (!segment) {
@@ -32,7 +32,7 @@ export class SegmentHandler extends DataHandler {
 		}
 	}
 	private onChanged(id: Core.SegmentId): void {
-		this.log.info('onChanged ' + id)
+		this.log.debug('onChanged ' + id)
 		const segment = this.collection.findOne(id)
 
 		if (!segment) {
@@ -44,7 +44,7 @@ export class SegmentHandler extends DataHandler {
 		}
 	}
 	private onRemoved(id: Core.SegmentId): void {
-		this.log.info('onRemoved ' + id)
+		this.log.debug('onRemoved ' + id)
 		this.store.segments.remove(this.convertId<Core.SegmentId, SegmentId>(id))
 	}
 

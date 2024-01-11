@@ -1,4 +1,4 @@
-import { IReactionDisposer, autorun, observable } from 'mobx'
+import { IReactionDisposer, action, autorun, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { Part, PartId } from '@sofie-prompter-editor/shared-model'
 import { Transformers } from '../sofie-core-connection/dataTransformers/Transformers.js'
@@ -11,10 +11,10 @@ export class PartStore {
 	private partAutoruns = new Map<Core.PartId, IReactionDisposer>()
 
 	constructor() {
-		// makeAutoObservable(this, {
-		// 	updatePart: action,
-		// 	removePart: action,
-		// })
+		makeObservable(this, {
+			_updatePart: action,
+			_removePart: action,
+		})
 	}
 	connectTransformers(transformers: Transformers) {
 		// Observe and retrieve parts from the transformer:
@@ -46,14 +46,20 @@ export class PartStore {
 							const partId = transformers.parts.transformPartId(corePartId)
 
 							if (part) {
-								if (!isEqual(this.parts.get(part._id), part)) this.parts.set(partId, part)
+								if (!isEqual(this.parts.get(part._id), part)) this._updatePart(partId, part)
 							} else {
-								if (this.parts.has(partId)) this.parts.delete(partId)
+								if (this.parts.has(partId)) this._removePart(partId)
 							}
 						})
 					)
 				}
 			}
 		})
+	}
+	_updatePart(partId: PartId, part: Part) {
+		this.parts.set(partId, part)
+	}
+	_removePart(partId: PartId) {
+		this.parts.delete(partId)
 	}
 }

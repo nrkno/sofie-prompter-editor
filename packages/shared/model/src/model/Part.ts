@@ -29,8 +29,8 @@ export interface Part extends DataObject {
 	/** User-facing identifier that can be used by the User to identify the contents of a segment in the Rundown source system */
 	identifier?: string
 
-	// /** When something bad has happened, we can mark the part as invalid, which will prevent the user from TAKEing it. */
-	// invalid?: boolean
+	/** When something bad has happened, we can mark the part as invalid, which will prevent the user from TAKEing it. */
+	invalid?: boolean
 
 	/** Expected duration of the Part, in milliseconds */
 	expectedDuration?: number
@@ -55,6 +55,10 @@ export enum PartDisplayType {
 	LiveSpeak = 'liveSpeak',
 	Split = 'split',
 	Remote = 'remote',
+
+	Other = 'other',
+
+	Unknown = 'unknown',
 }
 
 /** Stored as markdown */

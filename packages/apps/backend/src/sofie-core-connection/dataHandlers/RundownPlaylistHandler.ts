@@ -20,7 +20,7 @@ export class RundownPlaylistHandler extends DataHandler {
 		})
 	}
 	private onAdded(id: Core.RundownPlaylistId): void {
-		this.log.info('onAdded ' + id)
+		this.log.debug('onAdded ' + id)
 		const playlist = this.collection.findOne(id)
 
 		if (!playlist) {
@@ -30,7 +30,7 @@ export class RundownPlaylistHandler extends DataHandler {
 		}
 	}
 	private onChanged(id: Core.RundownPlaylistId): void {
-		this.log.info('onChanged ' + id)
+		this.log.debug('onChanged ' + id)
 		const playlist = this.collection.findOne(id)
 
 		if (!playlist) {
@@ -40,7 +40,7 @@ export class RundownPlaylistHandler extends DataHandler {
 		}
 	}
 	private onRemoved(id: Core.RundownPlaylistId): void {
-		this.log.info('onRemoved ' + id)
+		this.log.debug('onRemoved ' + id)
 		this.store.playlists.remove(this.convertId(id))
 	}
 

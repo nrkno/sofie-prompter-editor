@@ -19,15 +19,15 @@ export class RundownHandler extends DataHandler {
 		})
 	}
 	private onAdded(id: Core.RundownId): void {
-		this.log.info('onAdded ' + id)
+		this.log.debug('onAdded ' + id)
 		this.transformers.rundowns.updateCoreRundown(id, this.collection.findOne(id))
 	}
 	private onChanged(id: Core.RundownId): void {
-		this.log.info('onChanged ' + id)
+		this.log.debug('onChanged ' + id)
 		this.transformers.rundowns.updateCoreRundown(id, this.collection.findOne(id))
 	}
 	private onRemoved(id: Core.RundownId): void {
-		this.log.info('onRemoved ' + id)
+		this.log.debug('onRemoved ' + id)
 		this.transformers.rundowns.updateCoreRundown(id, undefined)
 	}
 

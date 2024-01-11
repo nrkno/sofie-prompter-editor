@@ -7,12 +7,16 @@ import {
 	PartId,
 	RundownId,
 	RundownPlaylistId,
+	ScriptContents,
 	SegmentId,
 } from '@sofie-prompter-editor/shared-model'
 import * as Core from '../CoreDataTypes/index.js'
 import { literal } from '@sofie-automation/server-core-integration'
 import { computedFn } from 'mobx-utils'
 import { Transformers } from './Transformers.js'
+import { IBlueprintPieceType, ScriptContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
+import { applyAndValidateOverrides } from '../CoreDataTypes/objectWithOverrides.js'
+import { assertNever } from '@sofie-prompter-editor/shared-lib'
 
 /** Transforms Core Parts, Pieces & ShowStyles into Prompter Parts */
 export class PartTransformer {
@@ -67,7 +71,89 @@ export class PartTransformer {
 		const segmentId = this.convertId<Core.SegmentId, SegmentId>(corePart.segmentId)
 		const playlistId = this.convertId<Core.RundownPlaylistId, RundownPlaylistId>(corePlaylistId)
 
-		// const pieces = this.corePartPieces.get(corePartId) || []
+		const coreShowStyleBase = this.coreShowStyleBases.get(showStyle.showStyleBaseId)
+
+		const pieces = this.corePartPieces.get(corePartId) || []
+
+		const derived: {
+			displayType: PartDisplayType
+			displayLabel: string
+			scriptContents: ScriptContents
+		} = {
+			displayType: PartDisplayType.Unknown,
+			displayLabel: '',
+			scriptContents: '',
+		}
+
+		if (coreShowStyleBase) {
+			const sourceLayers = applyAndValidateOverrides(coreShowStyleBase.sourceLayersWithOverrides)
+			const outputLayers = applyAndValidateOverrides(coreShowStyleBase.outputLayersWithOverrides)
+
+			const usePiece = new Map<PartDisplayType, { label: string }>()
+			for (const piece of pieces) {
+				if (piece.pieceType !== IBlueprintPieceType.Normal) continue
+
+				const sourceLayer = sourceLayers.obj[piece.sourceLayerId]
+				const outputLayer = outputLayers.obj[piece.outputLayerId]
+
+				if (!outputLayer?.isPGM) continue
+
+				if (sourceLayer) {
+					switch (sourceLayer.type) {
+						case SourceLayerType.CAMERA:
+							usePiece.set(PartDisplayType.Camera, { label: piece.name })
+
+							break
+						case SourceLayerType.VT:
+							usePiece.set(PartDisplayType.VT, { label: piece.name })
+							break
+						case SourceLayerType.REMOTE:
+							usePiece.set(PartDisplayType.Remote, { label: piece.name })
+							break
+						case SourceLayerType.SCRIPT:
+							const pieceContent = piece.content as ScriptContent
+							derived.scriptContents = pieceContent.fullScript ?? ''
+							break
+						case SourceLayerType.SPLITS:
+							usePiece.set(PartDisplayType.Split, { label: piece.name })
+							break
+						case SourceLayerType.LIVE_SPEAK:
+							usePiece.set(PartDisplayType.LiveSpeak, { label: piece.name })
+							break
+						case SourceLayerType.AUDIO:
+						case SourceLayerType.LOWER_THIRD:
+						case SourceLayerType.TRANSITION:
+						case SourceLayerType.LOCAL:
+						case SourceLayerType.GRAPHICS:
+							usePiece.set(PartDisplayType.LiveSpeak, { label: piece.name })
+							// ignore these
+							break
+						case SourceLayerType.UNKNOWN:
+							break
+
+						default:
+							assertNever(sourceLayer.type)
+					}
+				}
+			}
+
+			// Pick the most significant display type:
+			const partDisplayTypesOrdered = [
+				PartDisplayType.Split,
+				PartDisplayType.Remote,
+				PartDisplayType.VT,
+				PartDisplayType.Camera,
+				PartDisplayType.LiveSpeak,
+			]
+			for (const partDisplayType of partDisplayTypesOrdered) {
+				const displayType = usePiece.get(partDisplayType)
+				if (displayType) {
+					derived.displayType = partDisplayType
+					derived.displayLabel = displayType.label
+					break
+				}
+			}
+		}
 
 		return literal<Part>({
 			_id: partId,
@@ -79,20 +165,17 @@ export class PartTransformer {
 			isOnAir: false,
 			isNext: false,
 
-			// @ts-ignore
-			// pieces: pieces,
-
 			label: corePart.title,
 			// prompterLabel?: string
 			identifier: corePart.identifier,
-			// invalid?: boolean
+			invalid: corePart.invalid,
 			expectedDuration: corePart.expectedDuration,
 			isNew: false,
 			display: {
-				type: PartDisplayType.VT, // ie sourceLayer.type in Sofie
-				label: '', // ie sourceLayer.name in Sofie
+				type: derived.displayType,
+				label: derived.displayLabel,
 			},
-			// scriptContents?: ScriptContents
+			scriptContents: derived.scriptContents,
 		})
 
 		return undefined
@@ -146,12 +229,6 @@ export class PartTransformer {
 				// changed = true
 			}
 		}
-		// if (changed) {
-		// 	for (const part of this.coreParts.values()) {
-
-		// 		if (part)
-		// 	}
-		// }
 	}
 	updateCoreShowStyleVariant(id: Core.ShowStyleVariantId, showStyleVariant: Core.DBShowStyleVariant | undefined) {
 		if (showStyleVariant) {
@@ -164,22 +241,6 @@ export class PartTransformer {
 			}
 		}
 	}
-
-	// private _updateAllParts() {
-	// 	for (const partId of this.coreParts.keys()) {
-	// 		this._updatePart(partId)
-	// 	}
-	// }
-	// private _updatePart(corePartId: Core.PartId) {
-	// 	const partId = this.convertId<Core.PartId, PartId>(corePartId)
-	// 	const part = this._transformPart(corePartId)
-
-	// 	if (part) {
-	// 		this.store.parts.updatePart(part)
-	// 	} else {
-	// 		this.store.parts.removePart(partId)
-	// 	}
-	// }
 
 	private convertId<B extends AnyProtectedString, A extends Core.ProtectedString<any>>(id: B): A
 	private convertId<A extends Core.ProtectedString<any>, B extends AnyProtectedString>(id: A): B
