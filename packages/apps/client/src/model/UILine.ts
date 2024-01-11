@@ -74,11 +74,24 @@ export class UILine {
 
 export type UILineId = ProtectedString<'UILineId', string>
 
-function partDisplayTypeToLineTypeStyle(_type: PartDisplayType): LineType {
+function partDisplayTypeToLineTypeStyle(type: PartDisplayType): LineType {
+	switch (type) {
+		case PartDisplayType.Camera:
+			return LineType.Camera
+		case PartDisplayType.LiveSpeak:
+			return LineType.LiveSpeak
+		case PartDisplayType.Remote:
+			return LineType.Remote
+		case PartDisplayType.Split:
+			return LineType.Split
+		case PartDisplayType.VT:
+			return LineType.VT
+	}
 	return LineType.VT
 }
 
 export enum LineType {
+	Camera = 'camera',
 	VT = 'vt',
 	LiveSpeak = 'liveSpeak',
 	Remote = 'remote',

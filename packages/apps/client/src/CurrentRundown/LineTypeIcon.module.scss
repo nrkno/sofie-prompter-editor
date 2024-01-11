@@ -1,0 +1,56 @@
+$segment-layer-background-unknown: #4b4b4b;
+$segment-layer-background-camera: #18791c;
+$segment-layer-background-camera--second: darken($segment-layer-background-camera, 10%);
+$segment-layer-background-lower-third: #ed7200;
+$segment-layer-background-lower-third--second: darken($segment-layer-background-lower-third, 10%);
+$segment-layer-background-graphics: #dc5c00;
+$segment-layer-background-graphics--second: darken($segment-layer-background-graphics, 10%);
+$segment-layer-border-live-speak: #2f74ff;
+$segment-layer-background-live-speak-1: #2f74ff;
+$segment-layer-background-live-speak-2: #39762b;
+$segment-layer-background-live-speak: linear-gradient(
+	to bottom,
+	$segment-layer-background-live-speak-1 50%,
+	$segment-layer-background-live-speak-2 50%
+);
+$segment-layer-background-live-speak--second-1: darken(#2f74ff, 10%);
+$segment-layer-background-live-speak--second-2: darken(#39762b, 10%);
+$segment-layer-background-live-speak--second: linear-gradient(
+	to bottom,
+	$segment-layer-background-live-speak--second-1 50%,
+	$segment-layer-background-live-speak--second-2 50%
+);
+$segment-layer-background-remote: #e80064;
+$segment-layer-background-remote--second: darken($segment-layer-background-remote, 10%);
+$segment-layer-background-vt: #0a20ed;
+$segment-layer-background-vt--second: darken($segment-layer-background-vt, 10%);
+$segment-layer-background-script: #003600;
+$segment-layer-background-mic: #1e6820;
+$segment-layer-background-guest: #008a92;
+$segment-layer-background-local: #9a2bd8;
+$segment-layer-background-local--second: darken($segment-layer-background-local, 10%);
+
+.BaseStyle {
+	color: #fff;
+	font-weight: 500;
+}
+
+.VT {
+	composes: BaseStyle;
+	background: $segment-layer-background-vt;
+}
+
+.LiveSpeak {
+	composes: BaseStyle;
+	background: $segment-layer-background-live-speak;
+}
+
+.Camera {
+	composes: BaseStyle;
+	background: $segment-layer-background-camera;
+}
+
+.Remote {
+	composes: BaseStyle;
+	background: $segment-layer-background-remote;
+}

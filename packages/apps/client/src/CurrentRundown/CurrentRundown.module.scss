@@ -3,21 +3,30 @@
 	grid-template-columns: 1fr 3em 4em 2fr 5fr 1fr 1fr;
 	padding: 0;
 	margin: 0;
-	--table-gap-size: 0;
-	gap: 0;
+	--table-gap-size: 1px;
+	--cell-padding: 2px;
+	gap: var(--table-gap-size);
+	user-select: none;
 }
 
 .SegmentContainer {
 	padding: 0;
 	margin: 0;
-	display: contents;
+	display: grid;
+	grid-template-rows: subgrid;
+	grid-template-columns: subgrid;
+	grid-row: auto;
+	grid-column: 1 / 8;
+
+	border-bottom: 2px solid var(--bs-gray);
 }
 
 .SegmentIdentifier {
-	padding: 0;
+	padding: var(--cell-padding);
 	margin: 0;
 	overflow: hidden;
 	text-overflow: ellipsis;
+	color: var(--bs-gray);
 }
 
 .LineContainer {
@@ -38,7 +47,6 @@
 	padding: 0;
 	margin: 0;
 	border: 1px solid transparent;
-	user-select: none;
 }
 
 .LineSelected {
@@ -47,6 +55,7 @@
 }
 
 .LineItem {
+	padding: var(--cell-padding);
 	background: var(--color-dark-2);
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -54,11 +63,13 @@
 }
 
 .LineIdentifier {
-	--dummy: 1;
+	padding: var(--cell-padding);
 }
 
 .LineType {
-	--dumy: 1;
+	padding: var(--cell-padding);
+	text-transform: uppercase;
+	text-align: center;
 }
 
 .LineSlug {
