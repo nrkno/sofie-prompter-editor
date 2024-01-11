@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
+import { PartId } from '@sofie-prompter-editor/shared-model'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
 import { EditorState, SelectionBookmark } from 'prosemirror-state'
@@ -14,7 +15,6 @@ import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
 import { fromMarkdown } from '../lib/prosemirrorDoc'
 import { AppStore } from '../stores/AppStore'
-import { UILineId } from '../model/UILine'
 import { IReactionDisposer, autorun, reaction } from 'mobx'
 
 export function Editor({
@@ -43,7 +43,7 @@ export function Editor({
 		}
 	}, [])
 
-	const updateLineScript = useCallback((lineId: UILineId, script: string | null) => {
+	const updateLineScript = useCallback((lineId: PartId, script: string | null) => {
 		if (!editorView.current) return
 
 		const editorState = editorView.current.state
@@ -130,6 +130,7 @@ export function Editor({
 				}
 			},
 			(data) => {
+				console.log(performance.mark('begin'))
 				lineReactionDisposers.forEach((destr) => destr())
 
 				const openRundown = AppStore.rundownStore.openRundown
@@ -143,9 +144,15 @@ export function Editor({
 							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name)),
 							...segment.linesInOrder.map((lines) => {
 								lineReactionDisposers.push(
-									autorun(() => {
-										updateLineScript(lines.id, lines.reactiveObj.script)
-									})
+									reaction(
+										() => lines.reactiveObj.script,
+										(script) => {
+											updateLineScript(lines.id, script)
+										},
+										{
+											fireImmediately: false,
+										}
+									)
 								)
 
 								return schema.node(
@@ -163,11 +170,16 @@ export function Editor({
 					),
 				])
 
+				console.log(performance.mark('createDoc'))
 				const doc = schema.node(schema.nodes.doc, undefined, [rundown])
 
+				console.log(performance.mark('updateState'))
 				editorView.current.updateState(makeNewEditorState(doc))
+
+				console.log(performance.mark('finished'))
 			},
 			{
+				delay: 250,
 				fireImmediately: true,
 			}
 		)

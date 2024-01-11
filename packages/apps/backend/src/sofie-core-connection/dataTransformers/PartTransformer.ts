@@ -99,33 +99,35 @@ export class PartTransformer {
 				if (!outputLayer?.isPGM) continue
 
 				if (sourceLayer) {
+					const sourceLayerShortName = sourceLayer.abbreviation ?? sourceLayer.name
+
 					switch (sourceLayer.type) {
 						case SourceLayerType.CAMERA:
-							usePiece.set(PartDisplayType.Camera, { label: piece.name })
+							usePiece.set(PartDisplayType.Camera, { label: sourceLayerShortName })
 
 							break
 						case SourceLayerType.VT:
-							usePiece.set(PartDisplayType.VT, { label: piece.name })
+							usePiece.set(PartDisplayType.VT, { label: sourceLayerShortName })
 							break
 						case SourceLayerType.REMOTE:
-							usePiece.set(PartDisplayType.Remote, { label: piece.name })
+							usePiece.set(PartDisplayType.Remote, { label: sourceLayerShortName })
 							break
 						case SourceLayerType.SCRIPT:
 							const pieceContent = piece.content as ScriptContent
 							derived.scriptContents = pieceContent.fullScript ?? ''
 							break
 						case SourceLayerType.SPLITS:
-							usePiece.set(PartDisplayType.Split, { label: piece.name })
+							usePiece.set(PartDisplayType.Split, { label: sourceLayerShortName })
 							break
 						case SourceLayerType.LIVE_SPEAK:
-							usePiece.set(PartDisplayType.LiveSpeak, { label: piece.name })
+							usePiece.set(PartDisplayType.LiveSpeak, { label: sourceLayerShortName })
 							break
 						case SourceLayerType.AUDIO:
 						case SourceLayerType.LOWER_THIRD:
 						case SourceLayerType.TRANSITION:
 						case SourceLayerType.LOCAL:
 						case SourceLayerType.GRAPHICS:
-							usePiece.set(PartDisplayType.LiveSpeak, { label: piece.name })
+							usePiece.set(PartDisplayType.LiveSpeak, { label: sourceLayerShortName })
 							// ignore these
 							break
 						case SourceLayerType.UNKNOWN:

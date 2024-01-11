@@ -10,6 +10,8 @@ import {
 import { UISegment } from './UISegment'
 import { RundownStore } from '../stores/RundownStore'
 
+export type UIRundownId = RundownPlaylistId
+
 export class UIRundown {
 	name: string = ''
 
@@ -19,7 +21,7 @@ export class UIRundown {
 
 	private rundowns = observable.map<RundownId, Rundown>()
 
-	constructor(private store: RundownStore, public id: RundownPlaylistId) {
+	constructor(private store: RundownStore, public id: UIRundownId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
 			segmentsInOrder: computed,
@@ -36,7 +38,7 @@ export class UIRundown {
 			},
 		})
 		for (const rundown of rundowns) {
-			this._onRundownCreated(rundown)
+			this.onRundownCreated(rundown)
 		}
 
 		const segments = await this.store.connection.segment.find({
@@ -45,7 +47,7 @@ export class UIRundown {
 			},
 		})
 		for (const segment of segments) {
-			this._onSegmentCreated(segment)
+			this.onSegmentCreated(segment)
 		}
 
 		// get all segments
@@ -53,38 +55,48 @@ export class UIRundown {
 		// register callbacks for events
 
 		// we track playlist changed and removed
-		this.store.connection.playlist.on('updated', (json: RundownPlaylist) => {
-			if (json._id !== this.id) return
+		this.store.connection.playlist.on(
+			'updated',
+			action((json: RundownPlaylist) => {
+				if (json._id !== this.id) return
 
-			this.updateFromJson(json)
-		})
+				this.updateFromJson(json)
+			})
+		)
 
-		this.store.connection.playlist.on('removed', (id: RundownPlaylistId) => {
-			if (id !== this.id) return
+		this.store.connection.playlist.on(
+			'removed',
+			action((id: RundownPlaylistId) => {
+				if (id !== this.id) return
 
-			this.close()
-		})
+				this.close()
+			})
+		)
 
 		// we track rundown created, changed and removed, because we own Rundowns
-		this.store.connection.rundown.on('created', (json: Rundown) => {
-			this.rundowns.set(json._id, json)
-		})
+		this.store.connection.rundown.on(
+			'created',
+			action((json: Rundown) => {
+				this.rundowns.set(json._id, json)
+			})
+		)
 
-		this.store.connection.rundown.on('updated', (json: Rundown) => {
-			this.rundowns.set(json._id, json)
-		})
+		this.store.connection.rundown.on(
+			'updated',
+			action((json: Rundown) => {
+				this.rundowns.set(json._id, json)
+			})
+		)
 
-		this.store.connection.rundown.on('removed', (json) => {
-			this.rundowns.delete(json._id)
-		})
+		this.store.connection.rundown.on(
+			'removed',
+			action((json) => {
+				this.rundowns.delete(json._id)
+			})
+		)
 
 		// we track segment created so that we can add new Segments when they are added
-		this.store.connection.segment.on('created', (json: Segment) => {
-			if (json.playlistId !== this.id) return
-			if (!this.rundowns.has(json.rundownId)) return
-
-			this._onSegmentCreated(json)
-		})
+		this.store.connection.segment.on('created', this.onSegmentCreated)
 	}
 
 	updateFromJson(json: RundownPlaylist) {
@@ -108,22 +120,27 @@ export class UIRundown {
 
 	dispose(): void {
 		// unregister event handlers from services
+		this.store.connection.segment.off('created', this.onSegmentCreated)
+
+		// TODO: Add more handlers
 	}
-	private _onRundownCreated = action('onRundownCreated', (json: Rundown) => {
+	private onRundownCreated = action('onRundownCreated', (json: Rundown) => {
 		this.rundowns.set(json._id, json)
 	})
-	private _onSegmentCreated = action('onSegmentCreated', (json: Segment) => {
-		console.log('individual segment', json._id, json)
+	private onSegmentCreated = action('onSegmentCreated', (json: Segment) => {
+		if (json.playlistId !== this.id) return
+		if (!this.rundowns.has(json.rundownId)) return
 
 		const existing = this.segments.get(json._id)
+
 		if (!existing) {
 			const newSegment = new UISegment(this.store, this, json._id)
-			this.segments.set(json._id, newSegment)
 			newSegment.updateFromJson(json)
-		} else {
-			// update existing segment
-
-			existing.updateFromJson(json)
+			this.segments.set(json._id, newSegment)
+			return
 		}
+
+		// update existing segment
+		existing.updateFromJson(json)
 	})
 }
