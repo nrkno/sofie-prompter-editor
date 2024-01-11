@@ -1,8 +1,14 @@
 import { action, computed, makeAutoObservable, observable } from 'mobx'
-import { ProtectedString, RundownId, Segment, SegmentId, protectString } from '@sofie-prompter-editor/shared-model'
-import { UILineId, UILine } from './UILine'
+import {
+	PartId,
+	ProtectedString,
+	RundownId,
+	Segment,
+	SegmentId,
+	protectString,
+} from '@sofie-prompter-editor/shared-model'
+import { UILine } from './UILine'
 import { RundownStore } from '../stores/RundownStore'
-import { randomId } from '../lib/lib'
 import { UIRundown } from './UIRundown'
 
 export class UISegment {
@@ -14,24 +20,24 @@ export class UISegment {
 
 	rundownId: RundownId | null = null
 
-	lines = observable.map<UILineId, UILine>([])
+	lines = observable.map<PartId, UILine>([])
 
-	constructor(
-		private store: RundownStore,
-		private owner: UIRundown,
-		public segmentId: SegmentId,
-		public id = protectString<UISegmentId>(randomId())
-	) {
+	// static GetRandomID() {
+	// 	return protectString<UISegmentId>(randomId())
+	// }
+	constructor(private store: RundownStore, private owner: UIRundown, public id: SegmentId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
 			linesInOrder: computed,
 			remove: action,
 		})
 
-		this.store.connection.parts
+		console.log(`Created new UISegment: ${id}`, new Error().stack)
+
+		this.store.connection.part
 			.find({
 				query: {
-					segmentId: this.segmentId,
+					segmentId: this.id,
 				},
 			})
 			.then(
@@ -44,29 +50,40 @@ export class UISegment {
 				})
 			)
 
-		this.store.connection.segment.on('changed', (json: Segment) => {
-			if (this.segmentId !== json._id) return
+		this.store.connection.segment.on(
+			'updated',
+			action('segmentUpdated', (json: Segment) => {
+				if (this.id !== json._id) return
 
-			this.updateFromJson(json)
-		})
+				this.updateFromJson(json)
+			})
+		)
 
-		this.store.connection.segment.on('removed', (json: Segment) => {
-			if (this.segmentId !== json._id) return
+		this.store.connection.segment.on(
+			'removed',
+			action('segmentRemoved', (json) => {
+				if (this.id !== json._id) return
 
-			this.remove()
-		})
+				this.remove()
+			})
+		)
 
 		// we track segment created so that we can add new Segments when they are added
-		this.store.connection.parts.on('created', (json) => {
-			if (json.segmentId !== this.segmentId) return
+		this.store.connection.part.on(
+			'created',
+			action('createPart', (json) => {
+				if (json.segmentId !== this.id) return
 
-			const newPart = new UILine(this.store, this, json._id)
-			this.lines.set(newPart.id, newPart)
-			newPart.updateFromJson(json)
-		})
+				const newPart = new UILine(this.store, this, json._id)
+				this.lines.set(newPart.id, newPart)
+				newPart.updateFromJson(json)
+			})
+		)
 	}
 
 	updateFromJson(json: Segment) {
+		console.log(`Updated UISegment: ${this.id}`)
+
 		this.name = json.label
 		this.rank = json.rank
 		this.rundownId = json.rundownId
@@ -89,5 +106,3 @@ export class UISegment {
 		// unregister event handlers
 	}
 }
-
-export type UISegmentId = ProtectedString<'UISegmentId', string>

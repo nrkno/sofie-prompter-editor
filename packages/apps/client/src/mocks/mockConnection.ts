@@ -40,7 +40,7 @@ const START_TIME = Date.now()
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Handler<T = any> = (arg: T) => void
 
-type EventTypes = 'created' | 'changed' | 'removed'
+type EventTypes = 'created' | 'updated' | 'removed'
 type Services = 'playlist' | 'rundown' | 'segment' | 'part'
 
 type Events = `${Services}_${EventTypes}` | 'connected' | 'disconnected'
@@ -84,6 +84,7 @@ export class MockConnection extends EventEmitter<Events> {
 		off: (type: EventTypes, fn: Handler) => {
 			this.off(`playlist_${type}`, fn)
 		},
+		subscribeToPlaylists: () => {},
 	}
 
 	private _rundowns = [
@@ -160,7 +161,7 @@ export class MockConnection extends EventEmitter<Events> {
 		},
 	}
 
-	private _parts: Part[] = [
+	private _part: Part[] = [
 		{
 			_id: PART_ID_0_0_0,
 			label: 'Part 0',
@@ -329,14 +330,14 @@ export class MockConnection extends EventEmitter<Events> {
 		},
 	]
 
-	parts = {
+	part = {
 		find: async (args?: Query<Part>): Promise<Part[]> => {
 			await sleep(500)
-			return this._parts.filter((part) => !args || match(part as unknown as { [s: string]: unknown }, args.query))
+			return this._part.filter((part) => !args || match(part as unknown as { [s: string]: unknown }, args.query))
 		},
 		get: async (id: PartId): Promise<Part | undefined> => {
 			await sleep(500)
-			return this._parts.find((item) => item._id === id)
+			return this._part.find((item) => item._id === id)
 		},
 		on: (type: EventTypes, fn: Handler<Part>) => {
 			this.on(`part_${type}`, fn)

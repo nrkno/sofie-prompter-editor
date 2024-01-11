@@ -35,6 +35,8 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 
 	/** Subscribe to all info within a specific playlist */
 	subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
+
+	unSubscribefromRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

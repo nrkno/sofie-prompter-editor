@@ -2,26 +2,26 @@ import { makeAutoObservable, action } from 'mobx'
 import { RundownStore } from './RundownStore'
 import { MockConnection } from '../mocks/mockConnection'
 import { UIStore } from './UIStore'
-
+import { APIConnection as APIConnectionImpl } from '../api/ApiConnection.ts'
 class AppStoreClass {
 	connected = false
 	rundownStore: RundownStore
 	uiStore: UIStore
-	connection = new MockConnection()
 
-	constructor() {
+	constructor(public connection: APIConnection) {
 		makeAutoObservable(this)
-		this.rundownStore = new RundownStore(this, this.connection)
+
+		this.rundownStore = new RundownStore(this, connection)
 		this.uiStore = new UIStore()
 
-		this.connection.on(
+		connection.on(
 			'connected',
 			action('setConnected', () => {
 				this.connected = true
 			})
 		)
 
-		this.connection.on(
+		connection.on(
 			'disconnected',
 			action('setDisconnected', () => {
 				this.connected = false
@@ -29,7 +29,8 @@ class AppStoreClass {
 		)
 	}
 }
+export const apiConnection = new APIConnectionImpl()
 
-export const AppStore = new AppStoreClass()
+export const AppStore = new AppStoreClass(apiConnection)
 
-export type APIConnection = MockConnection
+export type APIConnection = APIConnectionImpl

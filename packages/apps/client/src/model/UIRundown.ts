@@ -1,102 +1,89 @@
 import { action, computed, makeAutoObservable, observable } from 'mobx'
 import {
-	ProtectedString,
 	Rundown,
 	RundownId,
 	RundownPlaylist,
 	RundownPlaylistId,
 	Segment,
-	protectString,
+	SegmentId,
 } from '@sofie-prompter-editor/shared-model'
-import { UISegment, UISegmentId } from './UISegment'
+import { UISegment } from './UISegment'
 import { RundownStore } from '../stores/RundownStore'
-import { randomId } from '../lib/lib'
 
 export class UIRundown {
 	name: string = ''
 
 	ready: boolean = false
 
-	segments = observable.map<UISegmentId, UISegment>()
+	segments = observable.map<SegmentId, UISegment>()
 
 	private rundowns = observable.map<RundownId, Rundown>()
 
-	constructor(
-		private store: RundownStore,
-		public playlistId: RundownPlaylistId,
-		public id = protectString<UIRundownId>(randomId())
-	) {
+	constructor(private store: RundownStore, public id: RundownPlaylistId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
 			segmentsInOrder: computed,
 			close: action,
 		})
+		this.init().catch(console.error)
+	}
+	async init() {
+		await this.store.connection.rundown.subscribeToRundownsInPlaylist(this.id)
 
-		this.store.connection.rundown
-			.find({
-				query: {
-					playlistId: this.playlistId,
-				},
-			})
-			.then(
-				action('receiveRundowns', (rundowns) => {
-					return Promise.all(
-						rundowns.map((rundown) => {
-							this.rundowns.set(rundown._id, rundown)
-							return this.store.connection.segment.find({
-								query: {
-									rundownId: rundown._id,
-								},
-							})
-						})
-					)
-				})
-			)
-			.then((segmentArrays) => segmentArrays.flat())
-			.then(
-				action('receiveSegments', (segments) => {
-					for (const segment of segments) {
-						const newSegment = new UISegment(this.store, this, segment._id)
-						this.segments.set(newSegment.id, newSegment)
-						newSegment.updateFromJson(segment)
-					}
-				})
-			)
+		const rundowns = await this.store.connection.rundown.find({
+			query: {
+				playlistId: this.id,
+			},
+		})
+		for (const rundown of rundowns) {
+			this._onRundownCreated(rundown)
+		}
+
+		const segments = await this.store.connection.segment.find({
+			query: {
+				playlistId: this.id,
+			},
+		})
+		for (const segment of segments) {
+			this._onSegmentCreated(segment)
+		}
 
 		// get all segments
 
 		// register callbacks for events
 
 		// we track playlist changed and removed
-		this.store.connection.playlist.on('changed', (json: RundownPlaylist) => {
-			if (json._id !== this.playlistId) return
+		this.store.connection.playlist.on('updated', (json: RundownPlaylist) => {
+			if (json._id !== this.id) return
 
 			this.updateFromJson(json)
 		})
 
 		this.store.connection.playlist.on('removed', (id: RundownPlaylistId) => {
-			if (id !== this.playlistId) return
+			if (id !== this.id) return
 
 			this.close()
 		})
 
 		// we track rundown created, changed and removed, because we own Rundowns
-		this.store.connection.rundown.on('created', (_json: Rundown) => {})
+		this.store.connection.rundown.on('created', (json: Rundown) => {
+			this.rundowns.set(json._id, json)
+		})
 
-		this.store.connection.rundown.on('changed', (_json: Rundown) => {})
+		this.store.connection.rundown.on('updated', (json: Rundown) => {
+			this.rundowns.set(json._id, json)
+		})
 
-		this.store.connection.rundown.on('removed', (id: RundownId) => {
-			this.rundowns.delete(id)
+		this.store.connection.rundown.on('removed', (json) => {
+			this.rundowns.delete(json._id)
 		})
 
 		// we track segment created so that we can add new Segments when they are added
 		this.store.connection.segment.on('created', (json: Segment) => {
-			if (json.playlistId !== this.playlistId) return
+			if (json.playlistId !== this.id) return
 			if (!this.rundowns.has(json.rundownId)) return
 
-			const newSegment = new UISegment(this.store, this, json._id)
-			this.segments.set(newSegment.id, newSegment)
-			newSegment.updateFromJson(json)
+			this._onSegmentCreated(json)
 		})
 	}
 
@@ -122,6 +109,21 @@ export class UIRundown {
 	dispose(): void {
 		// unregister event handlers from services
 	}
-}
+	private _onRundownCreated = action('onRundownCreated', (json: Rundown) => {
+		this.rundowns.set(json._id, json)
+	})
+	private _onSegmentCreated = action('onSegmentCreated', (json: Segment) => {
+		console.log('individual segment', json._id, json)
 
-export type UIRundownId = ProtectedString<'UIRundownId', string>
+		const existing = this.segments.get(json._id)
+		if (!existing) {
+			const newSegment = new UISegment(this.store, this, json._id)
+			this.segments.set(json._id, newSegment)
+			newSegment.updateFromJson(json)
+		} else {
+			// update existing segment
+
+			existing.updateFromJson(json)
+		}
+	})
+}

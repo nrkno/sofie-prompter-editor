@@ -25,25 +25,20 @@ export class UILine {
 
 	ready: boolean = false
 
-	constructor(
-		private store: RundownStore,
-		private owner: UISegment,
-		public partId: PartId,
-		public id = protectString<UILineId>(randomId())
-	) {
+	constructor(private store: RundownStore, private owner: UISegment, public id: PartId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
 			remove: action,
 		})
 
-		this.store.connection.parts.on('changed', (json: Part) => {
-			if (this.partId !== json._id) return
+		this.store.connection.part.on('updated', (json: Part) => {
+			if (this.id !== json._id) return
 
 			this.updateFromJson(json)
 		})
 
-		this.store.connection.parts.on('removed', (json: Part) => {
-			if (this.partId !== json._id) return
+		this.store.connection.part.on('removed', (json) => {
+			if (this.id !== json._id) return
 
 			this.remove()
 		})
@@ -71,8 +66,6 @@ export class UILine {
 
 	dispose() {}
 }
-
-export type UILineId = ProtectedString<'UILineId', string>
 
 function partDisplayTypeToLineTypeStyle(type: PartDisplayType): LineType {
 	switch (type) {

@@ -11,7 +11,7 @@ export const RundownEntry = observer(({ rundownId }: { rundownId: UIRundownId })
 
 	const onOpen = () => {
 		if (!rundownEntry) return
-		navigate(`/rundown/${rundownEntry.playlistId}`)
+		navigate(`/rundown/${rundownEntry.id}`)
 	}
 
 	return (

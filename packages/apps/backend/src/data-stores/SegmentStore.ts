@@ -5,6 +5,7 @@ import { Segment, SegmentId } from '@sofie-prompter-editor/shared-model'
 export class SegmentStore {
 	public readonly segments = observable.map<SegmentId, Segment>()
 
+	public tmp = 0
 	constructor() {
 		makeObservable(this, {
 			create: action,

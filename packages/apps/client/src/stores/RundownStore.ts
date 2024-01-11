@@ -1,28 +1,41 @@
 import { makeAutoObservable, observable, action, flow } from 'mobx'
 import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, AppStore } from './AppStore'
-import { UIRundown, UIRundownId } from '../model/UIRundown'
+import { UIRundown } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
 
 export class RundownStore {
 	showingOnlyScripts = false
 
-	allRundowns = observable.map<UIRundownId, UIRundownEntry>()
+	allRundowns = observable.map<RundownPlaylistId, UIRundownEntry>()
 	openRundown: UIRundown | null = null
 
 	constructor(public appStore: typeof AppStore, public connection: APIConnection) {
 		makeAutoObservable(this, {
-			loadAllRudnowns: action,
+			loadAllUIRundownData: action,
 			clearAllRundowns: action,
 			loadRundown: action,
 		})
 
 		// get all rundowns
-		this.connection.playlist.on('created', () => {})
-		this.loadAllRudnowns()
+		this.setupUIRundownDataSubscriptions()
+		this.loadAllUIRundownData()
 	}
 
-	loadAllRudnowns = flow(function* (this: RundownStore) {
+	setupUIRundownDataSubscriptions = flow(function* (this: RundownStore) {
+		yield this.connection.playlist.subscribeToPlaylists()
+
+		this.connection.playlist.on(
+			'created',
+			action((playlist) => {
+				const newRundownEntry = new UIRundownEntry(this, playlist._id)
+				this.allRundowns.set(newRundownEntry.id, newRundownEntry)
+				newRundownEntry.updateFromJson(playlist)
+			})
+		)
+		// Note: updated and removed events are handled by the UIRundownEntry's themselves
+	})
+	loadAllUIRundownData = flow(function* (this: RundownStore) {
 		const playlists = yield this.connection.playlist.find()
 		// add UIRundownEntries to allRundowns
 

@@ -1,7 +1,5 @@
 import { action, makeAutoObservable } from 'mobx'
-import { RundownPlaylist, RundownPlaylistId, protectString } from '@sofie-prompter-editor/shared-model'
-import { randomId } from '../lib/lib'
-import { UIRundownId } from './UIRundown'
+import { RundownId, RundownPlaylist, RundownPlaylistId, protectString } from '@sofie-prompter-editor/shared-model'
 import { RundownStore } from '../stores/RundownStore'
 
 // a lightweight domain object for tracking rundowns without their contents
@@ -10,25 +8,21 @@ export class UIRundownEntry {
 
 	ready: boolean = false
 
-	constructor(
-		private store: RundownStore,
-		public playlistId: RundownPlaylistId,
-		public id = protectString<UIRundownId>(randomId())
-	) {
+	constructor(private store: RundownStore, public id: RundownPlaylistId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
 		})
 
 		void this.store
 
-		this.store.connection.playlist.on('changed', (json: RundownPlaylist) => {
-			if (this.playlistId !== json._id) return
+		this.store.connection.playlist.on('updated', (json: RundownPlaylist) => {
+			if (this.id !== json._id) return
 
 			this.updateFromJson(json)
 		})
 
 		this.store.connection.playlist.on('removed', (id: RundownPlaylistId) => {
-			if (this.playlistId !== id) return
+			if (this.id !== id) return
 
 			this.remove()
 		})
