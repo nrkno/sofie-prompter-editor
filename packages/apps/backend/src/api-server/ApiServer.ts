@@ -101,7 +101,7 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		const subscriberCount = app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
 		if (subscriberCount === 0) {
 			// No one is listening to this playlist, so unsubscribe from it:
-			this.coreConnection.unsubscribeFromPlaylist(playlistId)
+			this.coreConnection?.unsubscribeFromPlaylist(playlistId)
 		}
 	}
 }

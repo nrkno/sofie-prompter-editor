@@ -117,7 +117,7 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
 	}
-	public async unSubscribefromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
+	public async unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
 		// TODO: this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId)
 
 		if (!params.connection) throw new Error('No connection!')

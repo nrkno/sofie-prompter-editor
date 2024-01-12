@@ -6,7 +6,7 @@ import {
 	JSONBlobStringify,
 	StatusCode,
 } from '@sofie-automation/server-core-integration'
-import { RundownPlaylistId, ServiceTypes } from '@sofie-prompter-editor/shared-model'
+import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -27,8 +27,6 @@ import { PartHandler } from './dataHandlers/PartHandler.js'
 import { Transformers } from './dataTransformers/Transformers.js'
 import { PieceHandler } from './dataHandlers/PieceHandler.js'
 import { ShowStyleBaseHandler } from './dataHandlers/ShowStyleBaseHandler.js'
-import { PublishChannels } from '../api-server/PublishChannels.js'
-import { Application } from '@feathersjs/koa'
 
 interface SofieCoreConnectionEvents {
 	connected: []
