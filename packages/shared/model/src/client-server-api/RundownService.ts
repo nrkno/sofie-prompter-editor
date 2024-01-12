@@ -19,6 +19,7 @@ export const ALL_METHODS = [
 	'remove',
 	//
 	'subscribeToRundownsInPlaylist',
+	'unSubscribeFromRundownsInPlaylist',
 ] as const
 /** The methods exposed by this class are exposed in the API */
 interface Methods extends Omit<ServiceMethods, 'patch'> {
@@ -36,7 +37,7 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 	/** Subscribe to all info within a specific playlist */
 	subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
 
-	unSubscribefromRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
+	unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

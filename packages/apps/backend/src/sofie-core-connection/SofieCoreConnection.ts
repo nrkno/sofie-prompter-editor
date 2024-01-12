@@ -6,7 +6,7 @@ import {
 	JSONBlobStringify,
 	StatusCode,
 } from '@sofie-automation/server-core-integration'
-import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { RundownPlaylistId, ServiceTypes } from '@sofie-prompter-editor/shared-model'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -27,6 +27,8 @@ import { PartHandler } from './dataHandlers/PartHandler.js'
 import { Transformers } from './dataTransformers/Transformers.js'
 import { PieceHandler } from './dataHandlers/PieceHandler.js'
 import { ShowStyleBaseHandler } from './dataHandlers/ShowStyleBaseHandler.js'
+import { PublishChannels } from '../api-server/PublishChannels.js'
+import { Application } from '@feathersjs/koa'
 
 interface SofieCoreConnectionEvents {
 	connected: []
@@ -132,7 +134,8 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		return this.subscriberManager.getSubscribedPlaylists()
 	}
 	public unsubscribeFromPlaylist(playlistId: RundownPlaylistId) {
-		// Remove connection from all subscriptions
+		// Remove subscription to playlist.
+		// Note: Only call this is no one is subscribed!
 		this.subscriberManager.unsubscribeFromPlaylist(playlistId)
 	}
 	private setStatus(id: string, status: StatusCode, message: string): void {

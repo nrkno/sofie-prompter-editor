@@ -115,6 +115,8 @@ export class UIRundown {
 
 	close(): void {
 		this.store.openRundown = null
+
+		this.store.connection.rundown.unSubscribeFromRundownsInPlaylist(this.id).catch(console.error)
 		this.dispose()
 	}
 

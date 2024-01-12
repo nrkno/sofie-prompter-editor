@@ -112,16 +112,16 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 	}
 
 	public async subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
-		if (!params.connection) throw new Error('No connection!')
+		this.coreConnection?.subscribeToPlaylist(playlistId)
 
+		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
-		this.coreConnection?.subscribeToPlaylist(playlistId)
 	}
-	public async unSubscribefromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
-		if (!params.connection) throw new Error('No connection!')
+	public async unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
+		this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId)
 
+		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).leave(params.connection)
-		this.coreConnection?.subscribeToPlaylist(playlistId)
 	}
 }
 type Result = Definition.Result
