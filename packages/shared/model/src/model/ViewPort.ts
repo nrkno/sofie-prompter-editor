@@ -18,6 +18,10 @@ export const ViewPortPositionSchema = z.object({
 	 * `null` means "top of page"
 	 */
 	scrollOffsetTarget: ZodProtectedString<SegmentId | PartId | TextMarkerId>().nullable(),
+
+	speed: z.number(),
+
+	timestamp: z.number(),
 })
 
 /** TBD, something used to mark places in ScriptContents */

@@ -15,7 +15,7 @@ import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
 import { fromMarkdown } from '../lib/prosemirrorDoc'
 import { AppStore } from '../stores/AppStore'
-import { IReactionDisposer, autorun, reaction } from 'mobx'
+import { IReactionDisposer, reaction } from 'mobx'
 
 export function Editor({
 	className,

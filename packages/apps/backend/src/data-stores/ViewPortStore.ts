@@ -10,6 +10,8 @@ export class ViewPortStore {
 		position: {
 			scrollOffset: 0,
 			scrollOffsetTarget: null,
+			speed: 0,
+			timestamp: 0,
 		},
 		width: 0,
 	})

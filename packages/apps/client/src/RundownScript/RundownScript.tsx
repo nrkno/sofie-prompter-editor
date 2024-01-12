@@ -9,7 +9,7 @@ import { AppStore } from '../stores/AppStore'
 import { useParams } from 'react-router-dom'
 import { SplitPanel } from '../components/SplitPanel/SplitPanel'
 
-export const RundownScript = observer((): React.JSX.Element => {
+const RundownScript = observer((): React.JSX.Element => {
 	const params = useParams()
 
 	const playlistId = protectString<RundownPlaylistId>(params.playlistId)
@@ -37,3 +37,5 @@ export const RundownScript = observer((): React.JSX.Element => {
 	)
 })
 RundownScript.displayName = 'RundownScript'
+
+export default RundownScript

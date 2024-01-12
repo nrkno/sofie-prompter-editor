@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3'
-import { Application, PaginationParams, Params } from '@feathersjs/feathers'
+import { Application, PaginationParams, Params, Query } from '@feathersjs/feathers'
 import {
 	ServiceTypes,
 	Services,
@@ -117,8 +117,8 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
 	}
-	public async unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
-		this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId)
+	public async unSubscribefromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
+		// TODO: this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId)
 
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).leave(params.connection)
