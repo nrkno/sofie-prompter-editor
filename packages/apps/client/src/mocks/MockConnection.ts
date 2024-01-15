@@ -1,8 +1,9 @@
-import EventEmitter from 'eventemitter3'
+import { EventEmitter } from 'eventemitter3'
 import {
 	Part,
 	PartDisplayType,
 	PartId,
+	ProtectedString,
 	Rundown,
 	RundownPlaylist,
 	RundownPlaylistId,
@@ -37,15 +38,47 @@ const PLAYLIST_ID_1 = generateId('playlist')
 
 const START_TIME = Date.now()
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Handler<T = any> = (arg: T) => void
-
 type EventTypes = 'created' | 'updated' | 'removed'
-type Services = 'playlist' | 'rundown' | 'segment' | 'part'
+type Services = 'playlist' | 'rundown' | 'segment' | 'part' | 'prompterSettings' | 'viewPort' | 'example'
 
 type Events = `${Services}_${EventTypes}` | 'connected' | 'disconnected'
 
+class MockService<
+	T extends ProtectedString<string, string>,
+	K extends { _id: T },
+	L extends string
+> extends EventEmitter {
+	constructor(private store: K[], extraMethods: Record<L, () => Promise<void>>) {
+		super()
+
+		Object.assign(this, extraMethods)
+	}
+
+	find = async (args: Query<K>): Promise<K[]> => {
+		await sleep(500)
+		return this.store.filter((item) => !args || match(item, args.query))
+	}
+
+	get = async (id: T): Promise<K | undefined> => {
+		await sleep(500)
+		return this.store.find((item) => item._id === id)
+	}
+
+	create = async () => Promise.resolve()
+	update = async () => Promise.resolve()
+	remove = async () => Promise.resolve()
+	hooks = async () => Promise.resolve()
+}
+
 export class MockConnection extends EventEmitter<Events> {
+	private createMockService<L extends ProtectedString<string, string>, T extends { _id: L }, K extends string>(
+		_serviceName: Services,
+		store: T[] = [],
+		extraMethods: Record<K, () => Promise<void>> = Object.assign({})
+	) {
+		return new MockService(store, extraMethods) as MockService<L, T, K> & typeof extraMethods
+	}
+
 	private _playlists = [
 		{
 			_id: PLAYLIST_ID_0,
@@ -69,23 +102,10 @@ export class MockConnection extends EventEmitter<Events> {
 		},
 	]
 
-	playlist = {
-		find: async (args?: Query<RundownPlaylist>): Promise<RundownPlaylist[]> => {
-			await sleep(500)
-			return this._playlists.filter((playlist) => !args || match(playlist, args.query))
-		},
-		get: async (id: RundownPlaylistId): Promise<RundownPlaylist | undefined> => {
-			await sleep(500)
-			return this._playlists.find((item) => item._id === id)
-		},
-		on: (type: EventTypes, fn: Handler) => {
-			this.on(`playlist_${type}`, fn)
-		},
-		off: (type: EventTypes, fn: Handler) => {
-			this.off(`playlist_${type}`, fn)
-		},
-		subscribeToPlaylists: () => {},
-	}
+	playlist = this.createMockService('playlist', this._playlists, {
+		subscribeToPlaylists: () => Promise.resolve(),
+		tmpPing: () => Promise.resolve(),
+	})
 
 	private _rundowns = [
 		{
@@ -96,22 +116,10 @@ export class MockConnection extends EventEmitter<Events> {
 		},
 	]
 
-	rundown = {
-		find: async (args?: Query<Rundown>): Promise<Rundown[]> => {
-			await sleep(500)
-			return this._rundowns.filter((rundown) => !args || match(rundown, args.query))
-		},
-		get: async (id: RundownPlaylistId): Promise<Rundown | undefined> => {
-			await sleep(500)
-			return this._rundowns.find((item) => item._id === id)
-		},
-		on: (type: EventTypes, fn: Handler) => {
-			this.on(`rundown_${type}`, fn)
-		},
-		off: (type: EventTypes, fn: Handler) => {
-			this.off(`rundown_${type}`, fn)
-		},
-	}
+	rundown = this.createMockService('rundown', this._rundowns, {
+		subscribeToRundownsInPlaylist: () => Promise.resolve(),
+		unSubscribeFromRundownsInPlaylist: () => Promise.resolve(),
+	})
 
 	private _segments = [
 		{
@@ -144,22 +152,7 @@ export class MockConnection extends EventEmitter<Events> {
 		},
 	]
 
-	segment = {
-		find: async (args?: Query<Segment>): Promise<Segment[]> => {
-			await sleep(500)
-			return this._segments.filter((segment) => !args || match(segment, args.query))
-		},
-		get: async (id: SegmentId): Promise<Segment | undefined> => {
-			await sleep(500)
-			return this._segments.find((item) => item._id === id)
-		},
-		on: (type: EventTypes, fn: Handler<Segment>) => {
-			this.on(`segment_${type}`, fn)
-		},
-		off: (type: EventTypes, fn: Handler<Segment | Partial<Segment>>) => {
-			this.off(`segment_${type}`, fn)
-		},
-	}
+	segment = this.createMockService('segment', this._segments, {})
 
 	private _part: Part[] = [
 		{
@@ -330,28 +323,29 @@ export class MockConnection extends EventEmitter<Events> {
 		},
 	]
 
-	part = {
-		find: async (args?: Query<Part>): Promise<Part[]> => {
-			await sleep(500)
-			return this._part.filter((part) => !args || match(part as unknown as { [s: string]: unknown }, args.query))
-		},
-		get: async (id: PartId): Promise<Part | undefined> => {
-			await sleep(500)
-			return this._part.find((item) => item._id === id)
-		},
-		on: (type: EventTypes, fn: Handler<Part>) => {
-			this.on(`part_${type}`, fn)
-		},
-		off: (type: EventTypes, fn: Handler<Part | Partial<Part>>) => {
-			this.off(`part_${type}`, fn)
-		},
-	}
+	part = this.createMockService('part', this._part, {})
+
+	prompterSettings = this.createMockService('prompterSettings')
+
+	viewPort = this.createMockService('viewPort')
+
+	example = this.createMockService('example')
+
+	connected = true
+
+	host = 'DUMMY'
+
+	port = 1234
 
 	constructor() {
 		super()
 
+		setTimeout(() => {
+			this.emit('connected')
+		}, 100)
+
 		setInterval(() => {
-			this.emit('part_changed', {
+			this.part.emit('updated', {
 				_id: PART_ID_0_0_1,
 				label: 'Part 1',
 				rank: 1,
@@ -369,7 +363,7 @@ export class MockConnection extends EventEmitter<Events> {
 		}, 2000)
 
 		setTimeout(() => {
-			this.emit('part_created', {
+			this.part.emit('created', {
 				_id: PART_ID_0_3_4_INSERTED,
 				label: 'Part 1.5 - inserted',
 				rank: 1.5,
