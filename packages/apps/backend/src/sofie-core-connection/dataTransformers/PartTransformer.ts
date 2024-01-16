@@ -87,14 +87,14 @@ export class PartTransformer {
 
 		if (coreShowStyleBase) {
 			const sourceLayers = applyAndValidateOverrides(coreShowStyleBase.sourceLayersWithOverrides)
-			const outputLayers = applyAndValidateOverrides(coreShowStyleBase.outputLayersWithOverrides)
+			// const outputLayers = applyAndValidateOverrides(coreShowStyleBase.outputLayersWithOverrides)
 
 			const usePiece = new Map<PartDisplayType, { label: string }>()
 			for (const piece of pieces) {
 				if (piece.pieceType !== IBlueprintPieceType.Normal) continue
 
 				const sourceLayer = sourceLayers.obj[piece.sourceLayerId]
-				const outputLayer = outputLayers.obj[piece.outputLayerId]
+				// const outputLayer = outputLayers.obj[piece.outputLayerId]
 
 				if (!sourceLayer) continue
 				const sourceLayerShortName = sourceLayer.abbreviation ?? sourceLayer.name
@@ -106,7 +106,7 @@ export class PartTransformer {
 					continue
 				}
 
-				if (!outputLayer?.isPGM) continue
+				if (!sourceLayer?.onPresenterScreen) continue
 
 				switch (sourceLayer.type) {
 					case SourceLayerType.CAMERA:
@@ -201,20 +201,25 @@ export class PartTransformer {
 			if (!isEqual(this.corePieces.get(pieceId), piece)) {
 				this.corePieces.set(piece._id, piece)
 
-				const existingPartPieces = this.corePartPieces.get(piece.startPartId) || []
-				if (!existingPartPieces.find((p) => p._id === piece._id)) {
+				// create a new array so that the observable.map will pick up on the change
+				const existingPartPieces = this.corePartPieces.get(piece.startPartId)?.slice() || []
+				const i = existingPartPieces.findIndex((p) => p._id === piece._id)
+				if (i === -1) {
 					existingPartPieces.push(piece)
-					this.corePartPieces.set(piece.startPartId, existingPartPieces)
+				} else {
+					existingPartPieces.splice(i, 1, piece)
 				}
+				this.corePartPieces.set(piece.startPartId, existingPartPieces)
 			}
 		} else {
 			const existingPiece = this.corePieces.get(pieceId)
 			if (existingPiece) {
 				this.corePieces.delete(pieceId)
 
-				const existingPartPieces = this.corePartPieces.get(existingPiece.startPartId) || []
+				// create a new array so that the observable.map will pick up on the change
+				const existingPartPieces = this.corePartPieces.get(existingPiece.startPartId)?.slice() || []
 				const i = existingPartPieces.findIndex((p) => p._id !== existingPiece._id)
-				if (i != -1) {
+				if (i !== -1) {
 					existingPartPieces.splice(i, 1)
 					this.corePartPieces.set(existingPiece.startPartId, existingPartPieces)
 				}
