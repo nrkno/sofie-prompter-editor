@@ -1,5 +1,5 @@
 import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
-import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, AppStore } from './AppStore'
 import { UIRundown } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
@@ -28,7 +28,6 @@ export class RundownStore {
 			reaction(
 				() => this.appStore.connected,
 				async (connected) => {
-					console.log('Connected is: ', connected)
 					if (!connected) return
 
 					await this.connection.playlist.subscribeToPlaylists()
@@ -39,15 +38,21 @@ export class RundownStore {
 			)
 		)
 
-		this.connection.playlist.on(
-			'created',
-			action((playlist) => {
-				const newRundownEntry = new UIRundownEntry(this, playlist._id)
-				this.allRundowns.set(newRundownEntry.id, newRundownEntry)
-				newRundownEntry.updateFromJson(playlist)
-			})
-		)
+		this.connection.playlist.on('created', this.onPlaylistCreated)
 		// Note: updated and removed events are handled by the UIRundownEntry's themselves
+	})
+
+	private onPlaylistCreated = action('onPlaylistCreated', (json: RundownPlaylist) => {
+		const existing = this.allRundowns.get(json._id)
+
+		if (!existing) {
+			const newRundownEntry = new UIRundownEntry(this, json._id)
+			this.allRundowns.set(newRundownEntry.id, newRundownEntry)
+			newRundownEntry.updateFromJson(json)
+			return
+		}
+
+		existing.updateFromJson(json)
 	})
 
 	loadAllUIRundownData = flow(function* (this: RundownStore) {
@@ -57,9 +62,7 @@ export class RundownStore {
 		this.clearAllRundowns()
 
 		for (const playlist of playlists) {
-			const newRundownEntry = new UIRundownEntry(this, playlist._id)
-			this.allRundowns.set(newRundownEntry.id, newRundownEntry)
-			newRundownEntry.updateFromJson(playlist)
+			this.onPlaylistCreated(playlist)
 		}
 	})
 

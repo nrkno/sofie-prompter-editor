@@ -39,12 +39,10 @@ class AppStoreClass {
 	}
 
 	onConnected = action('onConnected', () => {
-		console.log('Connected')
 		this.connected = true
 	})
 
 	onDisconnected = action('onDisconnected', () => {
-		console.log('Disconnected')
 		this.connected = false
 	})
 }
