@@ -104,6 +104,8 @@ export class UIRundown {
 	dispose(): void {
 		this.reactions.forEach((destroy) => destroy())
 
+		this.segments.forEach((segment) => segment.dispose())
+
 		this.store.connection.playlist.off('updated', this.onPlaylistUpdated)
 		this.store.connection.playlist.off('removed', this.onPlaylistRemoved)
 

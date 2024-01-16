@@ -12,6 +12,7 @@ import {
 	SegmentServiceDefinition,
 	ViewPortServiceDefinition,
 	ExampleServiceDefinition,
+	PartServiceDefinition,
 } from '@sofie-prompter-editor/shared-model'
 
 const USE_MOCK_CONNECTION = false
@@ -57,7 +58,7 @@ export interface APIConnection extends EventEmitter {
 	readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
 	readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
 	readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
-	readonly part: FeathersTypedService<PlaylistServiceDefinition.Service>
+	readonly part: FeathersTypedService<PartServiceDefinition.Service>
 
 	readonly prompterSettings: FeathersTypedService<PrompterSettingsServiceDefinition.Service>
 	readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
