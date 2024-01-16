@@ -23,28 +23,28 @@ class AppStoreClass {
 	uiStore: UIStore
 
 	constructor() {
+		makeObservable(this, {
+			connected: observable,
+		})
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const apiConnection = USE_MOCK_CONNECTION ? (new MockConnection() as any) : new APIConnectionImpl()
 		this.connection = apiConnection
 		this.rundownStore = new RundownStore(this, this.connection)
 		this.uiStore = new UIStore()
 
-		makeObservable(this, {
-			connected: observable,
-			rundownStore: observable,
-			uiStore: observable,
-		})
+		this.connection.on('disconnected', this.onDisconnected)
 
-		this.connection.on('connected', this.onDisconnected)
-
-		this.connection.on('disconnected', this.onConnected)
+		this.connection.on('connected', this.onConnected)
 	}
 
 	onConnected = action('onConnected', () => {
+		console.log('Connected')
 		this.connected = true
 	})
 
-	onDisconnected = action('onConnected', () => {
+	onDisconnected = action('onDisconnected', () => {
+		console.log('Disconnected')
 		this.connected = false
 	})
 }

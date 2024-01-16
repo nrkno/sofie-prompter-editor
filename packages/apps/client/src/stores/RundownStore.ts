@@ -1,4 +1,4 @@
-import { makeAutoObservable, observable, action, flow } from 'mobx'
+import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
 import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, AppStore } from './AppStore'
 import { UIRundown } from '../model/UIRundown'
@@ -10,11 +10,12 @@ export class RundownStore {
 	allRundowns = observable.map<RundownPlaylistId, UIRundownEntry>()
 	openRundown: UIRundown | null = null
 
+	reactions: IReactionDisposer[] = []
+
 	constructor(public appStore: typeof AppStore, public connection: APIConnection) {
-		makeAutoObservable(this, {
-			loadAllUIRundownData: action,
-			clearAllRundowns: action,
-			loadRundown: action,
+		makeObservable(this, {
+			openRundown: observable,
+			showingOnlyScripts: observable,
 		})
 
 		// get all rundowns
@@ -22,8 +23,21 @@ export class RundownStore {
 		this.loadAllUIRundownData()
 	}
 
-	setupUIRundownDataSubscriptions = flow(function* (this: RundownStore) {
-		yield this.connection.playlist.subscribeToPlaylists()
+	setupUIRundownDataSubscriptions = action(() => {
+		this.reactions.push(
+			reaction(
+				() => this.appStore.connected,
+				async (connected) => {
+					console.log('Connected is: ', connected)
+					if (!connected) return
+
+					await this.connection.playlist.subscribeToPlaylists()
+				},
+				{
+					fireImmediately: true,
+				}
+			)
+		)
 
 		this.connection.playlist.on(
 			'created',
@@ -35,6 +49,7 @@ export class RundownStore {
 		)
 		// Note: updated and removed events are handled by the UIRundownEntry's themselves
 	})
+
 	loadAllUIRundownData = flow(function* (this: RundownStore) {
 		const playlists = yield this.connection.playlist.find()
 		// add UIRundownEntries to allRundowns
@@ -48,11 +63,11 @@ export class RundownStore {
 		}
 	})
 
-	clearAllRundowns() {
+	clearAllRundowns = action('clearAllRundowns', () => {
 		for (const rundown of this.allRundowns.values()) {
 			rundown.remove()
 		}
-	}
+	})
 
 	loadRundown = flow(function* (this: RundownStore, id: RundownPlaylistId) {
 		this.openRundown?.close()
@@ -67,4 +82,8 @@ export class RundownStore {
 		newRundown.updateFromJson(playlist)
 		this.openRundown = newRundown
 	})
+
+	destroy = () => {
+		this.reactions.forEach((dispose) => dispose())
+	}
 }

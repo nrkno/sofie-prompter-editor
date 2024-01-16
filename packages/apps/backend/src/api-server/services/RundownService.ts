@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3'
-import { Application, PaginationParams, Params, Query } from '@feathersjs/feathers'
+import { Application, PaginationParams, Params } from '@feathersjs/feathers'
 import {
 	ServiceTypes,
 	Services,
