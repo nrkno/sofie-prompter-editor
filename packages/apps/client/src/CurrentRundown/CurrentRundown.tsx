@@ -30,7 +30,7 @@ const CurrentRundown = observer((): React.JSX.Element => {
 			</p>
 			<ul className={classes.SegmentLineList}>
 				{openRundown.segmentsInOrder.map((segment) => (
-					<li key={segment.id} className={classes.SegmentContainer}>
+					<li key={segment.id} data-segment-id={segment.id} className={classes.SegmentContainer}>
 						<Segment segment={segment} />
 					</li>
 				))}

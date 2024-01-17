@@ -12,6 +12,7 @@ import {
 	SegmentServiceDefinition,
 	ViewPortServiceDefinition,
 	ExampleServiceDefinition,
+	PartServiceDefinition,
 } from '@sofie-prompter-editor/shared-model'
 
 const USE_MOCK_CONNECTION = false
@@ -23,28 +24,26 @@ class AppStoreClass {
 	uiStore: UIStore
 
 	constructor() {
+		makeObservable(this, {
+			connected: observable,
+		})
+
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const apiConnection = USE_MOCK_CONNECTION ? (new MockConnection() as any) : new APIConnectionImpl()
 		this.connection = apiConnection
 		this.rundownStore = new RundownStore(this, this.connection)
 		this.uiStore = new UIStore()
 
-		makeObservable(this, {
-			connected: observable,
-			rundownStore: observable,
-			uiStore: observable,
-		})
+		this.connection.on('disconnected', this.onDisconnected)
 
-		this.connection.on('connected', this.onDisconnected)
-
-		this.connection.on('disconnected', this.onConnected)
+		this.connection.on('connected', this.onConnected)
 	}
 
 	onConnected = action('onConnected', () => {
 		this.connected = true
 	})
 
-	onDisconnected = action('onConnected', () => {
+	onDisconnected = action('onDisconnected', () => {
 		this.connected = false
 	})
 }
@@ -59,7 +58,7 @@ export interface APIConnection extends EventEmitter {
 	readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
 	readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
 	readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
-	readonly part: FeathersTypedService<PlaylistServiceDefinition.Service>
+	readonly part: FeathersTypedService<PartServiceDefinition.Service>
 
 	readonly prompterSettings: FeathersTypedService<PrompterSettingsServiceDefinition.Service>
 	readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>

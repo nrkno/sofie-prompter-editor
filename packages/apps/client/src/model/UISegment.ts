@@ -95,6 +95,8 @@ export class UISegment {
 	}
 
 	dispose(): void {
+		this.lines.forEach((line) => line.dispose())
+
 		// unregister event handlers
 		this.store.connection.segment.off('updated', this.onSegmentUpdated)
 		this.store.connection.segment.off('removed', this.onSegmentRemoved)

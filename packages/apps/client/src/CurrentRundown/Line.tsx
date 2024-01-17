@@ -3,6 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { UILine } from '../model/UILine'
 import classes from './CurrentRundown.module.scss'
 import { LineTypeIcon } from './LineTypeIcon'
+import { TimeSpan } from '../components/TimeSpan/TimeSpan'
 
 const Line = observer(({ line }: { line: UILine | undefined }): React.JSX.Element | null => {
 	if (!line) return null
@@ -14,7 +15,9 @@ const Line = observer(({ line }: { line: UILine | undefined }): React.JSX.Elemen
 			</div>
 			<div className={classes.LineSlug}>{line.slug}</div>
 			<div className={classes.LineScript}>{line.script}</div>
-			<div className={classes.LineDuration}>{line.expectedDuration}</div>
+			<div className={classes.LineDuration}>
+				<TimeSpan>{line.expectedDuration}</TimeSpan>
+			</div>
 			<div className={classes.LineDuration2}></div>
 		</>
 	)
