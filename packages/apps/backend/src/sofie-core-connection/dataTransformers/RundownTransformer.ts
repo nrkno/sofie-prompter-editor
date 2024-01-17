@@ -10,6 +10,7 @@ export class RundownTransformer {
 	// public readonly rundowns = observable.map<RundownId, Rundown>()
 
 	private readonly coreRundowns = observable.map<Core.RundownId, Core.Rundown>()
+	private readonly corePlaylistsInfo = observable.map<Core.RundownPlaylistId, CorePlaylistInfo>()
 
 	constructor() {
 		makeObservable(this, {
@@ -51,15 +52,21 @@ export class RundownTransformer {
 		const coreRundown = this.coreRundowns.get(coreRundownId)
 		if (!coreRundown) return undefined
 
+		const playlist = this.corePlaylistsInfo.get(coreRundown.playlistId)
+		if (!playlist) return undefined
+
+		const rank = playlist.rundownIdsInOrder.indexOf(coreRundownId)
+
 		return {
 			_id: this.convertId<Core.RundownId, RundownId>(coreRundown._id),
 
 			playlistId: this.convertId<Core.RundownPlaylistId, RundownPlaylistId>(coreRundown.playlistId),
 			label: coreRundown.name,
-			rank: 0, // todo
+			rank: rank,
 		}
 	})
 
+	/** This is called whenever the data from Core changes */
 	updateCoreRundown(coreRundownId: Core.RundownId, coreRundown: Core.Rundown | undefined) {
 		if (coreRundown) {
 			if (!isEqual(this.coreRundowns.get(coreRundownId), coreRundown)) {
@@ -69,6 +76,20 @@ export class RundownTransformer {
 			if (this.coreRundowns.has(coreRundownId)) {
 				this.coreRundowns.delete(coreRundownId)
 			}
+		}
+	}
+	/** This is called whenever the data from Core changes */
+	updateCorePlaylist(id: Core.RundownPlaylistId, playlist: Core.DBRundownPlaylist | undefined) {
+		if (playlist) {
+			const corePlaylistInfo: CorePlaylistInfo = {
+				rundownRanksAreSetInSofie: playlist.rundownRanksAreSetInSofie,
+				rundownIdsInOrder: playlist.rundownIdsInOrder,
+			}
+			if (!isEqual(this.corePlaylistsInfo.get(id), corePlaylistInfo)) {
+				this.corePlaylistsInfo.set(id, corePlaylistInfo)
+			}
+		} else {
+			this.corePlaylistsInfo.delete(id)
 		}
 	}
 
@@ -93,3 +114,5 @@ export class RundownTransformer {
 		return id as any
 	}
 }
+
+type CorePlaylistInfo = Pick<Core.DBRundownPlaylist, 'rundownRanksAreSetInSofie' | 'rundownIdsInOrder'>
