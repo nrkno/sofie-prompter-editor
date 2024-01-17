@@ -1,9 +1,13 @@
 import { z } from 'zod'
+import { ZodProtectedString } from './lib.js'
+import { RundownPlaylistId } from './RundownPlaylist.js'
 
 /** Set by a user */
-export type PrompterSettings = z.infer<typeof PrompterSettingsSchema>
+export type OutputSettings = z.infer<typeof OutputSettingsSchema>
 
-export const PrompterSettingsSchema = z.object({
+export const OutputSettingsSchema = z.object({
+	_id: z.literal(''),
+
 	fontSize: z.number().min(0).max(100),
 
 	mirrorHorizontally: z.boolean(),
@@ -16,4 +20,7 @@ export const PrompterSettingsSchema = z.object({
 	marginHorizontal: z.number().min(0).max(100),
 	/** In percentage of viewport height */
 	marginVertical: z.number().min(0).max(100),
+
+	/** If set, defines the rundown that is to be displayed in the Output */
+	activeRundownPlaylistId: ZodProtectedString<RundownPlaylistId>().nullable(),
 })

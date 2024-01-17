@@ -17,7 +17,6 @@ export const ALL_METHODS = [
 	// 'patch',
 	// 'remove',
 	//
-	'registerInstance',
 	'subscribeToViewPort',
 ] as const
 /** The methods exposed by this class are exposed in the API */
@@ -26,13 +25,6 @@ interface Methods extends Omit<ServiceMethods, 'patch' | 'remove' | 'create'> {
 	get(id: Id, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
 	update(id: NullId, data: Data, params?: Params): Promise<Result>
-
-	/**
-	 * When a ViewPort starts up, it randomizes its instanceId and calls this method.
-	 * @see ViewPort['instanceId']
-	 * @returns true if instanceId is the "last one" so the viewPort is the one in control.
-	 */
-	registerInstance(instanceId: string, params?: Params): Promise<boolean>
 
 	/** Subscribe to ViewPort data */
 	subscribeToViewPort(_?: unknown, params?: Params): Promise<void>

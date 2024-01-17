@@ -74,10 +74,6 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 		return this.get(data._id)
 	}
 
-	public async registerInstance(instanceId: string, _params?: Params): Promise<boolean> {
-		return this.store.viewPort.registerInstance(instanceId)
-	}
-
 	public async subscribeToViewPort(_: unknown, params: Params): Promise<void> {
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.ViewPort()).join(params.connection)

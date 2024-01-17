@@ -51,9 +51,7 @@ export class PrompterSettingsService extends EventEmitter<Definition.Events> imp
 			observe(this.store.prompterSettings.prompterSettings, (change) => {
 				this.log.debug('observed change', change)
 
-				if (change.type === 'add') {
-					this.emit('created', change.newValue)
-				} else if (change.type === 'update') {
+				if (change.type === 'update') {
 					this.emit('updated', change.newValue)
 				}
 			})
@@ -67,10 +65,10 @@ export class PrompterSettingsService extends EventEmitter<Definition.Events> imp
 	}
 
 	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return [this.store.prompterSettings.prompterSettings]
+		return [this.store.prompterSettings.prompterSettings.get()]
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
-		const data = this.store.prompterSettings.prompterSettings
+		const data = this.store.prompterSettings.prompterSettings.get()
 		if (!data) throw new NotFound(`PrompterSettings "${id}" not found`)
 		return data
 	}

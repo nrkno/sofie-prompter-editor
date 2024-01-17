@@ -129,19 +129,19 @@ export function Editor({
 					})),
 				}
 			},
-			(data) => {
+			(rundown) => {
 				console.log(performance.mark('begin'))
 				lineReactionDisposers.forEach((destr) => destr())
 
 				const openRundown = AppStore.rundownStore.openRundown
 
-				if (!data || !editorView.current || !openRundown) return
+				if (!rundown || !editorView.current || !openRundown) return
 
-				const rundown = schema.node(schema.nodes.rundown, undefined, [
-					schema.node(schema.nodes.rundownTitle, undefined, schema.text(data.name)),
-					...data.segmentsInOrder.map((segment) =>
+				const rundownDocument = schema.node(schema.nodes.rundown, undefined, [
+					schema.node(schema.nodes.rundownTitle, undefined, schema.text(rundown.name || '\xa0')),
+					...rundown.segmentsInOrder.map((segment) =>
 						schema.node(schema.nodes.segment, undefined, [
-							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name)),
+							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name || '\xa0')),
 							...segment.linesInOrder.map((lines) => {
 								lineReactionDisposers.push(
 									reaction(
@@ -161,7 +161,7 @@ export function Editor({
 										lineId: lines.id,
 									},
 									[
-										schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug)]),
+										schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug || '\xa0')]),
 										...fromMarkdown(lines.reactiveObj.script),
 									]
 								)
@@ -171,7 +171,7 @@ export function Editor({
 				])
 
 				console.log(performance.mark('createDoc'))
-				const doc = schema.node(schema.nodes.doc, undefined, [rundown])
+				const doc = schema.node(schema.nodes.doc, undefined, [rundownDocument])
 
 				console.log(performance.mark('updateState'))
 				editorView.current.updateState(makeNewEditorState(doc))

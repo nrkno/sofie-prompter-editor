@@ -6,7 +6,7 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { PrompterSettings } from '../model/index.js'
+import { OutputSettings } from '../model/index.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
@@ -50,7 +50,7 @@ export interface Events {
 }
 
 // Helper types for the default service methods:
-export type Data = PrompterSettings
+export type Data = OutputSettings
 // export type PatchData = Diff<Data>
 // export type RemovedData = { _id: Id; playlistId: Data['playlistId']; rundownId: Data['rundownId'] }
 export type Result = Data

@@ -1,12 +1,12 @@
 import React from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
-import { PrompterSettings } from '@sofie-prompter-editor/shared-model'
+import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 import { EditObject, useApiConnection } from './TestUtil.tsx'
 
 export const TestController: React.FC<{ api: APIConnection }> = ({ api }) => {
 	const [ready, setReady] = React.useState(false)
 	const [connected, setConnected] = React.useState(false)
-	const [prompterSettings, setPrompterSettings] = React.useState<PrompterSettings | null>(null)
+	const [prompterSettings, setPrompterSettings] = React.useState<OutputSettings | null>(null)
 
 	useApiConnection(
 		(connected) => {
