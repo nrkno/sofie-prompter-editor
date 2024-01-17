@@ -27,6 +27,8 @@ import { PartHandler } from './dataHandlers/PartHandler.js'
 import { Transformers } from './dataTransformers/Transformers.js'
 import { PieceHandler } from './dataHandlers/PieceHandler.js'
 import { ShowStyleBaseHandler } from './dataHandlers/ShowStyleBaseHandler.js'
+import * as fs from 'fs'
+import * as path from 'path'
 
 interface SofieCoreConnectionEvents {
 	connected: []
@@ -50,6 +52,9 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		super()
 		this.log = log.category('SofieCoreConnection')
 
+		const packageJSONPath = path.resolve('package.json')
+		const packageJson = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8'))
+
 		const coreOptions: CoreOptions = {
 			deviceId: protectString(options.deviceId || 'prompter_editor'),
 			deviceToken: options.deviceToken || 'superSecretToken',
@@ -58,7 +63,9 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 			deviceName: 'Prompter Editor',
 
 			documentationUrl: 'https://github.com/nrkno/sofie-prompter-editor',
-			versions: {}, // todo
+			versions: {
+				_process: packageJson.version,
+			}, // todo
 			configManifest: {
 				deviceConfigSchema: JSONBlobStringify({}),
 				subdeviceManifest: {},
