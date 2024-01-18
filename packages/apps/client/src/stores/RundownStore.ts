@@ -1,6 +1,6 @@
 import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
 import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
-import { APIConnection, AppStore } from './AppStore'
+import { APIConnection, RootAppStore } from './RootAppStore'
 import { UIRundown } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
 
@@ -12,7 +12,7 @@ export class RundownStore {
 
 	reactions: IReactionDisposer[] = []
 
-	constructor(public appStore: typeof AppStore, public connection: APIConnection) {
+	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
 		makeObservable(this, {
 			openRundown: observable,
 			showingOnlyScripts: observable,

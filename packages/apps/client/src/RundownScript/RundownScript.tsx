@@ -5,7 +5,7 @@ import { CurrentRundown } from '../CurrentRundown/CurrentRundown'
 import { ScriptEditor } from '../ScriptEditor/ScriptEditor'
 import { Helmet } from 'react-helmet-async'
 import { RundownPlaylistId, protectString } from '@sofie-prompter-editor/shared-model'
-import { AppStore } from '../stores/AppStore'
+import { RootAppStore } from '../stores/RootAppStore'
 import { useParams } from 'react-router-dom'
 import { SplitPanel } from '../components/SplitPanel/SplitPanel'
 
@@ -17,7 +17,7 @@ const RundownScript = observer((): React.JSX.Element => {
 	useEffect(() => {
 		if (!playlistId) return
 
-		AppStore.rundownStore.loadRundown(playlistId)
+		RootAppStore.rundownStore.loadRundown(playlistId)
 	}, [playlistId])
 
 	return (
@@ -27,8 +27,8 @@ const RundownScript = observer((): React.JSX.Element => {
 				<body data-bs-theme="dark" />
 			</Helmet>
 			<SplitPanel
-				position={AppStore.uiStore.viewDividerPosition}
-				onChange={(e) => AppStore.uiStore.setViewDividerPosition(e.value)}
+				position={RootAppStore.uiStore.viewDividerPosition}
+				onChange={(e) => RootAppStore.uiStore.setViewDividerPosition(e.value)}
 				className={classes.RundownScript}
 				childrenBegin={<CurrentRundown />}
 				childrenEnd={<ScriptEditor />}

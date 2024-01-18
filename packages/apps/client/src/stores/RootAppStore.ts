@@ -1,8 +1,8 @@
 import type EventEmitter from 'eventemitter3'
 import { action, makeObservable, observable } from 'mobx'
-import { RundownStore } from './RundownStore'
-import { MockConnection } from '../mocks/MockConnection'
-import { UIStore } from './UIStore'
+import { RundownStore } from './RundownStore.ts'
+import { MockConnection } from '../mocks/MockConnection.ts'
+import { UIStore } from './UIStore.ts'
 import { APIConnection as APIConnectionImpl } from '../api/ApiConnection.ts'
 import { FeathersTypedService } from '../api/lib.ts'
 import {
@@ -19,7 +19,7 @@ import {
 
 const USE_MOCK_CONNECTION = false
 
-class AppStoreClass {
+class RootAppStoreClass {
 	connected = false
 	connection: APIConnection
 	rundownStore: RundownStore
@@ -50,7 +50,7 @@ class AppStoreClass {
 	})
 }
 
-export const AppStore = new AppStoreClass()
+export const RootAppStore = new RootAppStoreClass()
 
 export interface APIConnection extends EventEmitter {
 	readonly connected: boolean
@@ -58,15 +58,14 @@ export interface APIConnection extends EventEmitter {
 	readonly port: number
 
 	readonly systemStatus: FeathersTypedService<SystemStatusServiceDefinition.Service>
+	readonly controller: FeathersTypedService<ControllerServiceDefinition.Service>
+	readonly outputSettings: FeathersTypedService<OutputSettingsServiceDefinition.Service>
+	readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
 
 	readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
 	readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
 	readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
 	readonly part: FeathersTypedService<PartServiceDefinition.Service>
-
-	readonly controllerMessage: FeathersTypedService<OutputSettingsServiceDefinition.Service>
-	readonly outputSettings: FeathersTypedService<OutputSettingsServiceDefinition.Service>
-	readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
 
 	readonly example: FeathersTypedService<ExampleServiceDefinition.Service>
 }

@@ -14,7 +14,7 @@ import { readOnlyNodeFilter } from './plugins/readOnlyNodeFilter'
 import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
 import { fromMarkdown } from '../lib/prosemirrorDoc'
-import { AppStore } from '../stores/AppStore'
+import { RootAppStore } from '../stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
 
 export function Editor({
@@ -112,7 +112,7 @@ export function Editor({
 
 		const mainDisposer = reaction(
 			() => {
-				const openRundown = AppStore.rundownStore.openRundown
+				const openRundown = RootAppStore.rundownStore.openRundown
 
 				if (!openRundown) return null
 
@@ -133,7 +133,7 @@ export function Editor({
 				console.log(performance.mark('begin'))
 				lineReactionDisposers.forEach((destr) => destr())
 
-				const openRundown = AppStore.rundownStore.openRundown
+				const openRundown = RootAppStore.rundownStore.openRundown
 
 				if (!rundown || !editorView.current || !openRundown) return
 
