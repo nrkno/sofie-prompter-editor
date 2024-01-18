@@ -1,9 +1,11 @@
 import { action, makeAutoObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
-import { PrompterSettings } from '@sofie-prompter-editor/shared-model'
+import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 
-export class PrompterSettingsStore {
-	public prompterSettings = observable<PrompterSettings>({
+export class OutputSettingsStore {
+	public prompterSettings = observable.box<OutputSettings>({
+		_id: '',
+
 		// TODO: load these from persistent store upon startup?
 		fontSize: 10,
 
@@ -15,6 +17,8 @@ export class PrompterSettingsStore {
 
 		marginHorizontal: 5,
 		marginVertical: 5,
+
+		activeRundownPlaylistId: null,
 	})
 
 	constructor() {
@@ -24,16 +28,16 @@ export class PrompterSettingsStore {
 		})
 	}
 
-	create(data: PrompterSettings) {
+	create(data: OutputSettings) {
 		this._updateIfChanged(data)
 	}
-	update(data: PrompterSettings) {
+	update(data: OutputSettings) {
 		this._updateIfChanged(data)
 	}
 
-	private _updateIfChanged(prompterSettings: PrompterSettings) {
-		if (!isEqual(this.prompterSettings, prompterSettings)) {
-			this.prompterSettings = prompterSettings
+	private _updateIfChanged(prompterSettings: OutputSettings) {
+		if (!isEqual(this.prompterSettings.get(), prompterSettings)) {
+			this.prompterSettings.set(prompterSettings)
 		}
 	}
 }

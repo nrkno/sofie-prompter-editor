@@ -1,7 +1,7 @@
 import { Transformers } from '../sofie-core-connection/dataTransformers/Transformers.js'
 import { PartStore } from './PartStore.js'
 import { PlaylistStore } from './PlaylistStore.js'
-import { PrompterSettingsStore } from './PrompterSettingsStore.js'
+import { OutputSettingsStore } from './PrompterSettingsStore.js'
 import { RundownStore } from './RundownStore.js'
 import { SegmentStore } from './SegmentStore.js'
 import { ViewPortStore } from './ViewPortStore.js'
@@ -13,7 +13,7 @@ export class Store {
 	public parts: PartStore
 
 	public viewPort: ViewPortStore
-	public prompterSettings: PrompterSettingsStore
+	public prompterSettings: OutputSettingsStore
 
 	constructor() {
 		this.playlists = new PlaylistStore()
@@ -22,7 +22,7 @@ export class Store {
 		this.parts = new PartStore()
 
 		this.viewPort = new ViewPortStore()
-		this.prompterSettings = new PrompterSettingsStore()
+		this.prompterSettings = new OutputSettingsStore()
 	}
 
 	connectTransformers(transformers: Transformers) {

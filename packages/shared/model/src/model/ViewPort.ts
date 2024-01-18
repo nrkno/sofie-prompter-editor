@@ -1,46 +1,25 @@
 import { z } from 'zod'
-import { ProtectedString } from '../ProtectedString.js'
-import { PartId } from './Part.js'
-import { SegmentId } from './Segment.js'
-import { ZodProtectedString } from './lib.js'
+import { ControllerMessageSchema } from './ControllerMessage.js'
 
 /** Represents a view of the prompter, is streamed from the viewPort. This is always the last connected viewport. */
 export type ViewPort = z.infer<typeof ViewPortSchema>
 
 /** Defines a position of the viewport */
-export type ViewPortPosition = z.infer<typeof ViewPortPositionSchema>
+export type ViewPortLastKnownState = z.infer<typeof ViewPortLastKnownStateSchema>
 
-export const ViewPortPositionSchema = z.object({
-	/** The position of the ViewPort  */
-	scrollOffset: z.number(),
-	/**
-	 * The Part which the current offset is calculated from.
-	 * `null` means "top of page"
-	 */
-	scrollOffsetTarget: ZodProtectedString<SegmentId | PartId | TextMarkerId>().nullable(),
-
-	speed: z.number(),
+export const ViewPortLastKnownStateSchema = z.object({
+	controllerMessage: ControllerMessageSchema,
 
 	timestamp: z.number(),
 })
 
-/** TBD, something used to mark places in ScriptContents */
-export type TextMarkerId = ProtectedString<'TextMarkerId', string>
-
+/** The Primary Viewport will be continously updating this singular object */
 export const ViewPortSchema = z.object({
 	_id: z.literal(''),
-	/**
-	 * When a ViewPort starts up, it randomizes its instanceId and sends it to the Server.
-	 * If the ViewPorts' instanceId is the "last one" it is in control.
-	 * The ViewPort "in control" will stream its data to the server continuously.
-	 * If a ViewPort is not "in control" it could listen to the ViewPort data and jump to the same position to stay in sync.
-	 */
-	instanceId: z.string(),
 
-	/** The width of the viewport (as percentage of viewport height) */
+	/** The width of the viewport (as percentage of viewport height (viewportUnits)) */
 	width: z.number(),
-	/** Current position of the viewport */
-	position: ViewPortPositionSchema,
 
-	// last controller message?
+	/** Current position of the viewport */
+	lastKnownState: ViewPortLastKnownStateSchema,
 })
