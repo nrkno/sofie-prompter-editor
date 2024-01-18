@@ -1,8 +1,8 @@
 import { RealTimeConnection, feathers } from '@feathersjs/feathers'
-import { koa, rest, bodyParser, errorHandler, serveStatic, cors, Application } from '@feathersjs/koa'
+import { koa, rest, bodyParser, errorHandler, serveStatic, cors } from '@feathersjs/koa'
 import socketio from '@feathersjs/socketio'
 import { EventEmitter } from 'eventemitter3'
-import { RundownPlaylistId, ServiceTypes } from '@sofie-prompter-editor/shared-model'
+import { ServiceTypes } from '@sofie-prompter-editor/shared-model'
 import { LoggerInstance } from '../lib/logger.js'
 import { PublishChannels } from './PublishChannels.js'
 import { PlaylistFeathersService, PlaylistService } from './services/PlaylistService.js'
@@ -76,7 +76,10 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 
 			if (this.coreConnection) {
 				for (const playlistId of this.coreConnection.getSubscribedPlaylists()) {
-					this.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, this.app)
+					// Check if no one is subscribed to this playlist and unsubscribe from it if so:
+
+					const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
+					this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
 				}
 			}
 		})
@@ -94,14 +97,5 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 				})
 				.catch(reject)
 		})
-	}
-	public unsubscribeFromPlaylistIfNoOneIsListening(playlistId: RundownPlaylistId, app: Application<ServiceTypes, any>) {
-		// Check if no one is subscribed to this playlist and unsubscribe from it if so:
-
-		const subscriberCount = app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
-		if (subscriberCount === 0) {
-			// No one is listening to this playlist, so unsubscribe from it:
-			this.coreConnection?.unsubscribeFromPlaylist(playlistId)
-		}
 	}
 }

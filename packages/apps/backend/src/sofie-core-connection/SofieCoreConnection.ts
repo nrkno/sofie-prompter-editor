@@ -46,11 +46,13 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 	private transformers: Transformers
 	private coreDataHandlers: DataHandler[] = []
 
-	private subscriberManager = new SubscriberManager()
+	private subscriberManager: SubscriberManager
 
 	constructor(log: LoggerInstance, options: ConfigOptions, processHandler: ProcessHandler, private store: Store) {
 		super()
 		this.log = log.category('SofieCoreConnection')
+
+		this.subscriberManager = new SubscriberManager(this.log)
 
 		const packageJSONPath = path.resolve('package.json')
 		const packageJson = JSON.parse(fs.readFileSync(packageJSONPath, 'utf-8'))
@@ -137,15 +139,17 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		// Add connection as a subscriber to the playlist:
 		this.subscriberManager.subscribeToPlaylist(playlistId)
 	}
+	public unsubscribeFromPlaylistIfNoOneIsListening(playlistId: RundownPlaylistId, subscriberCount: number) {
+		if (subscriberCount === 0) {
+			// No one is listening to this playlist, so unsubscribe from it:
+			this.subscriberManager.unsubscribeFromPlaylist(playlistId)
+		}
+	}
 	public getSubscribedPlaylists() {
 		// Return all subscriptions
 		return this.subscriberManager.getSubscribedPlaylists()
 	}
-	public unsubscribeFromPlaylist(playlistId: RundownPlaylistId) {
-		// Remove subscription to playlist.
-		// Note: Only call this is no one is subscribed!
-		this.subscriberManager.unsubscribeFromPlaylist(playlistId)
-	}
+
 	private setStatus(id: string, status: StatusCode, message: string): void {
 		this.statuses.set(id, { status, message })
 		this.updateCoreStatus().catch((err) => this.log.error(err))
@@ -273,7 +277,7 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 			const subHash = `playlist_${playlistId}`
 
 			if (change.type === 'add') {
-				this.log.info('Subscribing to playlist ' + playlistId)
+				this.log.debug('Subscribing to playlist ' + playlistId)
 
 				this.addSubscription(
 					subHash,
@@ -306,7 +310,7 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 				const rundownId = change.newValue
 				const subHash = `rundown_${rundownId}`
 
-				this.log.info('Subscribing to rundown ' + rundownId)
+				this.log.debug('Subscribing to rundown ' + rundownId)
 
 				this.addSubscription(
 					subHash,
@@ -344,7 +348,7 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 			if (change.type === 'add') {
 				const showStyleBaseId = change.newValue
 				const subHash = `showStyleBase_${showStyleBaseId}`
-				this.log.info('Subscribing to ShowStyleBase ' + showStyleBaseId)
+				this.log.debug('Subscribing to ShowStyleBase ' + showStyleBaseId)
 
 				this.addSubscription(
 					subHash,
