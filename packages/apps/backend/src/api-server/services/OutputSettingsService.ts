@@ -31,9 +31,9 @@ export class OutputSettingsService extends EventEmitter<Definition.Events> imple
 		return service
 	}
 	private static setupPublications(app: Application<ServiceTypes, any>, service: OutputSettingsFeathersService) {
-		service.publish('created', (_data, _context) => {
-			return app.channel(PublishChannels.OutputSettings())
-		})
+		// service.publish('created', (_data, _context) => {
+		// 	return app.channel(PublishChannels.OutputSettings())
+		// })
 		service.publish('updated', (_data, _context) => {
 			return app.channel(PublishChannels.OutputSettings())
 		})
@@ -60,30 +60,28 @@ export class OutputSettingsService extends EventEmitter<Definition.Events> imple
 		}
 	}
 
-	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return [this.store.outputSettings.outputSettings.get()]
-	}
-	public async get(id: Id, _params?: Params): Promise<Data> {
+	// public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
+	// 	return [this.store.outputSettings.outputSettings.get()]
+	// }
+	public async get(id: null, _params?: Params): Promise<Data> {
 		const data = this.store.outputSettings.outputSettings.get()
 		if (!data) throw new NotFound(`OutputSettings "${id}" not found`)
 		return data
 	}
-	public async create(_data: Data, _params?: Params): Promise<Result> {
-		throw new NotImplemented(`TODO`)
-	}
-	public async update(id: NullId, data: Data, _params?: Params): Promise<Result> {
-		if (id === null) throw new BadRequest(`id must not be null`)
-
+	// public async create(_data: Data, _params?: Params): Promise<Result> {
+	// 	throw new NotImplemented(`TODO`)
+	// }
+	public async update(_id: null, data: Data, _params?: Params): Promise<Result> {
 		this.store.outputSettings.update(data)
-		return this.get('')
+		return this.get(null)
 	}
 
-	public async subscribeToController(_: unknown, params: Params): Promise<void> {
+	public async subscribe(_: unknown, params: Params): Promise<void> {
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.OutputSettings()).join(params.connection)
 	}
 }
 type Result = Definition.Result
-type Id = Definition.Id
-type NullId = Definition.NullId
+// type Id = Definition.Id
+// type NullId = Definition.NullId
 type Data = Definition.Data

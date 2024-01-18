@@ -16,6 +16,7 @@ import {
 	ExampleServiceDefinition,
 	PartServiceDefinition,
 } from '@sofie-prompter-editor/shared-model'
+import { OutputSettingsStore } from './OutputSettingsStore.ts'
 
 const USE_MOCK_CONNECTION = false
 
@@ -23,6 +24,7 @@ class AppStoreClass {
 	connected = false
 	connection: APIConnection
 	rundownStore: RundownStore
+	outputSettingsStore: OutputSettingsStore
 	uiStore: UIStore
 
 	constructor() {
@@ -34,6 +36,7 @@ class AppStoreClass {
 		const apiConnection = USE_MOCK_CONNECTION ? (new MockConnection() as any) : new APIConnectionImpl()
 		this.connection = apiConnection
 		this.rundownStore = new RundownStore(this, this.connection)
+		this.outputSettingsStore = new OutputSettingsStore(this, this.connection)
 		this.uiStore = new UIStore()
 
 		this.connection.on('disconnected', this.onDisconnected)
@@ -64,7 +67,7 @@ export interface APIConnection extends EventEmitter {
 	readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
 	readonly part: FeathersTypedService<PartServiceDefinition.Service>
 
-	readonly controllerMessage: FeathersTypedService<OutputSettingsServiceDefinition.Service>
+	readonly controller: FeathersTypedService<ControllerServiceDefinition.Service>
 	readonly outputSettings: FeathersTypedService<OutputSettingsServiceDefinition.Service>
 	readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
 

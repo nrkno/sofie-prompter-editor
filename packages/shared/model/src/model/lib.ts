@@ -18,3 +18,13 @@ export function ZodProtectedString<T extends AnyProtectedString>(): Omit<
 } {
 	return z.string() as any
 }
+export function ZodProtectedStringOrNull<T extends AnyProtectedString>(): Omit<
+	z.ZodString,
+	'_type' | '_output' | '_input'
+> & {
+	_type: T | null
+	_output: T | null
+	_input: T | null
+} {
+	return z.string() as any
+}

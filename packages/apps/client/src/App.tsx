@@ -31,6 +31,16 @@ function App(): React.JSX.Element {
 								Editor playground
 							</Link>
 						</Nav.Item>
+						<Nav.Item>
+							<Link className="nav-link" to="/output">
+								Output
+							</Link>
+						</Nav.Item>
+						<Nav.Item>
+							<Link className="nav-link" to="/test-controller">
+								Test Controller
+							</Link>
+						</Nav.Item>
 					</Nav>
 				</Container>
 			</Navbar>
