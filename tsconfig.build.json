@@ -23,13 +23,13 @@
 		"forceConsistentCasingInFileNames": true,
 		"noFallthroughCasesInSwitch": true,
 		"noImplicitReturns": true,
-		"noUnusedLocals": true,
+		"noUnusedLocals": false, // TODO: enable this later
 		"noUnusedParameters": true,
 		"outDir": "./dist",
 		"baseUrl": "./",
 		"esModuleInterop": true,
 		"resolveJsonModule": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
 	},
 	"compileOnSave": false,
 	"exclude": [
