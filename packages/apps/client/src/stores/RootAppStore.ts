@@ -1,5 +1,5 @@
 import type EventEmitter from 'eventemitter3'
-import { action, makeObservable, observable } from 'mobx'
+import { IReactionDisposer, action, makeObservable, observable, reaction } from 'mobx'
 import { RundownStore } from './RundownStore.ts'
 import { MockConnection } from '../mocks/MockConnection.ts'
 import { UIStore } from './UIStore.ts'
@@ -22,6 +22,7 @@ const USE_MOCK_CONNECTION = false
 
 class RootAppStoreClass {
 	connected = false
+	sofieConnected = false
 	connection: APIConnection
 	rundownStore: RundownStore
 	outputSettingsStore: OutputSettingsStore
@@ -30,6 +31,7 @@ class RootAppStoreClass {
 	constructor() {
 		makeObservable(this, {
 			connected: observable,
+			sofieConnected: observable,
 		})
 
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -42,15 +44,44 @@ class RootAppStoreClass {
 		this.connection.on('disconnected', this.onDisconnected)
 
 		this.connection.on('connected', this.onConnected)
+
+		this.connection.systemStatus.subscribe()
+		this.connection.systemStatus.on('updated', this.onSystemStatusUpdated)
+
+		this.connection.systemStatus.get('').then(this.onSystemStatusUpdated)
 	}
 
+	onSystemStatusUpdated = action(
+		'onSystemStatusUpdated',
+		(systemStatus: { statusMessage: string | null; connectedToCore: boolean }) => {
+			console.log(systemStatus)
+			this.sofieConnected = systemStatus.connectedToCore
+		}
+	)
+
 	onConnected = action('onConnected', () => {
+		console.log('Backend connected')
 		this.connected = true
 	})
 
 	onDisconnected = action('onDisconnected', () => {
+		console.log('Backend disconnected')
 		this.connected = false
 	})
+
+	whenConnected = (clb: () => void | Promise<void>): IReactionDisposer => {
+		return reaction(
+			() => this.connected,
+			async (connected) => {
+				if (!connected) return
+
+				await clb()
+			},
+			{
+				fireImmediately: true,
+			}
+		)
+	}
 }
 
 export const RootAppStore = new RootAppStoreClass()

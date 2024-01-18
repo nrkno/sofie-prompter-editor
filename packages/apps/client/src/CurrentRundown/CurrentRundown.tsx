@@ -6,6 +6,7 @@ import { Segment } from './Segment'
 import { Button } from 'react-bootstrap'
 import classes from './CurrentRundown.module.scss'
 import { useNavigate } from 'react-router-dom'
+import { SystemStatusAlertBars } from '../components/SystemStatusAlertBars/SystemStatusAlertBars'
 
 const CurrentRundown = observer((): React.JSX.Element => {
 	const openRundown = RootAppStore.rundownStore.openRundown
@@ -20,6 +21,10 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		navigate('/')
 	})
 
+	const onSendToOutput = action(() => {
+		RootAppStore.rundownStore.sendRundownToOutput(openRundown.id)
+	})
+
 	return (
 		<>
 			<h1>{openRundown.name}</h1>
@@ -27,7 +32,11 @@ const CurrentRundown = observer((): React.JSX.Element => {
 				<Button variant="secondary" onClick={onClose}>
 					Close
 				</Button>
+				<Button variant="primary" onClick={onSendToOutput}>
+					Send to Output
+				</Button>
 			</p>
+			<SystemStatusAlertBars />
 			<ul className={classes.SegmentLineList}>
 				{openRundown.segmentsInOrder.map((segment) => (
 					<li key={segment.id} data-segment-id={segment.id} className={classes.SegmentContainer}>

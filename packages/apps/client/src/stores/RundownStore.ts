@@ -1,5 +1,5 @@
 import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
-import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { OutputSettings, RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, RootAppStore } from './RootAppStore'
 import { UIRundown } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
@@ -10,33 +10,42 @@ export class RundownStore {
 	allRundowns = observable.map<RundownPlaylistId, UIRundownEntry>()
 	openRundown: UIRundown | null = null
 
+	outputSettings: OutputSettings | null = null
+
 	reactions: IReactionDisposer[] = []
 
 	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
 		makeObservable(this, {
 			openRundown: observable,
 			showingOnlyScripts: observable,
+			outputSettings: observable,
 		})
 
 		// get all rundowns
 		this.setupUIRundownDataSubscriptions()
 		this.loadAllUIRundownData()
+
+		this.setupOutputSettingsSubscription()
+		this.loadOutputSettingsData()
 	}
 
-	setupUIRundownDataSubscriptions = action(() => {
-		this.reactions.push(
-			reaction(
-				() => this.appStore.connected,
-				async (connected) => {
-					if (!connected) return
+	setupOutputSettingsSubscription = action(() => {
+		this.reactions.push(this.appStore.whenConnected(() => this.connection.outputSettings.subscribeToController()))
 
-					await this.connection.playlist.subscribeToPlaylists()
-				},
-				{
-					fireImmediately: true,
-				}
-			)
-		)
+		this.connection.outputSettings.on('created', this.onOutputSettingsUpdated)
+		this.connection.outputSettings.on('updated', this.onOutputSettingsUpdated)
+	})
+
+	private onOutputSettingsUpdated = action('onOutputSettingsUpdated', (outputSettings: OutputSettings) => {
+		this.outputSettings = outputSettings
+	})
+
+	loadOutputSettingsData = action(() => {
+		this.connection.outputSettings.get('').then(this.onOutputSettingsUpdated)
+	})
+
+	setupUIRundownDataSubscriptions = action(() => {
+		this.reactions.push(this.appStore.whenConnected(() => this.connection.playlist.subscribeToPlaylists()))
 
 		this.connection.playlist.on('created', this.onPlaylistCreated)
 		// Note: updated and removed events are handled by the UIRundownEntry's themselves
@@ -85,6 +94,15 @@ export class RundownStore {
 		newRundown.updateFromJson(playlist)
 		this.openRundown = newRundown
 	})
+
+	sendRundownToOutput = (id: RundownPlaylistId) => {
+		if (!this.outputSettings) return
+		// TODO: This really shouldn't require the entire outputSettings object to be available first
+		this.connection.outputSettings.update('', {
+			...this.outputSettings,
+			activeRundownPlaylistId: id,
+		})
+	}
 
 	destroy = () => {
 		this.reactions.forEach((dispose) => dispose())
