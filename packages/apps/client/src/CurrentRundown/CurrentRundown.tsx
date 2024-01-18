@@ -1,13 +1,15 @@
 import React from 'react'
 import { action } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import { AppStore } from '../stores/AppStore'
+import { RootAppStore } from '../stores/RootAppStore'
 import { Segment } from './Segment'
 import { Button } from 'react-bootstrap'
 import classes from './CurrentRundown.module.scss'
+import { useNavigate } from 'react-router-dom'
 
 const CurrentRundown = observer((): React.JSX.Element => {
-	const openRundown = AppStore.rundownStore.openRundown
+	const openRundown = RootAppStore.rundownStore.openRundown
+	const navigate = useNavigate()
 
 	if (!openRundown) {
 		return <p>No open rundown</p>
@@ -15,6 +17,7 @@ const CurrentRundown = observer((): React.JSX.Element => {
 
 	const onClose = action(() => {
 		openRundown?.close()
+		navigate('/')
 	})
 
 	return (
@@ -27,7 +30,7 @@ const CurrentRundown = observer((): React.JSX.Element => {
 			</p>
 			<ul className={classes.SegmentLineList}>
 				{openRundown.segmentsInOrder.map((segment) => (
-					<li key={segment.id} className={classes.SegmentContainer}>
+					<li key={segment.id} data-segment-id={segment.id} className={classes.SegmentContainer}>
 						<Segment segment={segment} />
 					</li>
 				))}

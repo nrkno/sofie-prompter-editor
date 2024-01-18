@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef } from 'react'
+import { PartId } from '@sofie-prompter-editor/shared-model'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
 import { EditorState, SelectionBookmark } from 'prosemirror-state'
@@ -13,9 +14,8 @@ import { readOnlyNodeFilter } from './plugins/readOnlyNodeFilter'
 import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
 import { fromMarkdown } from '../lib/prosemirrorDoc'
-import { AppStore } from '../stores/AppStore'
-import { UILineId } from '../model/UILine'
-import { IReactionDisposer, autorun, reaction } from 'mobx'
+import { RootAppStore } from '../stores/RootAppStore'
+import { IReactionDisposer, reaction } from 'mobx'
 
 export function Editor({
 	className,
@@ -43,7 +43,7 @@ export function Editor({
 		}
 	}, [])
 
-	const updateLineScript = useCallback((lineId: UILineId, script: string | null) => {
+	const updateLineScript = useCallback((lineId: PartId, script: string | null) => {
 		if (!editorView.current) return
 
 		const editorState = editorView.current.state
@@ -112,7 +112,7 @@ export function Editor({
 
 		const mainDisposer = reaction(
 			() => {
-				const openRundown = AppStore.rundownStore.openRundown
+				const openRundown = RootAppStore.rundownStore.openRundown
 
 				if (!openRundown) return null
 
@@ -129,23 +129,30 @@ export function Editor({
 					})),
 				}
 			},
-			(data) => {
+			(rundown) => {
+				console.log(performance.mark('begin'))
 				lineReactionDisposers.forEach((destr) => destr())
 
-				const openRundown = AppStore.rundownStore.openRundown
+				const openRundown = RootAppStore.rundownStore.openRundown
 
-				if (!data || !editorView.current || !openRundown) return
+				if (!rundown || !editorView.current || !openRundown) return
 
-				const rundown = schema.node(schema.nodes.rundown, undefined, [
-					schema.node(schema.nodes.rundownTitle, undefined, schema.text(data.name)),
-					...data.segmentsInOrder.map((segment) =>
+				const rundownDocument = schema.node(schema.nodes.rundown, undefined, [
+					schema.node(schema.nodes.rundownTitle, undefined, schema.text(rundown.name || '\xa0')),
+					...rundown.segmentsInOrder.map((segment) =>
 						schema.node(schema.nodes.segment, undefined, [
-							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name)),
+							schema.node(schema.nodes.segmentTitle, undefined, schema.text(segment.name || '\xa0')),
 							...segment.linesInOrder.map((lines) => {
 								lineReactionDisposers.push(
-									autorun(() => {
-										updateLineScript(lines.id, lines.reactiveObj.script)
-									})
+									reaction(
+										() => lines.reactiveObj.script,
+										(script) => {
+											updateLineScript(lines.id, script)
+										},
+										{
+											fireImmediately: false,
+										}
+									)
 								)
 
 								return schema.node(
@@ -154,7 +161,7 @@ export function Editor({
 										lineId: lines.id,
 									},
 									[
-										schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug)]),
+										schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug || '\xa0')]),
 										...fromMarkdown(lines.reactiveObj.script),
 									]
 								)
@@ -163,11 +170,16 @@ export function Editor({
 					),
 				])
 
-				const doc = schema.node(schema.nodes.doc, undefined, [rundown])
+				console.log(performance.mark('createDoc'))
+				const doc = schema.node(schema.nodes.doc, undefined, [rundownDocument])
 
+				console.log(performance.mark('updateState'))
 				editorView.current.updateState(makeNewEditorState(doc))
+
+				console.log(performance.mark('finished'))
 			},
 			{
+				delay: 250,
 				fireImmediately: true,
 			}
 		)

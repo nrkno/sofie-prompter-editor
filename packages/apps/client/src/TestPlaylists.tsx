@@ -52,6 +52,9 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 			api.playlist.on('updated', (data) => {
 				updatePlaylists(data._id, () => data)
 			})
+			api.playlist.on('removed', (id) => {
+				updatePlaylists(id, () => null)
+			})
 			// api.playlist.on('patched', (data) => {
 			// 	updatePlaylists(data._id, (prev) => {
 			// 		if (!prev) {
@@ -69,9 +72,6 @@ export const TestPlaylists: React.FC<{ api: APIConnection }> = ({ api }) => {
 			// 		}
 			// 	})
 			// })
-			api.playlist.on('removed', (id) => {
-				updatePlaylists(id, () => null)
-			})
 
 			// Also fetch initial list:
 			api.playlist

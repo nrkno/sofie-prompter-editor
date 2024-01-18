@@ -1,13 +1,18 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App.tsx'
 import './index.scss'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { MobXPlayground } from './MobXPlayground/MobXPlayground.tsx'
 import { BackendPlayground } from './BackendPlayground/BackendPlayground.tsx'
 import { ScriptEditor } from './ScriptEditor/ScriptEditor.tsx'
 import { HelmetProvider } from 'react-helmet-async'
-import { RundownScript } from './RundownScript/RundownScript.tsx'
+import { RundownList } from './RundownList/RundownList.tsx'
+
+// Lazy-loading component imports (allow us to minimize bundle size)
+// eslint-disable-next-line react-refresh/only-export-components
+const RundownScript = React.lazy(() => import('./RundownScript/RundownScript.tsx'))
+// eslint-disable-next-line react-refresh/only-export-components
+const Output = React.lazy(() => import('./Output/Output.tsx'))
 
 const router = createBrowserRouter([
 	{
@@ -15,13 +20,13 @@ const router = createBrowserRouter([
 		element: <RundownScript />,
 	},
 	{
+		path: '/output',
+		element: <Output />,
+	},
+	{
 		path: '/',
 		element: <App />,
 		children: [
-			{
-				path: 'store',
-				element: <MobXPlayground />,
-			},
 			{
 				path: 'backend',
 				element: <BackendPlayground />,
@@ -31,6 +36,10 @@ const router = createBrowserRouter([
 				path: 'editor',
 				element: <ScriptEditor />,
 			},
+			{
+				index: true,
+				element: <RundownList />,
+			},
 		],
 	},
 ])
@@ -38,7 +47,9 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<HelmetProvider>
-			<RouterProvider router={router} />
+			<Suspense fallback={<>Loading...</>}>
+				<RouterProvider router={router} />
+			</Suspense>
 		</HelmetProvider>
 	</React.StrictMode>
 )

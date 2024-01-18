@@ -87,53 +87,57 @@ export class PartTransformer {
 
 		if (coreShowStyleBase) {
 			const sourceLayers = applyAndValidateOverrides(coreShowStyleBase.sourceLayersWithOverrides)
-			const outputLayers = applyAndValidateOverrides(coreShowStyleBase.outputLayersWithOverrides)
+			// const outputLayers = applyAndValidateOverrides(coreShowStyleBase.outputLayersWithOverrides)
 
 			const usePiece = new Map<PartDisplayType, { label: string }>()
 			for (const piece of pieces) {
 				if (piece.pieceType !== IBlueprintPieceType.Normal) continue
 
 				const sourceLayer = sourceLayers.obj[piece.sourceLayerId]
-				const outputLayer = outputLayers.obj[piece.outputLayerId]
+				// const outputLayer = outputLayers.obj[piece.outputLayerId]
 
-				if (!outputLayer?.isPGM) continue
+				if (!sourceLayer) continue
+				const sourceLayerShortName = sourceLayer.abbreviation ?? sourceLayer.name
 
-				if (sourceLayer) {
-					switch (sourceLayer.type) {
-						case SourceLayerType.CAMERA:
-							usePiece.set(PartDisplayType.Camera, { label: piece.name })
+				// Script is special, since we need to parse it allways
+				if (sourceLayer.type === SourceLayerType.SCRIPT) {
+					const pieceContent = piece.content as ScriptContent
+					derived.scriptContents = pieceContent.fullScript ?? ''
+					continue
+				}
 
-							break
-						case SourceLayerType.VT:
-							usePiece.set(PartDisplayType.VT, { label: piece.name })
-							break
-						case SourceLayerType.REMOTE:
-							usePiece.set(PartDisplayType.Remote, { label: piece.name })
-							break
-						case SourceLayerType.SCRIPT:
-							const pieceContent = piece.content as ScriptContent
-							derived.scriptContents = pieceContent.fullScript ?? ''
-							break
-						case SourceLayerType.SPLITS:
-							usePiece.set(PartDisplayType.Split, { label: piece.name })
-							break
-						case SourceLayerType.LIVE_SPEAK:
-							usePiece.set(PartDisplayType.LiveSpeak, { label: piece.name })
-							break
-						case SourceLayerType.AUDIO:
-						case SourceLayerType.LOWER_THIRD:
-						case SourceLayerType.TRANSITION:
-						case SourceLayerType.LOCAL:
-						case SourceLayerType.GRAPHICS:
-							usePiece.set(PartDisplayType.LiveSpeak, { label: piece.name })
-							// ignore these
-							break
-						case SourceLayerType.UNKNOWN:
-							break
+				if (!sourceLayer?.onPresenterScreen) continue
 
-						default:
-							assertNever(sourceLayer.type)
-					}
+				switch (sourceLayer.type) {
+					case SourceLayerType.CAMERA:
+						usePiece.set(PartDisplayType.Camera, { label: sourceLayerShortName })
+
+						break
+					case SourceLayerType.VT:
+						usePiece.set(PartDisplayType.VT, { label: sourceLayerShortName })
+						break
+					case SourceLayerType.REMOTE:
+						usePiece.set(PartDisplayType.Remote, { label: sourceLayerShortName })
+						break
+					case SourceLayerType.SPLITS:
+						usePiece.set(PartDisplayType.Split, { label: sourceLayerShortName })
+						break
+					case SourceLayerType.LIVE_SPEAK:
+						usePiece.set(PartDisplayType.LiveSpeak, { label: sourceLayerShortName })
+						break
+					case SourceLayerType.AUDIO:
+					case SourceLayerType.LOWER_THIRD:
+					case SourceLayerType.TRANSITION:
+					case SourceLayerType.LOCAL:
+					case SourceLayerType.GRAPHICS:
+						usePiece.set(PartDisplayType.LiveSpeak, { label: sourceLayerShortName })
+						// ignore these
+						break
+					case SourceLayerType.UNKNOWN:
+						break
+
+					default:
+						assertNever(sourceLayer.type)
 				}
 			}
 
@@ -197,20 +201,25 @@ export class PartTransformer {
 			if (!isEqual(this.corePieces.get(pieceId), piece)) {
 				this.corePieces.set(piece._id, piece)
 
-				const existingPartPieces = this.corePartPieces.get(piece.startPartId) || []
-				if (!existingPartPieces.find((p) => p._id === piece._id)) {
+				// create a new array so that the observable.map will pick up on the change
+				const existingPartPieces = this.corePartPieces.get(piece.startPartId)?.slice() || []
+				const i = existingPartPieces.findIndex((p) => p._id === piece._id)
+				if (i === -1) {
 					existingPartPieces.push(piece)
-					this.corePartPieces.set(piece.startPartId, existingPartPieces)
+				} else {
+					existingPartPieces.splice(i, 1, piece)
 				}
+				this.corePartPieces.set(piece.startPartId, existingPartPieces)
 			}
 		} else {
 			const existingPiece = this.corePieces.get(pieceId)
 			if (existingPiece) {
 				this.corePieces.delete(pieceId)
 
-				const existingPartPieces = this.corePartPieces.get(existingPiece.startPartId) || []
+				// create a new array so that the observable.map will pick up on the change
+				const existingPartPieces = this.corePartPieces.get(existingPiece.startPartId)?.slice() || []
 				const i = existingPartPieces.findIndex((p) => p._id !== existingPiece._id)
-				if (i != -1) {
+				if (i !== -1) {
 					existingPartPieces.splice(i, 1)
 					this.corePartPieces.set(existingPiece.startPartId, existingPartPieces)
 				}

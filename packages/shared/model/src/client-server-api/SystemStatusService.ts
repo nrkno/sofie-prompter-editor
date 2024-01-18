@@ -1,60 +1,53 @@
-import {
-	PaginationParams,
-	Params,
-	ServiceMethods,
-	EventEmitter,
-	assertConstIsValid,
-	assertConstIncludesAllMethods,
-} from './lib.js'
-import { ViewPort } from '../model/index.js'
+import { Params, ServiceMethods, EventEmitter, assertConstIsValid, assertConstIncludesAllMethods } from './lib.js'
+import { SystemStatus } from '../model/index.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
-	'find',
+	// 'find',
 	'get',
 	// 'create',
-	'update',
+	// 'update',
 	// 'patch',
 	// 'remove',
 	//
-	'subscribeToViewPort',
+	'subscribe',
 ] as const
 /** The methods exposed by this class are exposed in the API */
-interface Methods extends Omit<ServiceMethods, 'patch' | 'remove' | 'create'> {
-	find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
+interface Methods extends Omit<ServiceMethods, 'find' | 'update' | 'patch' | 'remove' | 'create'> {
+	// find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
 	get(id: Id, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
-	update(id: NullId, data: Data, params?: Params): Promise<Result>
+	// update(id: NullId, data: Data, params?: Params): Promise<Result>
 
-	/** Subscribe to ViewPort data */
-	subscribeToViewPort(_?: unknown, params?: Params): Promise<void>
+	/** Subscribe to Controller data */
+	subscribe(_?: unknown, params?: Params): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 
 /** List of all event names */
 export const ALL_EVENTS = [
-	'created',
+	// 'created',
 	'updated',
 	// 'patched',
-	'removed',
+	// 'removed',
 	//
 ] as const
 
 /** Definitions of all events */
 export interface Events {
-	created: [data: Data]
+	// created: [data: Data]
 	updated: [data: Data]
 	// patched: [data: PatchData]
-	removed: [data: RemovedData]
+	// removed: [data: RemovedData]
 	//
 }
 
 // Helper types for the default service methods:
-export type Data = ViewPort
+export type Data = SystemStatus
 // export type PatchData = Diff<Data>
-export type RemovedData = { _id: Id }
-export type Result = Pick<Data, '_id'>
-export type Id = Data['_id']
+// export type RemovedData = { _id: Id; playlistId: Data['playlistId']; rundownId: Data['rundownId'] }
+export type Result = Data
+export type Id = ''
 export type NullId = Id | null
 
 // ============================================================================

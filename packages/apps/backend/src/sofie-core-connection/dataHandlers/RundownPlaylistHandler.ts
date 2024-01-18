@@ -25,8 +25,10 @@ export class RundownPlaylistHandler extends DataHandler {
 
 		if (!playlist) {
 			this.store.playlists.remove(this.convertId(id))
+			this.transformers.rundowns.updateCorePlaylist(id, undefined)
 		} else {
 			this.store.playlists.create(this.convert(playlist))
+			this.transformers.rundowns.updateCorePlaylist(id, playlist)
 		}
 	}
 	private onChanged(id: Core.RundownPlaylistId): void {
@@ -35,8 +37,10 @@ export class RundownPlaylistHandler extends DataHandler {
 
 		if (!playlist) {
 			this.store.playlists.remove(this.convertId(id))
+			this.transformers.rundowns.updateCorePlaylist(id, undefined)
 		} else {
 			this.store.playlists.update(this.convert(playlist))
+			this.transformers.rundowns.updateCorePlaylist(id, playlist)
 		}
 	}
 	private onRemoved(id: Core.RundownPlaylistId): void {

@@ -1,26 +1,30 @@
 import { action, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { ViewPort, ViewPortSchema } from '@sofie-prompter-editor/shared-model'
+import { getCurrentTime } from '../lib/getCurrentTime.js'
 
 export class ViewPortStore {
 	public viewPort = observable.object<ViewPort>({
-		// TODO: load these from persistent store upon startup?
 		_id: '',
-		instanceId: '',
-		position: {
-			scrollOffset: 0,
-			scrollOffsetTarget: null,
+
+		// TODO: load these from persistent store upon startup?
+		lastKnownState: {
+			controllerMessage: {
+				offset: {
+					offset: 0,
+					target: null,
+				},
+				speed: 0,
+			},
+			timestamp: getCurrentTime(),
 		},
 		width: 0,
 	})
-
-	private readonly seenInstanceIds = new Set()
 
 	constructor() {
 		makeObservable(this, {
 			create: action,
 			update: action,
-			registerInstance: action,
 		})
 	}
 
@@ -29,16 +33,6 @@ export class ViewPortStore {
 	}
 	update(data: ViewPort) {
 		this._updateIfChanged(data)
-	}
-
-	registerInstance(instanceId: string): boolean {
-		if (!this.seenInstanceIds.has(instanceId)) {
-			// Is a new instanceId, so we are in control:
-			this.seenInstanceIds.add(instanceId)
-
-			this.viewPort.instanceId = instanceId
-		}
-		return this.viewPort.instanceId === instanceId
 	}
 
 	// private verifyData(viewPort: ViewPort) {

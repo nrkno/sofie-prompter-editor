@@ -17,8 +17,8 @@ function App(): React.JSX.Element {
 					<Navbar.Brand>Prompter</Navbar.Brand>
 					<Nav className="me-auto">
 						<Nav.Item>
-							<Link className="nav-link" to="/store">
-								MobX playground
+							<Link className="nav-link" to="/">
+								Rundowns
 							</Link>
 						</Nav.Item>
 						<Nav.Item>

@@ -73,8 +73,21 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 		}
 	}
 
-	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return Array.from(this.store.parts.parts.values())
+	public async find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
+		let parts = Array.from(this.store.parts.parts.values())
+		if (params?.query?.playlistId) {
+			const playlistId = params.query.playlistId
+			parts = parts.filter((p) => p.playlistId === playlistId)
+		}
+		if (params?.query?.rundownId) {
+			const rundownId = params.query.rundownId
+			parts = parts.filter((p) => p.rundownId === rundownId)
+		}
+		if (params?.query?.segmentId) {
+			const segmentId = params.query.segmentId
+			parts = parts.filter((p) => p.segmentId === segmentId)
+		}
+		return parts
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
 		const data = this.store.parts.parts.get(id)

@@ -1,6 +1,7 @@
-import { action, autorun, makeObservable, observable } from 'mobx'
+import { action, makeObservable, observable } from 'mobx'
 import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
 import * as Core from './CoreDataTypes/index.js'
+import { LoggerInstance } from '../lib/logger.js'
 
 export class SubscriberManager {
 	public readonly playlists = observable.map<RundownPlaylistId, true>()
@@ -8,7 +9,9 @@ export class SubscriberManager {
 	public readonly showStyleBases = observable.set<Core.ShowStyleBaseId>()
 	public readonly showStyleVariants = observable.set<Core.ShowStyleVariantId>()
 
-	constructor() {
+	private log: LoggerInstance
+
+	constructor(log: LoggerInstance) {
 		makeObservable(this, {
 			subscribeToPlaylist: action,
 			unsubscribeFromPlaylist: action,
@@ -17,14 +20,12 @@ export class SubscriberManager {
 			setShowStyleBaseSubscriptions: action,
 			setShowStyleVariantSubscriptions: action,
 		})
-		autorun(() => {
-			console.log('playlists', Array.from(this.playlists.keys()))
-		})
+		this.log = log.category('SofieCoreConnection')
 	}
 
 	public subscribeToPlaylist(playlistId: RundownPlaylistId) {
-		console.log('subscribeToPlaylist')
 		if (!this.playlists.has(playlistId)) {
+			this.log.debug(`Add subscribtion to playlist ${playlistId}`)
 			this.playlists.set(playlistId, true)
 		}
 	}
@@ -33,35 +34,11 @@ export class SubscriberManager {
 	}
 
 	public unsubscribeFromPlaylist(playlistId: RundownPlaylistId) {
-		console.log('unsubscribeFromPlaylists')
 		if (this.playlists.has(playlistId)) {
+			this.log.debug(`Remove subscribtion from playlist ${playlistId}`)
 			this.playlists.delete(playlistId)
 		}
 	}
-	// public unsubscribeFromPlaylists(connection: RealTimeConnection) {
-	// 	console.log('unsubscribeFromPlaylists', connection)
-	// 	// Remove connection from all subscriptions
-
-	// 	for (const [playlistId, sub] of this.playlists.entries()) {
-	// 		let changed = false
-	// 		const i = sub.connections.findIndex((c) => isEqual(c, connection))
-	// 		console.log('p length', sub.connections.length)
-	// 		console.log('p', playlistId, i)
-	// 		if (i !== -1) {
-	// 			sub.connections.splice(i, 1)
-	// 			changed = true
-	// 		}
-	// 		console.log('p length', sub.connections.length)
-
-	// 		if (changed) {
-	// 			if (sub.connections.length === 0) {
-	// 				this.playlists.delete(playlistId)
-	// 			} else {
-	// 				this.playlists.set(playlistId, sub)
-	// 			}
-	// 		}
-	// 	}
-	// }
 	public subscribeToRundowns(rundownIds: Core.RundownId[]) {
 		updateSet(this.rundowns, rundownIds)
 	}

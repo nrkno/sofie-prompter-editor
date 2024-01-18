@@ -1,45 +1,76 @@
-import { makeAutoObservable, observable, action, flow } from 'mobx'
-import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
-import { APIConnection, AppStore } from './AppStore'
-import { UIRundown, UIRundownId } from '../model/UIRundown'
+import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
+import { RundownPlaylist, RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { APIConnection, RootAppStore } from './RootAppStore'
+import { UIRundown } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
 
 export class RundownStore {
 	showingOnlyScripts = false
 
-	allRundowns = observable.map<UIRundownId, UIRundownEntry>()
+	allRundowns = observable.map<RundownPlaylistId, UIRundownEntry>()
 	openRundown: UIRundown | null = null
 
-	constructor(public appStore: typeof AppStore, public connection: APIConnection) {
-		makeAutoObservable(this, {
-			loadAllRudnowns: action,
-			clearAllRundowns: action,
-			loadRundown: action,
+	reactions: IReactionDisposer[] = []
+
+	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
+		makeObservable(this, {
+			openRundown: observable,
+			showingOnlyScripts: observable,
 		})
 
 		// get all rundowns
-		this.connection.playlist.on('created', () => {})
-		this.loadAllRudnowns()
+		this.setupUIRundownDataSubscriptions()
+		this.loadAllUIRundownData()
 	}
 
-	loadAllRudnowns = flow(function* (this: RundownStore) {
+	setupUIRundownDataSubscriptions = action(() => {
+		this.reactions.push(
+			reaction(
+				() => this.appStore.connected,
+				async (connected) => {
+					if (!connected) return
+
+					await this.connection.playlist.subscribeToPlaylists()
+				},
+				{
+					fireImmediately: true,
+				}
+			)
+		)
+
+		this.connection.playlist.on('created', this.onPlaylistCreated)
+		// Note: updated and removed events are handled by the UIRundownEntry's themselves
+	})
+
+	private onPlaylistCreated = action('onPlaylistCreated', (json: RundownPlaylist) => {
+		const existing = this.allRundowns.get(json._id)
+
+		if (!existing) {
+			const newRundownEntry = new UIRundownEntry(this, json._id)
+			this.allRundowns.set(newRundownEntry.id, newRundownEntry)
+			newRundownEntry.updateFromJson(json)
+			return
+		}
+
+		existing.updateFromJson(json)
+	})
+
+	loadAllUIRundownData = flow(function* (this: RundownStore) {
 		const playlists = yield this.connection.playlist.find()
 		// add UIRundownEntries to allRundowns
 
 		this.clearAllRundowns()
 
 		for (const playlist of playlists) {
-			const newRundownEntry = new UIRundownEntry(this, playlist._id)
-			this.allRundowns.set(newRundownEntry.id, newRundownEntry)
-			newRundownEntry.updateFromJson(playlist)
+			this.onPlaylistCreated(playlist)
 		}
 	})
 
-	clearAllRundowns() {
+	clearAllRundowns = action('clearAllRundowns', () => {
 		for (const rundown of this.allRundowns.values()) {
 			rundown.remove()
 		}
-	}
+	})
 
 	loadRundown = flow(function* (this: RundownStore, id: RundownPlaylistId) {
 		this.openRundown?.close()
@@ -54,4 +85,8 @@ export class RundownStore {
 		newRundown.updateFromJson(playlist)
 		this.openRundown = newRundown
 	})
+
+	destroy = () => {
+		this.reactions.forEach((dispose) => dispose())
+	}
 }

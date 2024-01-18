@@ -1,8 +1,9 @@
 import { Part, PartDisplayType, PartId, ProtectedString, protectString } from '@sofie-prompter-editor/shared-model'
 import { RundownStore } from '../stores/RundownStore'
-import { randomId } from '../lib/lib'
 import { action, makeAutoObservable } from 'mobx'
 import { UISegment } from './UISegment'
+
+export type UILineId = PartId
 
 export class UILine {
 	slug: string = ''
@@ -25,29 +26,27 @@ export class UILine {
 
 	ready: boolean = false
 
-	constructor(
-		private store: RundownStore,
-		private owner: UISegment,
-		public partId: PartId,
-		public id = protectString<UILineId>(randomId())
-	) {
+	constructor(private store: RundownStore, private owner: UISegment, public id: UILineId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
 			remove: action,
 		})
 
-		this.store.connection.parts.on('changed', (json: Part) => {
-			if (this.partId !== json._id) return
-
-			this.updateFromJson(json)
-		})
-
-		this.store.connection.parts.on('removed', (json: Part) => {
-			if (this.partId !== json._id) return
-
-			this.remove()
-		})
+		this.store.connection.part.on('updated', this.onPartUpdated)
+		this.store.connection.part.on('removed', this.onPartRemoved)
 	}
+
+	private onPartUpdated = action('onPartUpdated', (json: Part) => {
+		if (this.id !== json._id) return
+
+		this.updateFromJson(json)
+	})
+
+	private onPartRemoved = action('onPartRemoved', (json: Pick<Part, '_id'>) => {
+		if (this.id !== json._id) return
+
+		this.remove()
+	})
 
 	updateFromJson(json: Part) {
 		this.identifier = json.identifier ?? null
@@ -69,10 +68,11 @@ export class UILine {
 		this.dispose()
 	}
 
-	dispose() {}
+	dispose() {
+		this.store.connection.part.off('updated', this.onPartUpdated)
+		this.store.connection.part.off('removed', this.onPartRemoved)
+	}
 }
-
-export type UILineId = ProtectedString<'UILineId', string>
 
 function partDisplayTypeToLineTypeStyle(type: PartDisplayType): LineType {
 	switch (type) {

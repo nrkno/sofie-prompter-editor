@@ -67,8 +67,17 @@ export class SegmentService extends EventEmitter<Definition.Events> implements D
 		}
 	}
 
-	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return Array.from(this.store.segments.segments.values())
+	public async find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
+		let segments = Array.from(this.store.segments.segments.values())
+		if (params?.query?.playlistId) {
+			const playlistId = params.query.playlistId
+			segments = segments.filter((s) => s.playlistId === playlistId)
+		}
+		if (params?.query?.rundownId) {
+			const rundownId = params.query.rundownId
+			segments = segments.filter((s) => s.rundownId === rundownId)
+		}
+		return segments
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
 		const data = this.store.segments.segments.get(id)

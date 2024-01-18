@@ -3,7 +3,7 @@ import { Application, PaginationParams, Params } from '@feathersjs/feathers'
 import {
 	ServiceTypes,
 	Services,
-	PrompterSettingsServiceDefinition as Definition,
+	OutputSettingsServiceDefinition as Definition,
 } from '@sofie-prompter-editor/shared-model'
 export { PlaylistServiceDefinition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
@@ -13,33 +13,29 @@ import { Lambda, observe } from 'mobx'
 import { LoggerInstance } from '../../lib/logger.js'
 import { BadRequest, NotFound, NotImplemented } from '@feathersjs/errors'
 
-export type PrompterSettingsFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
+export type OutputSettingsFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
 /** The methods exposed by this class are exposed in the API */
-export class PrompterSettingsService extends EventEmitter<Definition.Events> implements Definition.Service {
+export class OutputSettingsService extends EventEmitter<Definition.Events> implements Definition.Service {
 	static setupService(
 		log: LoggerInstance,
 		app: Application<ServiceTypes, any>,
 		store: Store
-	): PrompterSettingsFeathersService {
-		app.use(
-			Services.PrompterSettings,
-			new PrompterSettingsService(log.category('PrompterSettingsService'), app, store),
-			{
-				methods: Definition.ALL_METHODS,
-				serviceEvents: Definition.ALL_EVENTS,
-			}
-		)
-		const service = app.service(Services.PrompterSettings) as PrompterSettingsFeathersService
+	): OutputSettingsFeathersService {
+		app.use(Services.OutputSettings, new OutputSettingsService(log.category('OutputSettingsService'), app, store), {
+			methods: Definition.ALL_METHODS,
+			serviceEvents: Definition.ALL_EVENTS,
+		})
+		const service = app.service(Services.OutputSettings) as OutputSettingsFeathersService
 		this.setupPublications(app, service)
 		return service
 	}
-	private static setupPublications(app: Application<ServiceTypes, any>, service: PrompterSettingsFeathersService) {
+	private static setupPublications(app: Application<ServiceTypes, any>, service: OutputSettingsFeathersService) {
 		service.publish('created', (_data, _context) => {
-			return app.channel(PublishChannels.Controller())
+			return app.channel(PublishChannels.OutputSettings())
 		})
 		service.publish('updated', (_data, _context) => {
-			return app.channel(PublishChannels.Controller())
+			return app.channel(PublishChannels.OutputSettings())
 		})
 	}
 
@@ -48,12 +44,10 @@ export class PrompterSettingsService extends EventEmitter<Definition.Events> imp
 		super()
 
 		this.observers.push(
-			observe(this.store.prompterSettings.prompterSettings, (change) => {
+			observe(this.store.outputSettings.outputSettings, (change) => {
 				this.log.debug('observed change', change)
 
-				if (change.type === 'add') {
-					this.emit('created', change.newValue)
-				} else if (change.type === 'update') {
+				if (change.type === 'update') {
 					this.emit('updated', change.newValue)
 				}
 			})
@@ -67,11 +61,11 @@ export class PrompterSettingsService extends EventEmitter<Definition.Events> imp
 	}
 
 	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return [this.store.prompterSettings.prompterSettings]
+		return [this.store.outputSettings.outputSettings.get()]
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
-		const data = this.store.prompterSettings.prompterSettings
-		if (!data) throw new NotFound(`PrompterSettings "${id}" not found`)
+		const data = this.store.outputSettings.outputSettings.get()
+		if (!data) throw new NotFound(`OutputSettings "${id}" not found`)
 		return data
 	}
 	public async create(_data: Data, _params?: Params): Promise<Result> {
@@ -80,13 +74,13 @@ export class PrompterSettingsService extends EventEmitter<Definition.Events> imp
 	public async update(id: NullId, data: Data, _params?: Params): Promise<Result> {
 		if (id === null) throw new BadRequest(`id must not be null`)
 
-		this.store.prompterSettings.update(data)
+		this.store.outputSettings.update(data)
 		return this.get('')
 	}
 
 	public async subscribeToController(_: unknown, params: Params): Promise<void> {
 		if (!params.connection) throw new Error('No connection!')
-		this.app.channel(PublishChannels.Controller()).join(params.connection)
+		this.app.channel(PublishChannels.OutputSettings()).join(params.connection)
 	}
 }
 type Result = Definition.Result

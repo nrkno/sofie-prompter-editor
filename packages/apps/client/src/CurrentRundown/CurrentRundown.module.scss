@@ -64,6 +64,7 @@
 
 .LineIdentifier {
 	padding: var(--cell-padding);
+	text-align: center;
 }
 
 .LineType {
@@ -82,8 +83,10 @@
 
 .LineDuration {
 	composes: LineItem;
+	text-align: right;
 }
 
 .LineDuration2 {
 	composes: LineItem;
+	text-align: right;
 }

@@ -26,16 +26,30 @@ export const PublishChannels = {
 	},
 
 	/**
-	 * Data for the Controller
+	 * Data for ControllerMessages
 	 */
-	Controller: (): string => {
-		return `controller`
+	ControllerMessages: (): string => {
+		return `controller-messages`
 	},
 
 	/**
-	 * Data for the ViewPort
+	 * Data for OutputSettings
+	 */
+	OutputSettings: (): string => {
+		return `output-settings`
+	},
+
+	/**
+	 * Data from the ViewPort
 	 */
 	ViewPort: (): string => {
 		return `viewport`
+	},
+
+	/**
+	 * Data for the SystemStatus
+	 */
+	SystemStatus: (): string => {
+		return `system-status`
 	},
 }

@@ -79,8 +79,15 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		}
 	}
 
-	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return Array.from(this.store.rundowns.rundowns.values())
+	public async find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
+		// console.log('FIND', _params)
+
+		let rundowns = Array.from(this.store.rundowns.rundowns.values())
+		if (params?.query?.playlistId) {
+			const playlistId = params.query.playlistId
+			rundowns = rundowns.filter((r) => r.playlistId === playlistId)
+		}
+		return rundowns
 	}
 	public async get(id: Id, _params?: Params): Promise<Data> {
 		const data = this.store.rundowns.rundowns.get(id)
@@ -105,10 +112,18 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 	}
 
 	public async subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
-		if (!params.connection) throw new Error('No connection!')
-
-		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
 		this.coreConnection?.subscribeToPlaylist(playlistId)
+
+		if (!params.connection) throw new Error('No connection!')
+		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
+	}
+	public async unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
+		if (params.connection) {
+			this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).leave(params.connection)
+		}
+
+		const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
+		this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
 	}
 }
 type Result = Definition.Result
