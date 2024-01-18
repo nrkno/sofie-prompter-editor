@@ -3,7 +3,7 @@ import isEqual from 'lodash.isequal'
 import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 
 export class OutputSettingsStore {
-	public prompterSettings = observable.box<OutputSettings>({
+	public outputSettings = observable.box<OutputSettings>({
 		_id: '',
 
 		// TODO: load these from persistent store upon startup?
@@ -35,9 +35,9 @@ export class OutputSettingsStore {
 		this._updateIfChanged(data)
 	}
 
-	private _updateIfChanged(prompterSettings: OutputSettings) {
-		if (!isEqual(this.prompterSettings.get(), prompterSettings)) {
-			this.prompterSettings.set(prompterSettings)
+	private _updateIfChanged(outputSettings: OutputSettings) {
+		if (!isEqual(this.outputSettings.get(), outputSettings)) {
+			this.outputSettings.set(outputSettings)
 		}
 	}
 }

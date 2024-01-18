@@ -6,11 +6,13 @@ import { UIStore } from './UIStore'
 import { APIConnection as APIConnectionImpl } from '../api/ApiConnection.ts'
 import { FeathersTypedService } from '../api/lib.ts'
 import {
+	SystemStatusServiceDefinition,
+	ControllerServiceDefinition,
+	OutputSettingsServiceDefinition,
+	ViewPortServiceDefinition,
 	PlaylistServiceDefinition,
-	PrompterSettingsServiceDefinition,
 	RundownServiceDefinition,
 	SegmentServiceDefinition,
-	ViewPortServiceDefinition,
 	ExampleServiceDefinition,
 	PartServiceDefinition,
 } from '@sofie-prompter-editor/shared-model'
@@ -55,12 +57,15 @@ export interface APIConnection extends EventEmitter {
 	readonly host: string
 	readonly port: number
 
+	readonly systemStatus: FeathersTypedService<SystemStatusServiceDefinition.Service>
+
 	readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
 	readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
 	readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
 	readonly part: FeathersTypedService<PartServiceDefinition.Service>
 
-	readonly prompterSettings: FeathersTypedService<PrompterSettingsServiceDefinition.Service>
+	readonly controllerMessage: FeathersTypedService<OutputSettingsServiceDefinition.Service>
+	readonly outputSettings: FeathersTypedService<OutputSettingsServiceDefinition.Service>
 	readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
 
 	readonly example: FeathersTypedService<ExampleServiceDefinition.Service>

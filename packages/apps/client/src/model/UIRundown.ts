@@ -1,4 +1,4 @@
-import { IReactionDisposer, action, computed, flow, makeObservable, observable, reaction, when } from 'mobx'
+import { action, computed, makeAutoObservable, observable } from 'mobx'
 import {
 	Rundown,
 	RundownId,
@@ -21,31 +21,18 @@ export class UIRundown {
 
 	private rundowns = observable.map<RundownId, Rundown>()
 
-	reactions: IReactionDisposer[] = []
-
 	constructor(private store: RundownStore, public id: UIRundownId) {
-		makeObservable(this, {
+		makeAutoObservable(this, {
+			updateFromJson: action,
 			segmentsInOrder: computed,
 			close: action,
 		})
 		this.init().catch(console.error)
 	}
-	init = flow(function* (this: UIRundown) {
-		this.reactions.push(
-			reaction(
-				() => this.store.appStore.connected,
-				async (connected) => {
-					if (!connected) return
+	async init() {
+		await this.store.connection.rundown.subscribeToRundownsInPlaylist(this.id)
 
-					await this.store.connection.rundown.subscribeToRundownsInPlaylist(this.id)
-				},
-				{
-					fireImmediately: true,
-				}
-			)
-		)
-
-		const rundowns = yield this.store.connection.rundown.find({
+		const rundowns = await this.store.connection.rundown.find({
 			query: {
 				playlistId: this.id,
 			},
@@ -54,7 +41,7 @@ export class UIRundown {
 			this.onRundownCreated(rundown)
 		}
 
-		const segments = yield this.store.connection.segment.find({
+		const segments = await this.store.connection.segment.find({
 			query: {
 				playlistId: this.id,
 			},
@@ -68,22 +55,54 @@ export class UIRundown {
 		// register callbacks for events
 
 		// we track playlist changed and removed
-		this.store.connection.playlist.on('updated', this.onPlaylistUpdated)
-		this.store.connection.playlist.on('removed', this.onPlaylistRemoved)
+		this.store.connection.playlist.on(
+			'updated',
+			action((json: RundownPlaylist) => {
+				if (json._id !== this.id) return
+
+				this.updateFromJson(json)
+			})
+		)
+
+		this.store.connection.playlist.on(
+			'removed',
+			action((id: RundownPlaylistId) => {
+				if (id !== this.id) return
+
+				this.close()
+			})
+		)
 
 		// we track rundown created, changed and removed, because we own Rundowns
-		this.store.connection.rundown.on('created', this.onRundownCreated)
-		this.store.connection.rundown.on('updated', this.onRundownUpdated)
-		this.store.connection.rundown.on('removed', this.onRundownRemoved)
+		this.store.connection.rundown.on(
+			'created',
+			action((json: Rundown) => {
+				this.rundowns.set(json._id, json)
+			})
+		)
+
+		this.store.connection.rundown.on(
+			'updated',
+			action((json: Rundown) => {
+				this.rundowns.set(json._id, json)
+			})
+		)
+
+		this.store.connection.rundown.on(
+			'removed',
+			action((json) => {
+				this.rundowns.delete(json._id)
+			})
+		)
 
 		// we track segment created so that we can add new Segments when they are added
 		this.store.connection.segment.on('created', this.onSegmentCreated)
-	})
+	}
 
-	updateFromJson = action('updateFromJson', (json: RundownPlaylist) => {
+	updateFromJson(json: RundownPlaylist) {
 		this.name = json.label
 		this.ready = true
-	})
+	}
 
 	get segmentsInOrder(): UISegment[] {
 		return Array.from(this.segments.values()).sort((a, b) => {
@@ -94,50 +113,21 @@ export class UIRundown {
 		})
 	}
 
-	close = action('close', () => {
+	close(): void {
 		this.store.openRundown = null
 
 		this.store.connection.rundown.unSubscribeFromRundownsInPlaylist(this.id).catch(console.error)
 		this.dispose()
-	})
-
-	dispose(): void {
-		this.reactions.forEach((destroy) => destroy())
-
-		this.segments.forEach((segment) => segment.dispose())
-
-		this.store.connection.playlist.off('updated', this.onPlaylistUpdated)
-		this.store.connection.playlist.off('removed', this.onPlaylistRemoved)
-
-		this.store.connection.rundown.off('created', this.onRundownCreated)
-		this.store.connection.rundown.off('updated', this.onRundownUpdated)
-		this.store.connection.rundown.off('removed', this.onRundownRemoved)
-
-		this.store.connection.segment.off('created', this.onSegmentCreated)
 	}
 
-	private onPlaylistUpdated = action('onPlaylistUpdated', (json: RundownPlaylist) => {
-		if (json._id !== this.id) return
+	dispose(): void {
+		// unregister event handlers from services
+		this.store.connection.segment.off('created', this.onSegmentCreated)
 
-		this.updateFromJson(json)
-	})
-	private onPlaylistRemoved = action('onPlaylistRemoved', (id: RundownPlaylistId) => {
-		if (id !== this.id) return
-
-		this.close()
-	})
+		// TODO: Add more handlers
+	}
 	private onRundownCreated = action('onRundownCreated', (json: Rundown) => {
-		if (json.playlistId !== this.id) return
-
 		this.rundowns.set(json._id, json)
-	})
-	private onRundownUpdated = action('onRundownUpdated', (json: Rundown) => {
-		if (json.playlistId !== this.id) return
-
-		this.rundowns.set(json._id, json)
-	})
-	private onRundownRemoved = action('onRundownRemoved', (json: Pick<Rundown, '_id'>) => {
-		this.rundowns.delete(json._id)
 	})
 	private onSegmentCreated = action('onSegmentCreated', (json: Segment) => {
 		if (json.playlistId !== this.id) return

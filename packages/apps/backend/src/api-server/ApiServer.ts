@@ -2,7 +2,7 @@ import { RealTimeConnection, feathers } from '@feathersjs/feathers'
 import { koa, rest, bodyParser, errorHandler, serveStatic, cors } from '@feathersjs/koa'
 import socketio from '@feathersjs/socketio'
 import { EventEmitter } from 'eventemitter3'
-import { ServiceTypes } from '@sofie-prompter-editor/shared-model'
+import { ServiceTypes, SystemStatus } from '@sofie-prompter-editor/shared-model'
 import { LoggerInstance } from '../lib/logger.js'
 import { PublishChannels } from './PublishChannels.js'
 import { PlaylistFeathersService, PlaylistService } from './services/PlaylistService.js'
@@ -13,7 +13,9 @@ import { ExampleFeathersService, ExampleService } from './services/ExampleServic
 import { Store } from '../data-stores/Store.js'
 import { SofieCoreConnection } from '../sofie-core-connection/SofieCoreConnection.js'
 import { ViewPortFeathersService, ViewPortService } from './services/ViewPortService.js'
-import { PrompterSettingsFeathersService, PrompterSettingsService } from './services/PrompterSettingsService.js'
+import { OutputSettingsFeathersService, OutputSettingsService } from './services/OutputSettingsService.js'
+import { ControllerFeathersService, ControllerService } from './services/ControllerService.js'
+import { SystemStatusFeathersService, SystemStatusService } from './services/SystemStatusService.js'
 
 export type ApiServerEvents = {
 	connection: []
@@ -27,8 +29,11 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 	public readonly segment: SegmentFeathersService
 	public readonly part: PartFeathersService
 	public readonly example: ExampleFeathersService
+
+	public readonly systemStatus: SystemStatusFeathersService
+	public readonly controller: ControllerFeathersService
 	public readonly viewPort: ViewPortFeathersService
-	public readonly prompterSettings: PrompterSettingsFeathersService
+	public readonly outputSettings: OutputSettingsFeathersService
 
 	private log: LoggerInstance
 	constructor(
@@ -58,8 +63,10 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		this.segment = SegmentService.setupService(this.log, this.app, this.store)
 		this.part = PartService.setupService(this.log, this.app, this.store)
 
+		this.systemStatus = SystemStatusService.setupService(this.log, this.app, this.store)
+		this.controller = ControllerService.setupService(this.log, this.app, this.store)
 		this.viewPort = ViewPortService.setupService(this.log, this.app, this.store)
-		this.prompterSettings = PrompterSettingsService.setupService(this.log, this.app, this.store)
+		this.outputSettings = OutputSettingsService.setupService(this.log, this.app, this.store)
 
 		this.example = ExampleService.setupService(this.app)
 

@@ -4,6 +4,8 @@
 
 export { DataObject } from './lib.js'
 
+export * from './SystemStatus.js'
+
 export * from './OutputSettings.js'
 export * from './ControllerMessage.js'
 export * from './ViewPort.js'

@@ -25,6 +25,7 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 	private static setupPublications(app: Application<ServiceTypes, any>, service: PlaylistFeathersService) {
 		// Publish tmpPong to Everyone channel:
 		service.publish('tmpPong', (_data, _context) => {
+			// todo: remove
 			return app.channel(PublishChannels.Everyone())
 		})
 

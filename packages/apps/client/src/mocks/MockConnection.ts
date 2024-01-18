@@ -39,7 +39,7 @@ const PLAYLIST_ID_1 = generateId('playlist')
 const START_TIME = Date.now()
 
 type EventTypes = 'created' | 'updated' | 'removed'
-type Services = 'playlist' | 'rundown' | 'segment' | 'part' | 'prompterSettings' | 'viewPort' | 'example'
+type Services = 'playlist' | 'rundown' | 'segment' | 'part' | 'outputSettings' | 'viewPort' | 'example'
 
 type Events = `${Services}_${EventTypes}` | 'connected' | 'disconnected'
 
@@ -325,7 +325,7 @@ export class MockConnection extends EventEmitter<Events> {
 
 	part = this.createMockService('part', this._part, {})
 
-	prompterSettings = this.createMockService('prompterSettings')
+	outputSettings = this.createMockService('outputSettings')
 
 	viewPort = this.createMockService('viewPort')
 

@@ -4,12 +4,14 @@ import { feathers, Application } from '@feathersjs/feathers'
 import socketio, { SocketService } from '@feathersjs/socketio-client'
 import {
 	ExampleServiceDefinition,
+	SystemStatusServiceDefinition,
+	ControllerServiceDefinition,
+	OutputSettingsServiceDefinition,
+	ViewPortServiceDefinition,
 	PlaylistServiceDefinition,
 	RundownServiceDefinition,
 	SegmentServiceDefinition,
 	PartServiceDefinition,
-	PrompterSettingsServiceDefinition,
-	ViewPortServiceDefinition,
 	ServiceTypes,
 	Services,
 } from '@sofie-prompter-editor/shared-model'
@@ -22,12 +24,15 @@ interface APIConnectionEvents {
 }
 
 export class APIConnection extends EventEmitter<APIConnectionEvents> {
+	public readonly systemStatus: FeathersTypedService<SystemStatusServiceDefinition.Service>
+
 	public readonly playlist: FeathersTypedService<PlaylistServiceDefinition.Service>
 	public readonly rundown: FeathersTypedService<RundownServiceDefinition.Service>
 	public readonly segment: FeathersTypedService<SegmentServiceDefinition.Service>
 	public readonly part: FeathersTypedService<PartServiceDefinition.Service>
 
-	public readonly prompterSettings: FeathersTypedService<PrompterSettingsServiceDefinition.Service>
+	public readonly controller: FeathersTypedService<ControllerServiceDefinition.Service>
+	public readonly outputSettings: FeathersTypedService<OutputSettingsServiceDefinition.Service>
 	public readonly viewPort: FeathersTypedService<ViewPortServiceDefinition.Service>
 
 	public readonly example: FeathersTypedService<ExampleServiceDefinition.Service>
@@ -37,7 +42,6 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 
 	constructor(public readonly host = DEFAULT_DEV_API_HOST, public readonly port = DEFAULT_DEV_API_PORT) {
 		super()
-		console.log('setupAPIConnection')
 
 		const socket = io(`${host}:${port}`)
 		socket.on('connect', () => {
@@ -53,6 +57,19 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 
 		this.app = feathers<AddTypeToProperties<ServiceTypes, SocketService>>()
 		this.app.configure(socketClient)
+
+		{
+			this.app.use(
+				Services.SystemStatus,
+				socketClient.service(Services.SystemStatus) as SocketService & ServiceTypes[Services.SystemStatus],
+				{
+					methods: SystemStatusServiceDefinition.ALL_METHODS,
+				}
+			)
+			this.systemStatus = this.app.service(
+				Services.SystemStatus
+			) as FeathersTypedService<SystemStatusServiceDefinition.Service>
+		}
 
 		{
 			this.app.use(
@@ -93,15 +110,27 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 
 		{
 			this.app.use(
-				Services.PrompterSettings,
-				socketClient.service(Services.PrompterSettings) as SocketService & ServiceTypes[Services.PrompterSettings],
+				Services.Controller,
+				socketClient.service(Services.Controller) as SocketService & ServiceTypes[Services.Controller],
 				{
-					methods: PrompterSettingsServiceDefinition.ALL_METHODS,
+					methods: ControllerServiceDefinition.ALL_METHODS,
 				}
 			)
-			this.prompterSettings = this.app.service(
-				Services.PrompterSettings
-			) as FeathersTypedService<PrompterSettingsServiceDefinition.Service>
+			this.controller = this.app.service(
+				Services.Controller
+			) as FeathersTypedService<ControllerServiceDefinition.Service>
+		}
+		{
+			this.app.use(
+				Services.OutputSettings,
+				socketClient.service(Services.OutputSettings) as SocketService & ServiceTypes[Services.OutputSettings],
+				{
+					methods: OutputSettingsServiceDefinition.ALL_METHODS,
+				}
+			)
+			this.outputSettings = this.app.service(
+				Services.OutputSettings
+			) as FeathersTypedService<OutputSettingsServiceDefinition.Service>
 		}
 		{
 			this.app.use(
