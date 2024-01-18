@@ -10,30 +10,31 @@ import { OutputSettings } from '../model/index.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
-	'find',
+	// 'find',
 	'get',
 	// 'create',
 	'update',
 	// 'patch',
 	// 'remove',
 	//
-	'subscribeToController',
+	'subscribe',
 ] as const
 /** The methods exposed by this class are exposed in the API */
-interface Methods extends Omit<ServiceMethods, 'patch' | 'remove' | 'create'> {
-	find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
-	get(id: Id, params?: Params): Promise<Data>
+interface Methods {
+	//  extends Omit<ServiceMethods, 'find' | 'get' | 'patch' | 'remove' | 'create'>
+	// find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
+	get(id: null, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
-	update(id: NullId, data: Data, params?: Params): Promise<Result>
+	update(id: null, data: Data, params?: Params): Promise<Result>
 
 	/** Subscribe to Controller data */
-	subscribeToController(_?: unknown, params?: Params): Promise<void>
+	subscribe(_?: unknown, params?: Params): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 
 /** List of all event names */
 export const ALL_EVENTS = [
-	'created',
+	// 'created',
 	'updated',
 	// 'patched',
 	// 'removed',
@@ -42,7 +43,7 @@ export const ALL_EVENTS = [
 
 /** Definitions of all events */
 export interface Events {
-	created: [data: Data]
+	// created: [data: Data]
 	updated: [data: Data]
 	// patched: [data: PatchData]
 	// removed: [data: RemovedData]
@@ -54,8 +55,8 @@ export type Data = OutputSettings
 // export type PatchData = Diff<Data>
 // export type RemovedData = { _id: Id; playlistId: Data['playlistId']; rundownId: Data['rundownId'] }
 export type Result = Data
-export type Id = ''
-export type NullId = Id | null
+// export type Id = ''
+// export type NullId = Id | null
 
 // ============================================================================
 // Type check: ensure that Methods and ALL_METHODS are in sync:

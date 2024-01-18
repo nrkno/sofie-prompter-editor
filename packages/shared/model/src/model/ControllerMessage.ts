@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZodProtectedString } from './lib.js'
+import { ZodProtectedStringOrNull } from './lib.js'
 import { SegmentId } from './Segment.js'
 import { PartId } from './Part.js'
 import { ProtectedString } from '../ProtectedString.js'
@@ -15,7 +15,7 @@ export const ControllerMessageSchema = z.object({
 			 * The prompter object/element which the current offset is calculated from.
 			 * `null` means "top of page"
 			 */
-			target: ZodProtectedString<SegmentId | PartId | TextMarkerId>().nullable(),
+			target: ZodProtectedStringOrNull<SegmentId | PartId | TextMarkerId>(),
 
 			/** The offset from the `target` (unit: viewportUnits) */
 			offset: z.number(),

@@ -4,7 +4,7 @@ import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 
 export class OutputSettingsStore {
 	public outputSettings = observable.box<OutputSettings>({
-		_id: '',
+		// _id: '',
 
 		// TODO: load these from persistent store upon startup?
 		fontSize: 10,

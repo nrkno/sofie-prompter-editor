@@ -13,6 +13,8 @@ import { RundownList } from './RundownList/RundownList.tsx'
 const RundownScript = React.lazy(() => import('./RundownScript/RundownScript.tsx'))
 // eslint-disable-next-line react-refresh/only-export-components
 const Output = React.lazy(() => import('./Output/Output.tsx'))
+// eslint-disable-next-line react-refresh/only-export-components
+const TestController = React.lazy(() => import('./TestController.tsx')) // TODO: temp
 
 const router = createBrowserRouter([
 	{
@@ -22,6 +24,10 @@ const router = createBrowserRouter([
 	{
 		path: '/output',
 		element: <Output />,
+	},
+	{
+		path: '/test-controller',
+		element: <TestController />,
 	},
 	{
 		path: '/',

@@ -16,6 +16,7 @@ import {
 	ExampleServiceDefinition,
 	PartServiceDefinition,
 } from '@sofie-prompter-editor/shared-model'
+import { OutputSettingsStore } from './OutputSettingsStore.ts'
 
 const USE_MOCK_CONNECTION = false
 
@@ -23,6 +24,7 @@ class RootAppStoreClass {
 	connected = false
 	connection: APIConnection
 	rundownStore: RundownStore
+	outputSettingsStore: OutputSettingsStore
 	uiStore: UIStore
 
 	constructor() {
@@ -34,6 +36,7 @@ class RootAppStoreClass {
 		const apiConnection = USE_MOCK_CONNECTION ? (new MockConnection() as any) : new APIConnectionImpl()
 		this.connection = apiConnection
 		this.rundownStore = new RundownStore(this, this.connection)
+		this.outputSettingsStore = new OutputSettingsStore(this, this.connection)
 		this.uiStore = new UIStore()
 
 		this.connection.on('disconnected', this.onDisconnected)

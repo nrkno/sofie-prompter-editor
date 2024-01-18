@@ -1,12 +1,12 @@
 import { z } from 'zod'
-import { ZodProtectedString } from './lib.js'
+import { ZodProtectedStringOrNull } from './lib.js'
 import { RundownPlaylistId } from './RundownPlaylist.js'
 
 /** Set by a user */
 export type OutputSettings = z.infer<typeof OutputSettingsSchema>
 
 export const OutputSettingsSchema = z.object({
-	_id: z.literal(''),
+	// _id: z.literal(''),
 
 	fontSize: z.number().min(0).max(100),
 
@@ -22,5 +22,5 @@ export const OutputSettingsSchema = z.object({
 	marginVertical: z.number().min(0).max(100),
 
 	/** If set, defines the rundown that is to be displayed in the Output */
-	activeRundownPlaylistId: ZodProtectedString<RundownPlaylistId>().nullable(),
+	activeRundownPlaylistId: ZodProtectedStringOrNull<RundownPlaylistId>(),
 })
