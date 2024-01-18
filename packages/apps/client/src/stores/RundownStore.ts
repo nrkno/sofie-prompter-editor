@@ -30,9 +30,8 @@ export class RundownStore {
 	}
 
 	setupOutputSettingsSubscription = action(() => {
-		this.reactions.push(this.appStore.whenConnected(() => this.connection.outputSettings.subscribeToController()))
+		this.reactions.push(this.appStore.whenConnected(() => this.connection.outputSettings.subscribe()))
 
-		this.connection.outputSettings.on('created', this.onOutputSettingsUpdated)
 		this.connection.outputSettings.on('updated', this.onOutputSettingsUpdated)
 	})
 
@@ -41,7 +40,7 @@ export class RundownStore {
 	})
 
 	loadOutputSettingsData = action(() => {
-		this.connection.outputSettings.get('').then(this.onOutputSettingsUpdated)
+		this.connection.outputSettings.get(null).then(this.onOutputSettingsUpdated)
 	})
 
 	setupUIRundownDataSubscriptions = action(() => {
@@ -98,7 +97,7 @@ export class RundownStore {
 	sendRundownToOutput = (id: RundownPlaylistId) => {
 		if (!this.outputSettings) return
 		// TODO: This really shouldn't require the entire outputSettings object to be available first
-		this.connection.outputSettings.update('', {
+		this.connection.outputSettings.update(null, {
 			...this.outputSettings,
 			activeRundownPlaylistId: id,
 		})
