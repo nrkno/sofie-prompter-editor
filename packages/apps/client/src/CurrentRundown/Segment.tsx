@@ -3,19 +3,19 @@ import { observer } from 'mobx-react-lite'
 import { UISegment } from '../model/UISegment'
 import { Line } from './Line'
 import classes from './CurrentRundown.module.scss'
-import { AppStore } from '../stores/AppStore'
+import { RootAppStore } from '../stores/RootAppStore'
 import { UILineId } from '../model/UILine'
 
 const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Element | null => {
 	if (!segment) return null
 
 	function isSelected(lineId: UILineId) {
-		return lineId === AppStore.uiStore.selectedLineId
+		return lineId === RootAppStore.uiStore.selectedLineId
 	}
 
 	function onClick(e: React.MouseEvent<HTMLLIElement>) {
 		const lineId = e.currentTarget.dataset['lineId'] as UILineId
-		AppStore.uiStore.setSelectedLineId(lineId)
+		RootAppStore.uiStore.setSelectedLineId(lineId)
 	}
 
 	return (
