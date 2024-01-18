@@ -1,44 +1,44 @@
 import React, { useEffect, useMemo, useReducer, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { AppStore } from '../stores/AppStore'
+import { RootAppStore } from '../stores/RootAppStore.ts'
 
 const Output = observer(function Output() {
 	const speed = useRef(0)
 
 	// On startup
 	useEffect(() => {
-		AppStore.outputSettingsStore.initialize() // load and subscribe
+		RootAppStore.outputSettingsStore.initialize() // load and subscribe
 
-		AppStore.connection.controller.on('message', (message) => {
+		RootAppStore.connection.controller.on('message', (message) => {
 			console.log('received message', message)
 
 			speed.current = message.speed
 		})
-		AppStore.connection.controller.subscribeToMessages().catch(console.error)
+		RootAppStore.connection.controller.subscribeToMessages().catch(console.error)
 
 		// don't do this, it's just for testing:
 		const interval = setInterval(() => {
 			window.scrollBy(0, speed.current)
 		}, 1000 / 60)
 		return () => {
-			AppStore.connection.controller.off('message')
+			RootAppStore.connection.controller.off('message')
 			clearInterval(interval)
 		}
 	}, [])
 
-	const outputSettings = AppStore.outputSettingsStore.outputSettings
+	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
 	const activeRundownPlaylistId = outputSettings?.activeRundownPlaylistId
 
 	useEffect(() => {
 		if (activeRundownPlaylistId) {
-			AppStore.rundownStore.loadRundown(activeRundownPlaylistId)
+			RootAppStore.rundownStore.loadRundown(activeRundownPlaylistId)
 		} else {
 			// TODO: unload rundown?
 		}
 	}, [activeRundownPlaylistId])
 
-	const rundown = AppStore.rundownStore.openRundown
+	const rundown = RootAppStore.rundownStore.openRundown
 
 	/*
 	Implementation notes:
@@ -111,7 +111,7 @@ const Output = observer(function Output() {
 	return (
 		<>
 			<h1>Prompter output</h1>
-			<div>Initialized: {AppStore.outputSettingsStore.initialized ? 'YES' : 'NO'}</div>
+			<div>Initialized: {RootAppStore.outputSettingsStore.initialized ? 'YES' : 'NO'}</div>
 			<div>{JSON.stringify(outputSettings)}</div>
 
 			<div>{rundown ? <>Rundown: {rundown.name}</> : <>No active rundown</>}</div>

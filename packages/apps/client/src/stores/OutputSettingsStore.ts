@@ -1,6 +1,6 @@
 import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
 import { OutputSettings } from '@sofie-prompter-editor/shared-model'
-import { APIConnection, AppStore } from './AppStore'
+import { APIConnection, RootAppStore } from './RootAppStore.ts'
 
 export class OutputSettingsStore {
 	// showingOnlyScripts = false
@@ -15,7 +15,7 @@ export class OutputSettingsStore {
 
 	reactions: IReactionDisposer[] = []
 
-	constructor(public appStore: typeof AppStore, public connection: APIConnection) {
+	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
 		makeObservable(this, {
 			outputSettings: observable,
 			initialized: observable,

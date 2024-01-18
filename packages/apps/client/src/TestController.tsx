@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite'
 import { APIConnection } from './api/ApiConnection.ts'
 import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 import { EditObject, useApiConnection } from './TestUtil.tsx'
-import { AppStore } from './stores/AppStore.ts'
+import { RootAppStore } from './stores/RootAppStore.ts'
 import { computed } from 'mobx'
 
 const TestController: React.FC = observer(() => {
@@ -13,9 +13,9 @@ const TestController: React.FC = observer(() => {
 
 	// On startup
 	useEffect(() => {
-		AppStore.outputSettingsStore.initialize() // load and subscribe
+		RootAppStore.outputSettingsStore.initialize() // load and subscribe
 	}, [])
-	const outputSettings = computed(() => AppStore.outputSettingsStore.outputSettings).get()
+	const outputSettings = computed(() => RootAppStore.outputSettingsStore.outputSettings).get()
 
 	console.log('outputSettings', outputSettings)
 
@@ -73,7 +73,7 @@ const TestController: React.FC = observer(() => {
 	// )
 
 	const sendSpeed = useCallback((speed: number) => {
-		AppStore.connection.controller
+		RootAppStore.connection.controller
 			.sendMessage({
 				offset: null,
 				speed: speed,
@@ -92,7 +92,7 @@ const TestController: React.FC = observer(() => {
 							obj={outputSettings}
 							onChange={(newData) => {
 								// console.log('newdata', newData)
-								AppStore.connection.outputSettings.update(null, newData).catch(console.error)
+								RootAppStore.connection.outputSettings.update(null, newData).catch(console.error)
 							}}
 						/>
 					) : (
