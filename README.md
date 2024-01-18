@@ -21,9 +21,6 @@ This is a monorepo, all packages resides in [shared/packages](shared/packages) a
 ### Initializing
 
 ```bash
-# install lerna globally
-yarn global add lerna@
-
 # Set up monorepo and install all dependencies
 yarn
 
