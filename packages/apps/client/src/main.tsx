@@ -24,13 +24,13 @@ const router = createBrowserRouter([
 		element: <Output />,
 	},
 	{
-		path: '/test-controller',
-		element: <TestController />,
-	},
-	{
 		path: '/',
 		element: <App />,
 		children: [
+			{
+				path: '/test-controller',
+				element: <TestController />,
+			},
 			{
 				index: true,
 				element: <RundownList />,

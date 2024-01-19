@@ -2,7 +2,11 @@ import React, { useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
-const Output = observer(function Output() {
+import 'src/PrompterStyles.css'
+import { Segment } from './Segment'
+import { Helmet } from 'react-helmet-async'
+
+const Output = observer(function Output(): React.ReactElement {
 	const speed = useRef(0)
 
 	// On startup
@@ -20,6 +24,7 @@ const Output = observer(function Output() {
 		const interval = setInterval(() => {
 			window.scrollBy(0, speed.current)
 		}, 1000 / 60)
+
 		return () => {
 			RootAppStore.connection.controller.off('message')
 			clearInterval(interval)
@@ -102,35 +107,35 @@ const Output = observer(function Output() {
 
 
 	*/
-	const loremIpsum = `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum`
-	const dummyContent: string[] = []
-	for (let i = 0; i < 100; i++) {
-		dummyContent.push(loremIpsum)
+
+	if (!rundown) {
+		return (
+			<>
+				{GLOBAL_SETTINGS}
+				<div className="Prompter"></div>
+			</>
+		)
 	}
 
 	return (
 		<>
-			<h1>Prompter output</h1>
-			<div>Initialized: {RootAppStore.outputSettingsStore.initialized ? 'YES' : 'NO'}</div>
-			<div>{JSON.stringify(outputSettings)}</div>
-
-			<div>{rundown ? <>Rundown: {rundown.name}</> : <>No active rundown</>}</div>
-
-			<div>
-				{dummyContent.map((line, i) => (
-					<div
-						key={i}
-						style={{
-							margin: '1em',
-						}}
-					>
-						{line}
-					</div>
+			{GLOBAL_SETTINGS}
+			<div className="Prompter">
+				<h1>{rundown.name}</h1>
+				{rundown.segmentsInOrder.map((segment) => (
+					<Segment key={segment.id} segment={segment} />
 				))}
 			</div>
 		</>
 	)
 })
 Output.displayName = 'Output'
+
+const GLOBAL_SETTINGS = (
+	<Helmet>
+		<title>Output</title>
+		<body data-bs-theme="dark" className="bg-black" />
+	</Helmet>
+)
 
 export default Output
