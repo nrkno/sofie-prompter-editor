@@ -30,9 +30,15 @@ async function init() {
 		coreConnection = new SofieCoreConnection(log, options, processHandler, store)
 		coreConnection.on('connected', () => {
 			log.info('Connected to Core')
+			store.systemStatus.updateStatus({
+				connectedToCore: true,
+			})
 		})
 		coreConnection.on('disconnected', () => {
 			log.warn('Disconnected from Core!')
+			store.systemStatus.updateStatus({
+				connectedToCore: false,
+			})
 		})
 		await coreConnection.initialized
 	} else {

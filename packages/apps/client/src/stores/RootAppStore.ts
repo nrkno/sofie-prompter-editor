@@ -17,6 +17,7 @@ import {
 	PartServiceDefinition,
 } from '@sofie-prompter-editor/shared-model'
 import { OutputSettingsStore } from './OutputSettingsStore.ts'
+import { SystemStatusStore } from './SystemStatusStore.ts'
 
 const USE_MOCK_CONNECTION = false
 
@@ -25,6 +26,7 @@ class RootAppStoreClass {
 	sofieConnected = false
 	connection: APIConnection
 	rundownStore: RundownStore
+	systemStatusStore: SystemStatusStore
 	outputSettingsStore: OutputSettingsStore
 	uiStore: UIStore
 
@@ -38,6 +40,7 @@ class RootAppStoreClass {
 		const apiConnection = USE_MOCK_CONNECTION ? (new MockConnection() as any) : new APIConnectionImpl()
 		this.connection = apiConnection
 		this.rundownStore = new RundownStore(this, this.connection)
+		this.systemStatusStore = new SystemStatusStore(this, this.connection)
 		this.outputSettingsStore = new OutputSettingsStore(this, this.connection)
 		this.uiStore = new UIStore()
 

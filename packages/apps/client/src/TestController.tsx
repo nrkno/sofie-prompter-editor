@@ -4,7 +4,7 @@ import { APIConnection } from './api/ApiConnection.ts'
 import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 import { EditObject, useApiConnection } from './TestUtil.tsx'
 import { RootAppStore } from './stores/RootAppStore.ts'
-import { computed } from 'mobx'
+import { autorun, computed, toJS } from 'mobx'
 
 const TestController: React.FC = observer(() => {
 	// const [ready, setReady] = React.useState(false)
@@ -18,6 +18,7 @@ const TestController: React.FC = observer(() => {
 	const outputSettings = computed(() => RootAppStore.outputSettingsStore.outputSettings).get()
 
 	console.log('outputSettings', outputSettings)
+	const systemStatus = toJS(RootAppStore.systemStatusStore.systemStatus)
 
 	// useApiConnection(
 	// 	(connected) => {
@@ -84,6 +85,10 @@ const TestController: React.FC = observer(() => {
 	return (
 		<>
 			<h1>Test controller</h1>
+			<div>
+				<h3>SystemStatus</h3>
+				<div>{JSON.stringify(systemStatus, null, 2)}</div>
+			</div>
 			<div>
 				<h3>Settings</h3>
 				<div>

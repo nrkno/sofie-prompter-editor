@@ -13,9 +13,9 @@ export const ALL_METHODS = [
 	'subscribe',
 ] as const
 /** The methods exposed by this class are exposed in the API */
-interface Methods extends Omit<ServiceMethods, 'find' | 'update' | 'patch' | 'remove' | 'create'> {
+interface Methods extends Omit<ServiceMethods, 'get' | 'find' | 'update' | 'patch' | 'remove' | 'create'> {
 	// find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
-	get(id: Id, params?: Params): Promise<Data>
+	get(id: null, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
 	// update(id: NullId, data: Data, params?: Params): Promise<Result>
 

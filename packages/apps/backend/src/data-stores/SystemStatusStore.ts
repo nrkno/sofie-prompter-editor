@@ -1,4 +1,4 @@
-import { action, makeAutoObservable, observable } from 'mobx'
+import { action, makeObservable, observable, toJS } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { SystemStatus } from '@sofie-prompter-editor/shared-model'
 
@@ -9,19 +9,25 @@ export class SystemStatusStore {
 	})
 
 	constructor() {
-		makeAutoObservable(this, {
-			patch: action,
+		makeObservable(this, {
+			updateStatus: action,
 		})
 	}
 
-	patch(patchData: Partial<SystemStatus>) {
-		const oldData = this.systemStatus.get()
-		const data = {
-			...oldData,
-			...patchData,
+	updateStatus(patchData: Partial<Omit<SystemStatus, 'statusMessage'>>) {
+		const systemStatus = toJS(this.systemStatus.get())
+
+		if (patchData.connectedToCore !== undefined) systemStatus.connectedToCore = patchData.connectedToCore
+
+		// Generate systemMessage:
+		systemStatus.statusMessage = null
+		if (!systemStatus.connectedToCore) {
+			systemStatus.statusMessage = 'Not connected to Core'
 		}
-		if (!isEqual(data, oldData)) {
-			this.systemStatus.set(data)
+
+		const oldData = toJS(this.systemStatus.get())
+		if (!isEqual(oldData, systemStatus)) {
+			this.systemStatus.set(systemStatus)
 		}
 	}
 }

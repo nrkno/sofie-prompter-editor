@@ -57,7 +57,7 @@ export class SystemStatusService extends EventEmitter<Definition.Events> impleme
 		}
 	}
 
-	public async get(_id: Id, _params?: Params): Promise<Data> {
+	public async get(_id: null, _params?: Params): Promise<Data> {
 		const data = this.store.systemStatus.systemStatus.get()
 		if (!data) throw new NotFound(`SystemStatus not found`)
 		return data
