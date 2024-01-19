@@ -75,6 +75,10 @@ export class OutputSettingsService extends EventEmitter<Definition.Events> imple
 		this.store.outputSettings.update(data)
 		return this.get(null)
 	}
+	public async patch(_id: null, partialData: Partial<Data>, _params?: Params): Promise<Result> {
+		this.store.outputSettings.patch(partialData)
+		return this.get(null)
+	}
 
 	public async subscribe(_: unknown, params: Params): Promise<void> {
 		if (!params.connection) throw new Error('No connection!')

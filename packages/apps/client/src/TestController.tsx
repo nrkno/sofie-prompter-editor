@@ -15,9 +15,8 @@ const TestController: React.FC = observer(() => {
 	useEffect(() => {
 		RootAppStore.outputSettingsStore.initialize() // load and subscribe
 	}, [])
-	const outputSettings = computed(() => RootAppStore.outputSettingsStore.outputSettings).get()
+	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
-	console.log('outputSettings', outputSettings)
 	const systemStatus = toJS(RootAppStore.systemStatusStore.systemStatus)
 
 	// useApiConnection(
@@ -96,7 +95,6 @@ const TestController: React.FC = observer(() => {
 						<EditObject
 							obj={outputSettings}
 							onChange={(newData) => {
-								// console.log('newdata', newData)
 								RootAppStore.connection.outputSettings.update(null, newData).catch(console.error)
 							}}
 						/>

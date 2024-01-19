@@ -34,6 +34,10 @@ export class OutputSettingsStore {
 	update(data: OutputSettings) {
 		this._updateIfChanged(data)
 	}
+	patch(partialData: Partial<OutputSettings>) {
+		const data = { ...this.outputSettings.get(), ...partialData }
+		this._updateIfChanged(data)
+	}
 
 	private _updateIfChanged(outputSettings: OutputSettings) {
 		if (!isEqual(this.outputSettings.get(), outputSettings)) {

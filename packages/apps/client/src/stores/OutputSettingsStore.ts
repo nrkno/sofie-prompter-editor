@@ -3,12 +3,16 @@ import { OutputSettings } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, RootAppStore } from './RootAppStore.ts'
 
 export class OutputSettingsStore {
-	// showingOnlyScripts = false
-
-	// allRundowns = observable.map<RundownPlaylistId, UIRundownEntry>()
-	// openRundown: UIRundown | null = null
-
-	outputSettings: OutputSettings | null = null // observable.ref<OutputSettings | null>({})
+	outputSettings = observable.object<OutputSettings>({
+		fontSize: 0,
+		mirrorHorizontally: false,
+		mirrorVertically: false,
+		focusPosition: 'start',
+		showFocusPosition: false,
+		marginHorizontal: 0,
+		marginVertical: 0,
+		activeRundownPlaylistId: null,
+	})
 
 	initialized = false
 	private initializing = false
@@ -19,8 +23,6 @@ export class OutputSettingsStore {
 		makeObservable(this, {
 			outputSettings: observable,
 			initialized: observable,
-			// openRundown: observable,
-			// showingOnlyScripts: observable,
 		})
 
 		// Note: we DON'T initialize here,
@@ -43,7 +45,6 @@ export class OutputSettingsStore {
 				async (connected) => {
 					if (!connected) return
 
-					console.log('subscribing!')
 					await this.connection.outputSettings.subscribe()
 				},
 				{
@@ -53,7 +54,6 @@ export class OutputSettingsStore {
 		)
 
 		this.connection.outputSettings.on('updated', this.onUpdatedOutputSettings)
-		// Note: updated and removed events are handled by the UIRundownEntry's themselves
 	})
 	private loadInitialData = flow(function* (this: OutputSettingsStore) {
 		const outputSettings = yield this.connection.outputSettings.get(null)
@@ -63,11 +63,10 @@ export class OutputSettingsStore {
 	})
 
 	private onUpdatedOutputSettings = action('onUpdatedOutputSettings', (newData: OutputSettings) => {
-		this.outputSettings = newData
-		// for (const key in newData) {
-		// 	// @ts-expect-error hack?
-		// 	// this.outputSettings[key] = newData[key]
-		// }
+		for (const [key, value] of Object.entries(newData)) {
+			// @ts-expect-error hack
+			this.outputSettings[key] = value
+		}
 	})
 
 	destroy = () => {

@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { APIConnection } from './api/ApiConnection.ts'
+import { observer } from 'mobx-react-lite'
 
 export function useApiConnection(
 	effect: (connected: boolean) => void,
@@ -30,7 +31,7 @@ export function useApiConnection(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const EditObject: React.FC<{ obj: any; onChange: (value: any) => void }> = ({ obj, onChange }) => {
+export const EditObject: React.FC<{ obj: any; onChange: (value: any) => void }> = observer(({ obj, onChange }) => {
 	const updateProperty = React.useCallback(
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		(key: string, value: any) => {
@@ -66,7 +67,7 @@ export const EditObject: React.FC<{ obj: any; onChange: (value: any) => void }> 
 			</tbody>
 		</table>
 	)
-}
+})
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const EditValue: React.FC<{ value: any; onChange: (value: any) => void }> = ({ value, onChange }) => {
 	const valueType = typeof value
