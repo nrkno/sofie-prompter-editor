@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from 'src/App.tsx'
 import 'src/index.scss'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { HelmetProvider } from 'react-helmet-async'
+import { Helmet, HelmetProvider } from 'react-helmet-async'
 import { RundownList } from 'src/views/RundownList/RundownList.tsx'
 
 // Lazy-loading component imports (allow us to minimize bundle size)
@@ -42,6 +42,10 @@ const router = createBrowserRouter([
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<React.StrictMode>
 		<HelmetProvider>
+			<Helmet>
+				<title>App</title>
+				<body data-bs-theme="dark" />
+			</Helmet>
 			<Suspense fallback={<>Loading...</>}>
 				<RouterProvider router={router} />
 			</Suspense>

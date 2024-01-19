@@ -9,7 +9,7 @@ export const SystemStatusAlertBars = observer(function SystemStatusAlertBars(): 
 	return (
 		<>
 			{!isAPIConnected ? <AlertBar variant="danger">Prompter is having network troubles</AlertBar> : null}
-			{isSofieConnected ? <AlertBar variant="danger">Prompter is having network troubles</AlertBar> : null}
+			{!isSofieConnected ? <AlertBar variant="danger">Prompter is having trouble connecting to Sofie</AlertBar> : null}
 		</>
 	)
 })

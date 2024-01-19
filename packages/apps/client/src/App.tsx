@@ -8,10 +8,6 @@ import { Link, Outlet } from 'react-router-dom'
 function App(): React.JSX.Element {
 	return (
 		<>
-			<Helmet>
-				<title>App</title>
-				<body data-bs-theme="dark" />
-			</Helmet>
 			<Navbar>
 				<Container>
 					<Navbar.Brand>Prompter</Navbar.Brand>
@@ -19,16 +15,6 @@ function App(): React.JSX.Element {
 						<Nav.Item>
 							<Link className="nav-link" to="/">
 								Rundowns
-							</Link>
-						</Nav.Item>
-						<Nav.Item>
-							<Link className="nav-link" to="/backend">
-								Backend playground
-							</Link>
-						</Nav.Item>
-						<Nav.Item>
-							<Link className="nav-link" to="/editor">
-								Editor playground
 							</Link>
 						</Nav.Item>
 						<Nav.Item>
