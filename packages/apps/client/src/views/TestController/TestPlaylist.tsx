@@ -1,5 +1,5 @@
 import React from 'react'
-import { APIConnection } from './api/ApiConnection.ts'
+import { APIConnection } from '../../api/ApiConnection.ts'
 import { Rundown, RundownId, RundownPlaylist } from '@sofie-prompter-editor/shared-model'
 import { TestRundown } from './TestRundown.tsx'
 import { useApiConnection } from './TestUtil.tsx'

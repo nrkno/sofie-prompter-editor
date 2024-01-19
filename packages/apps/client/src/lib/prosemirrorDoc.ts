@@ -1,5 +1,5 @@
 import { Node as ProsemirrorNode } from 'prosemirror-model'
-import { schema } from '../ScriptEditor/scriptSchema'
+import { schema } from 'src/components/ScriptEditor/scriptSchema'
 import { Node as MdAstNode } from './mdParser/astNodes'
 import createMdParser from './mdParser'
 

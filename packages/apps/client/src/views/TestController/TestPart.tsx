@@ -1,5 +1,5 @@
 import React from 'react'
-import { APIConnection } from './api/ApiConnection.ts'
+import { APIConnection } from '../../api/ApiConnection.ts'
 import { Part } from '@sofie-prompter-editor/shared-model'
 
 export const TestPart: React.FC<{ api: APIConnection; part: Part }> = ({ part }) => {

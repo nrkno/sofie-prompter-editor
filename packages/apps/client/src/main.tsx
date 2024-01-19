@@ -1,20 +1,18 @@
 import React, { Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.scss'
+import App from 'src/App.tsx'
+import 'src/index.scss'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
-import { BackendPlayground } from './BackendPlayground/BackendPlayground.tsx'
-import { ScriptEditor } from './ScriptEditor/ScriptEditor.tsx'
 import { HelmetProvider } from 'react-helmet-async'
-import { RundownList } from './RundownList/RundownList.tsx'
+import { RundownList } from 'src/views/RundownList/RundownList.tsx'
 
 // Lazy-loading component imports (allow us to minimize bundle size)
 // eslint-disable-next-line react-refresh/only-export-components
-const RundownScript = React.lazy(() => import('./RundownScript/RundownScript.tsx'))
+const RundownScript = React.lazy(() => import('./views/RundownScript/RundownScript.tsx'))
 // eslint-disable-next-line react-refresh/only-export-components
-const Output = React.lazy(() => import('./Output/Output.tsx'))
+const Output = React.lazy(() => import('./views/Output/Output.tsx'))
 // eslint-disable-next-line react-refresh/only-export-components
-const TestController = React.lazy(() => import('./TestController.tsx')) // TODO: temp
+const TestController = React.lazy(() => import('./views/TestController/TestController.tsx')) // TODO: temp
 
 const router = createBrowserRouter([
 	{
@@ -33,15 +31,6 @@ const router = createBrowserRouter([
 		path: '/',
 		element: <App />,
 		children: [
-			{
-				path: 'backend',
-				element: <BackendPlayground />,
-			},
-
-			{
-				path: 'editor',
-				element: <ScriptEditor />,
-			},
 			{
 				index: true,
 				element: <RundownList />,

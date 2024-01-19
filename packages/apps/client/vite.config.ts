@@ -7,6 +7,9 @@ export default defineConfig({
 	plugins: [react()],
 	resolve: {
 		preserveSymlinks: true,
+		alias: {
+			src: '/src',
+		},
 	},
 	optimizeDeps: {
 		include: ['packages/shared/*/dist/*'],

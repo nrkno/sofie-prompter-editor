@@ -1,12 +1,12 @@
 import React from 'react'
 import { action } from 'mobx'
 import { observer } from 'mobx-react-lite'
-import { RootAppStore } from '../stores/RootAppStore'
+import { RootAppStore } from 'src/stores/RootAppStore'
 import { Segment } from './Segment'
 import { Button } from 'react-bootstrap'
 import classes from './CurrentRundown.module.scss'
 import { useNavigate } from 'react-router-dom'
-import { SystemStatusAlertBars } from '../components/SystemStatusAlertBars/SystemStatusAlertBars'
+import { SystemStatusAlertBars } from 'src/components/SystemStatusAlertBars/SystemStatusAlertBars'
 
 const CurrentRundown = observer((): React.JSX.Element => {
 	const openRundown = RootAppStore.rundownStore.openRundown

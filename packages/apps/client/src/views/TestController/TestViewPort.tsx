@@ -1,5 +1,5 @@
 import React from 'react'
-import { APIConnection } from './api/ApiConnection.ts'
+import { APIConnection } from '../../api/ApiConnection.ts'
 import { ViewPort } from '@sofie-prompter-editor/shared-model'
 import { EditObject, useApiConnection } from './TestUtil.tsx'
 

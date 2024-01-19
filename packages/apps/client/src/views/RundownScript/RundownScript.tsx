@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import classes from './RundownScript.module.scss'
-import { CurrentRundown } from '../CurrentRundown/CurrentRundown'
-import { ScriptEditor } from '../ScriptEditor/ScriptEditor'
+import { CurrentRundown } from 'src/components/CurrentRundown/CurrentRundown'
+import { ScriptEditor } from 'src/components/ScriptEditor/ScriptEditor'
 import { Helmet } from 'react-helmet-async'
 import { RundownPlaylistId, protectString } from '@sofie-prompter-editor/shared-model'
-import { RootAppStore } from '../stores/RootAppStore'
+import { RootAppStore } from 'src/stores/RootAppStore'
 import { useParams } from 'react-router-dom'
-import { SplitPanel } from '../components/SplitPanel/SplitPanel'
+import { SplitPanel } from 'src/components/SplitPanel/SplitPanel'
 
 const RundownScript = observer((): React.JSX.Element => {
 	const params = useParams()

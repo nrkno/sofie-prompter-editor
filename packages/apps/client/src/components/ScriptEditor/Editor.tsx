@@ -13,8 +13,8 @@ import { EXTERNAL_STATE_CHANGE, updateModel } from './plugins/updateModel'
 import { readOnlyNodeFilter } from './plugins/readOnlyNodeFilter'
 import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
-import { fromMarkdown } from '../lib/prosemirrorDoc'
-import { RootAppStore } from '../stores/RootAppStore'
+import { fromMarkdown } from 'src/lib/prosemirrorDoc'
+import { RootAppStore } from 'src/stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
 
 export function Editor({

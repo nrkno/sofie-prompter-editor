@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
-import { APIConnection } from './api/ApiConnection.ts'
+import { APIConnection } from 'src/api/ApiConnection.ts'
 import { OutputSettings } from '@sofie-prompter-editor/shared-model'
-import { EditObject, useApiConnection } from './TestUtil.tsx'
-import { RootAppStore } from './stores/RootAppStore.ts'
+import { EditObject, useApiConnection } from 'src/views/TestController/TestUtil'
+import { RootAppStore } from 'src/stores/RootAppStore.ts'
 import { autorun, computed, toJS } from 'mobx'
 
 const TestController: React.FC = observer(() => {

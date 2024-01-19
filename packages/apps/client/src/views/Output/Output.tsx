@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useReducer, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
-import { RootAppStore } from '../stores/RootAppStore.ts'
+import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
 const Output = observer(function Output() {
 	const speed = useRef(0)

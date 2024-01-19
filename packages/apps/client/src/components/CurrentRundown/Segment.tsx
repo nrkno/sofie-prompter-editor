@@ -1,10 +1,10 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { UISegment } from '../model/UISegment'
+import { UISegment } from 'src/model/UISegment'
 import { Line } from './Line'
 import classes from './CurrentRundown.module.scss'
-import { RootAppStore } from '../stores/RootAppStore'
-import { UILineId } from '../model/UILine'
+import { RootAppStore } from 'src/stores/RootAppStore'
+import { UILineId } from 'src/model/UILine'
 
 const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Element | null => {
 	if (!segment) return null

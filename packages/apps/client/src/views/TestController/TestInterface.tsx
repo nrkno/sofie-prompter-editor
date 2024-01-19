@@ -1,5 +1,5 @@
 import React from 'react'
-import { APIConnection } from './api/ApiConnection.ts'
+import { APIConnection } from '../../api/ApiConnection.ts'
 
 export const TestInterface: React.FC<{ api: APIConnection }> = ({ api }) => {
 	return (

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { APIConnection } from './api/ApiConnection.ts'
+import { APIConnection } from '../../api/ApiConnection.ts'
 import { observer } from 'mobx-react-lite'
 
 export function useApiConnection(

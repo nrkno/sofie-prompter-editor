@@ -1,7 +1,7 @@
 import { observer } from 'mobx-react-lite'
 import React from 'react'
-import { RootAppStore } from '../../stores/RootAppStore'
-import { AlertBar } from '../AlertBar/AlertBar'
+import { RootAppStore } from 'src/stores/RootAppStore'
+import { AlertBar } from 'src/components/AlertBar/AlertBar'
 
 export const SystemStatusAlertBars = observer(function SystemStatusAlertBars(): React.JSX.Element {
 	const isAPIConnected = RootAppStore.connected

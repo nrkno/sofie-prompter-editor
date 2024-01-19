@@ -1,5 +1,5 @@
 import { JSX } from 'react'
-import { LineType } from '../model/UILine'
+import { LineType } from 'src/model/UILine'
 import classes from './LineTypeIcon.module.scss'
 
 export function LineTypeIcon({ children, type }: { children?: string; type?: LineType }): JSX.Element | null {

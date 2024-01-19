@@ -1,9 +1,9 @@
 import React from 'react'
 import { observer } from 'mobx-react-lite'
-import { UILine } from '../model/UILine'
+import { UILine } from 'src/model/UILine'
 import classes from './CurrentRundown.module.scss'
 import { LineTypeIcon } from './LineTypeIcon'
-import { TimeSpan } from '../components/TimeSpan/TimeSpan'
+import { TimeSpan } from '../TimeSpan/TimeSpan'
 
 const Line = observer(({ line }: { line: UILine | undefined }): React.JSX.Element | null => {
 	if (!line) return null
