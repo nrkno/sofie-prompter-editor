@@ -3,6 +3,9 @@
 	--foreground-color: #fff;
 	--header-color: #999;
 
+	--prompter-font-size-base: 16px;
+	--prompter-line-height: calc(var(--prompter-font-size-base) * 1.4);
+
 	color: var(--foreground-color);
 	background: var(--background-color);
 
@@ -15,8 +18,8 @@
 	overflow: auto;
 	box-sizing: border-box;
 
-	font-size: 16px;
-	line-height: 21px;
+	font-size: var(--prompter-font-size-base);
+	line-height: var(--prompter-line-height);
 }
 
 .Prompter p {
@@ -53,6 +56,21 @@
 	color: var(--background-color);
 	user-select: none;
 	margin: 1em 0;
+}
+
+.Prompter h1 {
+	font-size: calc(var(--prompter-font-size-base) * 2);
+	line-height: 1.4;
+}
+
+.Prompter h2 {
+	font-size: calc(var(--prompter-font-size-base) * 1);
+	line-height: 1.4;
+}
+
+.Prompter h3 {
+	font-size: calc(var(--prompter-font-size-base) * 1);
+	line-height: 1.4;
 }
 
 .Prompter .ProseMirror {

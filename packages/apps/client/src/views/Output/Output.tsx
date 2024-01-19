@@ -1,13 +1,17 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
 import 'src/PrompterStyles.css'
 import { Segment } from './Segment'
 import { Helmet } from 'react-helmet-async'
+import { getCurrentTime } from 'src/lib/getCurrentTime'
+import { useQueryParam } from 'src/lib/useQueryParam'
 
 const Output = observer(function Output(): React.ReactElement {
 	const speed = useRef(0)
+
+	const isPrimary = useQueryParam('primary') !== null
 
 	// On startup
 	useEffect(() => {
@@ -30,6 +34,33 @@ const Output = observer(function Output(): React.ReactElement {
 			clearInterval(interval)
 		}
 	}, [])
+
+	const onViewPortSizeChanged = useCallback(() => {
+		if (!isPrimary) return
+
+		RootAppStore.connection.viewPort.update('', {
+			_id: '',
+			width: window.innerWidth / window.innerHeight,
+			// TODO: This should return the actual lastKnownState
+			lastKnownState: {
+				timestamp: getCurrentTime(),
+				controllerMessage: {
+					offset: null,
+					speed: 0,
+				},
+			},
+		})
+	}, [isPrimary])
+
+	useEffect(() => {
+		window.addEventListener('resize', onViewPortSizeChanged)
+
+		onViewPortSizeChanged()
+
+		return () => {
+			window.removeEventListener('resize', onViewPortSizeChanged)
+		}
+	}, [onViewPortSizeChanged])
 
 	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
