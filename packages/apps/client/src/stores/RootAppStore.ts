@@ -51,7 +51,7 @@ class RootAppStoreClass {
 		this.connection.systemStatus.subscribe()
 		this.connection.systemStatus.on('updated', this.onSystemStatusUpdated)
 
-		this.connection.systemStatus.get('').then(this.onSystemStatusUpdated)
+		this.connection.systemStatus.get(null).then(this.onSystemStatusUpdated)
 	}
 
 	onSystemStatusUpdated = action(
