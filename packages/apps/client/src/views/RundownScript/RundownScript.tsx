@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { ChangeEvent, useEffect, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import classes from './RundownScript.module.scss'
 import { CurrentRundown } from 'src/components/CurrentRundown/CurrentRundown'
@@ -20,6 +20,10 @@ const RundownScript = observer((): React.JSX.Element => {
 		RootAppStore.rundownStore.loadRundown(playlistId)
 	}, [playlistId])
 
+	function onChange(e: { value: number }) {
+		RootAppStore.uiStore.setViewDividerPosition(e.value)
+	}
+
 	return (
 		<>
 			<Helmet>
@@ -28,7 +32,7 @@ const RundownScript = observer((): React.JSX.Element => {
 			</Helmet>
 			<SplitPanel
 				position={RootAppStore.uiStore.viewDividerPosition}
-				onChange={(e) => RootAppStore.uiStore.setViewDividerPosition(e.value)}
+				onChange={onChange}
 				className={classes.RundownScript}
 				childrenBegin={<CurrentRundown />}
 				childrenEnd={<ScriptEditor />}
