@@ -37,9 +37,9 @@ const CurrentRundown = observer((): React.JSX.Element => {
 				</Button>
 			</p>
 			<SystemStatusAlertBars />
-			<ul className={classes.SegmentLineList}>
+			<ul className={classes.SegmentLineList} role="tree">
 				{openRundown.segmentsInOrder.map((segment) => (
-					<li key={segment.id} data-segment-id={segment.id} className={classes.SegmentContainer}>
+					<li key={segment.id} data-segment-id={segment.id} className={classes.SegmentContainer} role="tree">
 						<Segment segment={segment} />
 					</li>
 				))}

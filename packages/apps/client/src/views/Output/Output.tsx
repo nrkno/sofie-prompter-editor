@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
@@ -8,7 +8,10 @@ import { Helmet } from 'react-helmet-async'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { useQueryParam } from 'src/lib/useQueryParam'
 
+import classes from './Output.module.scss'
+
 const Output = observer(function Output(): React.ReactElement {
+	const rootEl = useRef<HTMLDivElement>(null)
 	const speed = useRef(0)
 
 	const isPrimary = useQueryParam('primary') !== null
@@ -26,7 +29,7 @@ const Output = observer(function Output(): React.ReactElement {
 
 		// don't do this, it's just for testing:
 		const interval = setInterval(() => {
-			window.scrollBy(0, speed.current)
+			rootEl.current?.scrollBy(0, speed.current)
 		}, 1000 / 60)
 
 		return () => {
@@ -139,11 +142,26 @@ const Output = observer(function Output(): React.ReactElement {
 
 	*/
 
+	const fontSize = RootAppStore.outputSettingsStore.outputSettings.fontSize
+	const scaleVertical = RootAppStore.outputSettingsStore.outputSettings.mirrorVertically ? '-1' : '1'
+	const scaleHorizontal = RootAppStore.outputSettingsStore.outputSettings.mirrorHorizontally ? '-1' : '1'
+
+	const styleVariables = useMemo(
+		() =>
+			({
+				'--prompter-font-size-base': `${fontSize}vw`,
+				transform: `scale(${scaleHorizontal}, ${scaleVertical})`,
+			} as React.CSSProperties),
+		[fontSize, scaleVertical, scaleHorizontal]
+	)
+
+	const className = `Prompter ${classes.Output}`
+
 	if (!rundown) {
 		return (
 			<>
 				{GLOBAL_SETTINGS}
-				<div className="Prompter"></div>
+				<div className={className}></div>
 			</>
 		)
 	}
@@ -151,7 +169,7 @@ const Output = observer(function Output(): React.ReactElement {
 	return (
 		<>
 			{GLOBAL_SETTINGS}
-			<div className="Prompter">
+			<div className={className} style={styleVariables} ref={rootEl}>
 				<h1>{rundown.name}</h1>
 				{rundown.segmentsInOrder.map((segment) => (
 					<Segment key={segment.id} segment={segment} />

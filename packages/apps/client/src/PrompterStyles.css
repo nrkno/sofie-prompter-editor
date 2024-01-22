@@ -20,6 +20,14 @@
 
 	font-size: var(--prompter-font-size-base);
 	line-height: var(--prompter-line-height);
+
+	/* These are needed to maintain compatibility with Prose-mirror's text layout */
+	word-wrap: break-word;
+	white-space: pre-wrap;
+	white-space: break-spaces;
+	-webkit-font-variant-ligatures: none;
+	font-variant-ligatures: none;
+	font-feature-settings: 'liga' 0;
 }
 
 .Prompter p {

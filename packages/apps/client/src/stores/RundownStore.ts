@@ -97,8 +97,7 @@ export class RundownStore {
 	sendRundownToOutput = (id: RundownPlaylistId) => {
 		if (!this.outputSettings) return
 		// TODO: This really shouldn't require the entire outputSettings object to be available first
-		this.connection.outputSettings.update(null, {
-			...this.outputSettings,
+		this.connection.outputSettings.patch(null, {
 			activeRundownPlaylistId: id,
 		})
 	}

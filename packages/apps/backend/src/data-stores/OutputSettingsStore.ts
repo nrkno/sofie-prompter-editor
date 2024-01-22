@@ -7,7 +7,7 @@ export class OutputSettingsStore {
 		// _id: '',
 
 		// TODO: load these from persistent store upon startup?
-		fontSize: 10,
+		fontSize: 7,
 
 		mirrorHorizontally: false,
 		mirrorVertically: false,
@@ -15,8 +15,8 @@ export class OutputSettingsStore {
 		focusPosition: 'center',
 		showFocusPosition: false,
 
-		marginHorizontal: 5,
-		marginVertical: 5,
+		marginHorizontal: 1,
+		marginVertical: 1,
 
 		activeRundownPlaylistId: null,
 	})

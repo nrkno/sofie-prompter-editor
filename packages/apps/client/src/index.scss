@@ -34,3 +34,13 @@ $theme-colors: (
 	--color-dark-1: #{$dark-1};
 	--color-dark-2: #{$dark-2};
 }
+
+/* Remove outline for non-keyboard :focus */
+*:focus:not(:focus-visible) {
+	outline: none;
+}
+
+/* Optional: Customize .focus-visible */
+:focus-visible {
+	outline: $primary solid 2px;
+}
