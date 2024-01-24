@@ -3,8 +3,8 @@ import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
 import 'src/PrompterStyles.css'
-import { Segment } from './Segment'
 import { Helmet } from 'react-helmet-async'
+import { RundownOutput } from 'src/components/RundownOutput/RundownOutput'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { useQueryParam } from 'src/lib/useQueryParam'
 
@@ -41,9 +41,9 @@ const Output = observer(function Output(): React.ReactElement {
 	const onViewPortSizeChanged = useCallback(() => {
 		if (!isPrimary) return
 
-		RootAppStore.connection.viewPort.update('', {
+		RootAppStore.connection.viewPort.update(null, {
 			_id: '',
-			width: window.innerWidth / window.innerHeight,
+			aspectRatio: window.innerWidth / window.innerHeight,
 			// TODO: This should return the actual lastKnownState
 			lastKnownState: {
 				timestamp: getCurrentTime(),
@@ -142,9 +142,9 @@ const Output = observer(function Output(): React.ReactElement {
 
 	*/
 
-	const fontSize = RootAppStore.outputSettingsStore.outputSettings.fontSize
-	const scaleVertical = RootAppStore.outputSettingsStore.outputSettings.mirrorVertically ? '-1' : '1'
-	const scaleHorizontal = RootAppStore.outputSettingsStore.outputSettings.mirrorHorizontally ? '-1' : '1'
+	const fontSize = outputSettings.fontSize
+	const scaleVertical = outputSettings.mirrorVertically ? '-1' : '1'
+	const scaleHorizontal = outputSettings.mirrorHorizontally ? '-1' : '1'
 
 	const styleVariables = useMemo(
 		() =>
@@ -170,10 +170,7 @@ const Output = observer(function Output(): React.ReactElement {
 		<>
 			{GLOBAL_SETTINGS}
 			<div className={className} style={styleVariables} ref={rootEl}>
-				<h1>{rundown.name}</h1>
-				{rundown.segmentsInOrder.map((segment) => (
-					<Segment key={segment.id} segment={segment} />
-				))}
+				<RundownOutput rundown={rundown} />
 			</div>
 		</>
 	)

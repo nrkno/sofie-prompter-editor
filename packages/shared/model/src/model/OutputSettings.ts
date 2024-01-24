@@ -8,6 +8,7 @@ export type OutputSettings = z.infer<typeof OutputSettingsSchema>
 export const OutputSettingsSchema = z.object({
 	// _id: z.literal(''),
 
+	/** Percentage points of viewport width */
 	fontSize: z.number().min(0).max(100),
 
 	mirrorHorizontally: z.boolean(),

@@ -1,17 +1,12 @@
 import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
-import { OutputSettings } from '@sofie-prompter-editor/shared-model'
+import { ViewPort } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, RootAppStore } from './RootAppStore.ts'
 
-export class OutputSettingsStore {
-	outputSettings = observable.object<OutputSettings>({
-		fontSize: 0,
-		mirrorHorizontally: false,
-		mirrorVertically: false,
-		focusPosition: 'start',
-		showFocusPosition: false,
-		marginHorizontal: 0,
-		marginVertical: 0,
-		activeRundownPlaylistId: null,
+export class ViewPortStore {
+	viewPort = observable.object<ViewPort>({
+		_id: '',
+		aspectRatio: 1,
+		lastKnownState: null,
 	})
 
 	initialized = false
@@ -21,7 +16,7 @@ export class OutputSettingsStore {
 
 	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
 		makeObservable(this, {
-			outputSettings: observable,
+			viewPort: observable,
 			initialized: observable,
 		})
 
@@ -31,6 +26,7 @@ export class OutputSettingsStore {
 
 	public initialize() {
 		if (this.initializing || this.initialized) return
+
 		this.initializing = true
 
 		this.setupSubscription()
@@ -44,7 +40,7 @@ export class OutputSettingsStore {
 				async (connected) => {
 					if (!connected) return
 
-					await this.connection.outputSettings.subscribe()
+					await this.connection.viewPort.subscribeToViewPort()
 				},
 				{
 					fireImmediately: true,
@@ -52,19 +48,19 @@ export class OutputSettingsStore {
 			)
 		)
 
-		this.connection.outputSettings.on('updated', this.onUpdatedOutputSettings)
+		this.connection.viewPort.on('updated', this.onUpdatedViewPort)
 	})
-	private loadInitialData = flow(function* (this: OutputSettingsStore) {
-		const outputSettings = yield this.connection.outputSettings.get(null)
-		this.onUpdatedOutputSettings(outputSettings)
+	private loadInitialData = flow(function* (this: ViewPortStore) {
+		const outputSettings = yield this.connection.viewPort.get(null)
+		this.onUpdatedViewPort(outputSettings)
 
 		this.initialized = true
 	})
 
-	private onUpdatedOutputSettings = action('onUpdatedOutputSettings', (newData: OutputSettings) => {
+	private onUpdatedViewPort = action('onUpdatedViewPort', (newData: ViewPort) => {
 		for (const [key, value] of Object.entries(newData)) {
 			// @ts-expect-error hack
-			this.outputSettings[key] = value
+			this.viewPort[key] = value
 		}
 	})
 

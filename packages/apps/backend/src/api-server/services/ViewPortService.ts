@@ -61,17 +61,13 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
 		return [this.store.viewPort.viewPort]
 	}
-	public async get(id: Id, _params?: Params): Promise<Data> {
+	public async get(_id: null, _params?: Params): Promise<Data> {
 		const data = this.store.viewPort.viewPort
-		if (!data) throw new NotFound(`ViewPort "${id}" not found`)
 		return data
 	}
-	public async update(id: NullId, data: Data, _params?: Params): Promise<Result> {
-		if (id === null) throw new BadRequest(`id must not be null`)
-		if (id !== data._id) throw new BadRequest(`Cannot change id of ViewPort`)
-
+	public async update(_id: null, data: Data, _params?: Params): Promise<Result> {
 		this.store.viewPort.update(data)
-		return this.get(data._id)
+		return this.get(null)
 	}
 
 	public async subscribeToViewPort(_: unknown, params: Params): Promise<void> {
@@ -81,6 +77,4 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 }
 
 type Result = Definition.Result
-type Id = Definition.Id
-type NullId = Definition.NullId
 type Data = Definition.Data

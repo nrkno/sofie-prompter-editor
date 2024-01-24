@@ -7,6 +7,8 @@ export function SplitPanel({
 	childrenBegin,
 	childrenEnd,
 	className,
+	classNameBegin,
+	classNameEnd,
 }: {
 	className?: string
 	position?: number
@@ -14,6 +16,8 @@ export function SplitPanel({
 	childrenBegin: ReactNode
 	childrenEnd: ReactNode
 	children?: null
+	classNameBegin?: string
+	classNameEnd?: string
 }) {
 	const [isResizing, setIsResizing] = useState(false)
 	const beginCoords = useRef<{ x: number; y: number } | null>(null)
@@ -103,13 +107,13 @@ export function SplitPanel({
 
 	return (
 		<div className={`${className ?? ''} ${classes.SplitPane}`} style={style} ref={container}>
-			<div className={classes.PaneA}>{childrenBegin}</div>
+			<div className={`${classes.PaneA}  ${classNameBegin ?? ''}`}>{childrenBegin}</div>
 			<div
 				className={isResizing ? classes.DividerActive : classes.Divider}
 				ref={divider}
 				onMouseDown={onMouseDown}
 			></div>
-			<div className={classes.PaneB}>{childrenEnd}</div>
+			<div className={`${classes.PaneB} ${classNameEnd ?? ''}`}>{childrenEnd}</div>
 		</div>
 	)
 }

@@ -20,11 +20,11 @@ export const ALL_METHODS = [
 	'subscribeToViewPort',
 ] as const
 /** The methods exposed by this class are exposed in the API */
-interface Methods extends Omit<ServiceMethods, 'patch' | 'remove' | 'create'> {
+interface Methods {
 	find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
-	get(id: Id, params?: Params): Promise<Data>
+	get(id: null, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
-	update(id: NullId, data: Data, params?: Params): Promise<Result>
+	update(id: null, data: Data, params?: Params): Promise<Result>
 
 	/** Subscribe to ViewPort data */
 	subscribeToViewPort(_?: unknown, params?: Params): Promise<void>

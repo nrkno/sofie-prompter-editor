@@ -18,7 +18,7 @@ export class ViewPortStore {
 			},
 			timestamp: getCurrentTime(),
 		},
-		width: 0,
+		aspectRatio: 1,
 	})
 
 	constructor() {

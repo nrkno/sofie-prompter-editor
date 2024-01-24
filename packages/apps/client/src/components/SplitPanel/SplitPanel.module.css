@@ -6,9 +6,14 @@
 	gap: 2px;
 }
 
-.PaneA {
-	grid-column: PaneA;
+.Pane {
+	position: relative;
 	overflow: auto;
+}
+
+.PaneA {
+	composes: Pane;
+	grid-column: PaneA;
 }
 
 .Divider {
@@ -26,6 +31,6 @@
 }
 
 .PaneB {
+	composes: Pane;
 	grid-column: PaneB;
-	overflow: auto;
 }

@@ -13,8 +13,7 @@
 	white-space: pre-wrap;
 	white-space: break-spaces;
 
-	padding: 0 2em 100vh;
-	height: 100%;
+	padding: 0 2em;
 	overflow: auto;
 	box-sizing: border-box;
 
@@ -80,6 +79,10 @@
 .Prompter h3 {
 	font-size: calc(var(--prompter-font-size-base) * 1);
 	line-height: 1.4;
+}
+
+.Prompter .spacer {
+	height: 100vh;
 }
 
 .Prompter .ProseMirror {

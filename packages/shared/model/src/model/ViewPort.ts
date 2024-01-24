@@ -17,9 +17,9 @@ export const ViewPortLastKnownStateSchema = z.object({
 export const ViewPortSchema = z.object({
 	_id: z.literal(''),
 
-	/** The width of the viewport (as percentage of viewport height (viewportUnits)) */
-	width: z.number(),
+	/** Aspect ratio of the viewport */
+	aspectRatio: z.number(),
 
 	/** Current position of the viewport */
-	lastKnownState: ViewPortLastKnownStateSchema,
+	lastKnownState: ViewPortLastKnownStateSchema.nullable(),
 })

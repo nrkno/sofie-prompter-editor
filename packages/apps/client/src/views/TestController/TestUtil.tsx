@@ -30,6 +30,9 @@ export function useApiConnection(
 	}, [connected, ...(deps || [])])
 }
 
+/**
+ * Use **only** in test UI's, do not use in production code
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const EditObject: React.FC<{ obj: any; onChange: (value: any) => void }> = observer(({ obj, onChange }) => {
 	const updateProperty = React.useCallback(
@@ -68,6 +71,10 @@ export const EditObject: React.FC<{ obj: any; onChange: (value: any) => void }> 
 		</table>
 	)
 })
+
+/**
+ * Use **only** in test UI's, do not use in production code
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const EditValue: React.FC<{ value: any; onChange: (value: any) => void }> = ({ value, onChange }) => {
 	const valueType = typeof value
