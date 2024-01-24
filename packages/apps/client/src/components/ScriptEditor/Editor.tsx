@@ -216,7 +216,7 @@ function makeNewEditorState(doc: Node): EditorState {
 			keymap(formatingKeymap),
 			keymap(baseKeymap),
 			readOnlyNodeFilter(),
-			updateModel((lineId, change) => console.log(lineId, change)),
+			updateModel((lineId, change) => console.log(lineId, change, doc)),
 		],
 		doc,
 	})

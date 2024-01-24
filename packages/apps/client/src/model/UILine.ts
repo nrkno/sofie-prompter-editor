@@ -52,7 +52,7 @@ export class UILine {
 		this.identifier = json.identifier ?? null
 		this.slug = json.label
 		this.rank = json.rank
-		this.script = json.scriptContents ?? null
+		this.script = json.editedScriptContents ?? json.scriptContents ?? null
 		this.isNew = json.isNew ?? false
 		this.expectedDuration = json.expectedDuration ?? null
 		this.lineType = {

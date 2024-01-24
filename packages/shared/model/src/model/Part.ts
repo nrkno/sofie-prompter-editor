@@ -47,6 +47,7 @@ export interface Part extends DataObject {
 	}
 
 	scriptContents?: ScriptContents
+	editedScriptContents?: ScriptContents
 }
 
 export enum PartDisplayType {
