@@ -18,6 +18,7 @@ import {
 } from '@sofie-prompter-editor/shared-model'
 import { OutputSettingsStore } from './OutputSettingsStore.ts'
 import { SystemStatusStore } from './SystemStatusStore.ts'
+import { TriggerStore } from './TriggerStore.ts'
 
 const USE_MOCK_CONNECTION = false
 
@@ -28,6 +29,7 @@ class RootAppStoreClass {
 	rundownStore: RundownStore
 	systemStatusStore: SystemStatusStore
 	outputSettingsStore: OutputSettingsStore
+	triggerStore: TriggerStore
 	uiStore: UIStore
 
 	constructor() {
@@ -42,6 +44,7 @@ class RootAppStoreClass {
 		this.rundownStore = new RundownStore(this, this.connection)
 		this.systemStatusStore = new SystemStatusStore(this, this.connection)
 		this.outputSettingsStore = new OutputSettingsStore(this, this.connection)
+		this.triggerStore = new TriggerStore(this, this.connection)
 		this.uiStore = new UIStore()
 
 		this.connection.on('disconnected', this.onDisconnected)

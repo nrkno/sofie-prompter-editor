@@ -1886,6 +1886,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sofie-automation/sorensen@npm:^1.4.2":
+  version: 1.4.2
+  resolution: "@sofie-automation/sorensen@npm:1.4.2"
+  checksum: e011d3d70083519966906a19cbe340480769b013e8d2f4e59b8cf21afb3dbd8d19c6bd4f01d3112dc96f58264961cf4c3fe52ecd1d2725be7254a209e00c61ae
+  languageName: node
+  linkType: hard
+
 "@sofie-prompter-editor/apps-app@workspace:packages/apps/app":
   version: 0.0.0-use.local
   resolution: "@sofie-prompter-editor/apps-app@workspace:packages/apps/app"
@@ -1932,6 +1939,7 @@ __metadata:
   resolution: "@sofie-prompter-editor/apps-client@workspace:packages/apps/client"
   dependencies:
     "@popperjs/core": "npm:^2.11.8"
+    "@sofie-automation/sorensen": "npm:^1.4.2"
     "@sofie-prompter-editor/shared-lib": "npm:0.0.0"
     "@sofie-prompter-editor/shared-model": "npm:0.0.0"
     "@types/bootstrap": "npm:^5"
