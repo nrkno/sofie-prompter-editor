@@ -6,7 +6,7 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { Part } from '../model/index.js'
+import { Part, ScriptContents } from '../model/index.js'
 import { Diff } from '../patch.js'
 
 /** List of all method names */
@@ -18,6 +18,7 @@ export const ALL_METHODS = [
 	// 'patch',
 	'remove',
 	//
+	'updateScript',
 ] as const
 /** The methods exposed by this class are exposed in the API */
 interface Methods extends Omit<ServiceMethods, 'patch'> {
@@ -34,7 +35,7 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 
 	/** updates .isNew */
 	// setIsNew(read: boolean): Promise<void>
-	// updateScript(scriptContents?: ScriptContents): Promise<void>
+	updateScript(id: Id, scriptContents: ScriptContents): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

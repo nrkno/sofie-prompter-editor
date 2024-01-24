@@ -13,7 +13,7 @@ import { EXTERNAL_STATE_CHANGE, updateModel } from './plugins/updateModel'
 import { readOnlyNodeFilter } from './plugins/readOnlyNodeFilter'
 import { formatingKeymap } from './keymaps'
 import { deselectAll } from './commands/deselectAll'
-import { fromMarkdown } from 'src/lib/prosemirrorDoc'
+import { fromMarkdown, toMarkdown } from 'src/lib/prosemirrorDoc'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
 
@@ -216,7 +216,17 @@ function makeNewEditorState(doc: Node): EditorState {
 			keymap(formatingKeymap),
 			keymap(baseKeymap),
 			readOnlyNodeFilter(),
-			updateModel((lineId, change) => console.log(lineId, change, doc)),
+			updateModel((lineId, lineNodes) => {
+				console.log(lineId, lineNodes)
+
+				const compiledMarkdown = toMarkdown(lineNodes)
+				console.log('markdown', compiledMarkdown)
+
+				const openRundown = RootAppStore.rundownStore.openRundown
+
+				// TODO - debounce? require manual execution?
+				if (openRundown) openRundown.updatePartScript(lineId, compiledMarkdown)
+			}),
 		],
 		doc,
 	})
