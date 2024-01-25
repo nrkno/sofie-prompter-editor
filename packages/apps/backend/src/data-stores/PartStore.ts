@@ -1,4 +1,4 @@
-import { IReactionDisposer, action, autorun, makeObservable, observable } from 'mobx'
+import { IReactionDisposer, action, autorun, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { Part, PartId, ScriptContents } from '@sofie-prompter-editor/shared-model'
 import { Transformers } from '../sofie-core-connection/dataTransformers/Transformers.js'
@@ -8,7 +8,10 @@ import * as Core from '../sofie-core-connection/CoreDataTypes/index.js'
 export class PartStore {
 	public readonly parts = observable.map<PartId, Part>()
 
-	private readonly _partScripts = observable.map<PartId, ScriptContents>()
+	/**
+	 * This is not observable, as it is internal and reactivity is handled manually when updating
+	 */
+	private readonly _partScripts = new Map<PartId, ScriptContents>()
 
 	private partAutoruns = new Map<Core.PartId, IReactionDisposer>()
 
@@ -42,7 +45,19 @@ export class PartStore {
 							const partId = transformers.parts.transformPartId(corePartId)
 
 							if (part) {
-								if (!isEqual(this.parts.get(part._id), part)) this._updatePart(partId, part)
+								const oldPart = this.parts.get(partId)
+								const hasScriptChanged = oldPart && oldPart.scriptContents !== part.scriptContents
+								if (hasScriptChanged) {
+									// Discard the edited script whenever the original script changes
+									this._partScripts.delete(partId)
+								}
+
+								const fullPart: Part = {
+									...part,
+									editedScriptContents: this._partScripts.get(partId),
+								}
+
+								if (hasScriptChanged || !isEqual(this.parts.get(part._id), fullPart)) this._updatePart(partId, fullPart)
 							} else {
 								if (this.parts.has(partId)) this._removePart(partId)
 							}
@@ -65,13 +80,8 @@ export class PartStore {
 		})
 	})
 
-	private _updatePart = action((partId: PartId, part: Omit<Part, 'editedScriptContents'>) => {
-		const partExtended: Part = {
-			...part,
-			editedScriptContents: this._partScripts.get(partId),
-		}
-
-		this.parts.set(partId, partExtended)
+	private _updatePart = action((partId: PartId, part: Part) => {
+		this.parts.set(partId, part)
 	})
 	private _removePart = action((partId: PartId) => {
 		this.parts.delete(partId)
