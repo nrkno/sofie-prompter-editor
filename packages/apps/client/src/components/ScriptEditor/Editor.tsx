@@ -219,13 +219,13 @@ function makeNewEditorState(doc: Node): EditorState {
 			updateModel((lineId, lineNodes) => {
 				console.log(lineId, lineNodes)
 
-				const compiledMarkdown = toMarkdown(lineNodes)
-				console.log('markdown', compiledMarkdown)
-
+				// Future: debounce? locking? require manual triggering of the save?
 				const openRundown = RootAppStore.rundownStore.openRundown
+				if (openRundown) {
+					const compiledMarkdown = toMarkdown(lineNodes)
 
-				// TODO - debounce? require manual execution?
-				if (openRundown) openRundown.updatePartScript(lineId, compiledMarkdown)
+					openRundown.updatePartScript(lineId, compiledMarkdown)
+				}
 			}),
 		],
 		doc,

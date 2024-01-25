@@ -29,12 +29,9 @@ export class PartTransformer {
 
 	private readonly corePartPieces = observable.map<Core.PartId, Core.Piece[]>()
 
-	private readonly editedScripts = observable.map<Core.PartId, ScriptContents>()
-
 	constructor(private transformers: Transformers) {
 		makeObservable(this, {
 			partIds: computed,
-			updateEditedScript: action,
 			updateCorePart: action,
 			updateCorePiece: action,
 			updateCoreShowStyleBase: action,
@@ -162,8 +159,6 @@ export class PartTransformer {
 			}
 		}
 
-		const editedScript = this.editedScripts.get(this.convertId(partId))
-
 		return literal<Part>({
 			_id: partId,
 			playlistId,
@@ -185,17 +180,9 @@ export class PartTransformer {
 				label: derived.displayLabel,
 			},
 			scriptContents: derived.scriptContents,
-			editedScriptContents: editedScript,
+			editedScriptContents: undefined,
 		})
 	})
-
-	updateEditedScript(partId: Core.PartId, editedScript: ScriptContents | undefined) {
-		if (editedScript !== undefined) {
-			this.editedScripts.set(partId, editedScript)
-		} else {
-			this.editedScripts.delete(partId)
-		}
-	}
 
 	updateCorePart(partId: Core.PartId, part: Core.DBPart | undefined) {
 		if (part) {

@@ -153,7 +153,5 @@ export class UIRundown {
 			partId,
 			script,
 		})
-
-		// TODO - should this have any side effects?
 	}
 }
