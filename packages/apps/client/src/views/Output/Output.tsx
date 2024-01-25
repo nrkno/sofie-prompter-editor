@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
@@ -9,41 +9,38 @@ import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { useQueryParam } from 'src/lib/useQueryParam'
 
 import classes from './Output.module.scss'
+import { useControllerMessages } from 'src/hooks/useControllerMessages'
 
 const Output = observer(function Output(): React.ReactElement {
 	const rootEl = useRef<HTMLDivElement>(null)
-	const speed = useRef(0)
+	const [size, setSize] = useState({ height: window.innerHeight, width: window.innerWidth })
 
 	const isPrimary = useQueryParam('primary') !== null
 
 	// On startup
 	useEffect(() => {
 		RootAppStore.outputSettingsStore.initialize() // load and subscribe
+	})
 
-		RootAppStore.connection.controller.on('message', (message) => {
-			console.log('received message', message)
+	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
-			speed.current = message.speed
-		})
-		RootAppStore.connection.controller.subscribeToMessages().catch(console.error)
+	const fontSize = outputSettings.fontSize
+	const scaleVertical = outputSettings.mirrorVertically ? '-1' : '1'
+	const scaleHorizontal = outputSettings.mirrorHorizontally ? '-1' : '1'
 
-		// don't do this, it's just for testing:
-		const interval = setInterval(() => {
-			rootEl.current?.scrollBy(0, speed.current)
-		}, 1000 / 60)
-
-		return () => {
-			RootAppStore.connection.controller.off('message')
-			clearInterval(interval)
-		}
-	}, [])
+	useControllerMessages(rootEl, size.height, (fontSize * size.width) / 100)
 
 	const onViewPortSizeChanged = useCallback(() => {
+		const width = window.innerWidth
+		const height = window.innerHeight
+		const aspectRatio = width / height
+		setSize({ width, height })
+
 		if (!isPrimary) return
 
 		RootAppStore.connection.viewPort.update(null, {
 			_id: '',
-			aspectRatio: window.innerWidth / window.innerHeight,
+			aspectRatio,
 			// TODO: This should return the actual lastKnownState
 			lastKnownState: {
 				timestamp: getCurrentTime(),
@@ -64,8 +61,6 @@ const Output = observer(function Output(): React.ReactElement {
 			window.removeEventListener('resize', onViewPortSizeChanged)
 		}
 	}, [onViewPortSizeChanged])
-
-	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
 	const activeRundownPlaylistId = outputSettings?.activeRundownPlaylistId
 
@@ -141,10 +136,6 @@ const Output = observer(function Output(): React.ReactElement {
 
 
 	*/
-
-	const fontSize = outputSettings.fontSize
-	const scaleVertical = outputSettings.mirrorVertically ? '-1' : '1'
-	const scaleHorizontal = outputSettings.mirrorHorizontally ? '-1' : '1'
 
 	const styleVariables = useMemo(
 		() =>
