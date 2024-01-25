@@ -1,37 +1,37 @@
 {
-	"name": "@sofie-prompter-editor/shared-model",
-	"version": "0.0.0",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"type": "module",
-	"license": "MIT",
-	"scripts": {
-		"unbuild": "run -T rimraf dist",
-		"build": "run build:main",
-		"watch": "run build:main -w --preserveWatchOutput",
-		"build:main": "tsc -p tsconfig.json",
-		"lint": "run -T eslint --ext .ts --ext .tsx --ext .js --ignore-pattern dist",
-		"test": "jest"
-	},
-	"engines": {
-		"node": ">=20.9.0"
-	},
-	"devDependencies": {
-		"@feathersjs/feathers": "^5.0.11",
-		"eventemitter3": "^5.0.1"
-	},
-	"dependencies": {
-		"@sofie-automation/shared-lib": "^1.50.0-nightly-release50-20240118-095438-6aada67.0",
-		"@sofie-prompter-editor/shared-lib": "0.0.0",
-		"zod": "^3.22.4"
-	},
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"prettier"
-		],
-		"*.{ts,tsx}": [
-			"eslint"
-		]
-	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
+    "name": "@sofie-prompter-editor/shared-model",
+    "version": "0.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "type": "module",
+    "license": "MIT",
+    "scripts": {
+        "unbuild": "run -T rimraf dist",
+        "build": "run build:main",
+        "watch": "run build:main -w --preserveWatchOutput",
+        "build:main": "tsc -p tsconfig.json",
+        "lint": "run -T eslint --ext .ts --ext .tsx --ext .js --ignore-pattern dist",
+        "test": "jest"
+    },
+    "engines": {
+        "node": ">=18.12.0"
+    },
+    "devDependencies": {
+        "@feathersjs/feathers": "^5.0.11",
+        "eventemitter3": "^5.0.1"
+    },
+    "dependencies": {
+        "@sofie-automation/shared-lib": "^1.50.0-nightly-release50-20240118-095438-6aada67.0",
+        "@sofie-prompter-editor/shared-lib": "0.0.0",
+        "zod": "^3.22.4"
+    },
+    "lint-staged": {
+        "*.{js,css,json,md,scss}": [
+            "prettier"
+        ],
+        "*.{ts,tsx}": [
+            "eslint"
+        ]
+    },
+    "prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
 }
