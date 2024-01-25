@@ -14,7 +14,7 @@
         "__test": "jest"
     },
     "engines": {
-        "node": ">=20.9.0"
+        "node": ">=18.12.0"
     },
     "dependencies": {
         "@sofie-prompter-editor/shared-lib": "0.0.0"

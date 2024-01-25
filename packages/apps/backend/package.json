@@ -1,59 +1,59 @@
 {
-	"name": "@sofie-prompter-editor/apps-backend",
-	"version": "0.0.0",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"license": "MIT",
-	"type": "module",
-	"scripts": {
-		"dev": "nodemon dist/index.js",
-		"unbuild": "run -T rimraf dist",
-		"build": "run build:main",
-		"watch": "run build:main -w --preserveWatchOutput",
-		"build:main": "tsc -p tsconfig.json",
-		"lint": "run -T eslint --ext .ts --ext .tsx --ext .js --ignore-pattern dist",
-		"__test": "jest"
-	},
-	"engines": {
-		"node": ">=20.9.0"
-	},
-	"devDependencies": {
-		"@types/lodash.isequal": "^4.5.8",
-		"@types/object-path": "^0.11.1",
-		"@types/yargs": "^17.0.24",
-		"nodemon": "^3.0.1"
-	},
-	"dependencies": {
-		"@feathersjs/errors": "^5.0.11",
-		"@feathersjs/feathers": "^5.0.11",
-		"@feathersjs/koa": "^5.0.11",
-		"@feathersjs/socketio": "^5.0.11",
-		"@feathersjs/socketio-client": "^5.0.11",
-		"@koa/router": "^12.0.1",
-		"@sofie-automation/blueprints-integration": "1.50.0-nightly-release50-20240118-095438-6aada67.0",
-		"@sofie-automation/server-core-integration": "1.50.0-nightly-release50-20240118-095438-6aada67.0",
-		"@sofie-automation/shared-lib": "1.50.0-nightly-release50-20240118-095438-6aada67.0",
-		"@sofie-prompter-editor/shared-lib": "0.0.0",
-		"@sofie-prompter-editor/shared-model": "0.0.0",
-		"eventemitter3": "^5.0.1",
-		"fast-clone": "^1.5.13",
-		"koa": "^2.14.2",
-		"koa-bodyparser": "^4.4.1",
-		"lodash.isequal": "^4.5.0",
-		"mobx": "^6.11.0",
-		"mobx-utils": "^6.0.8",
-		"object-path": "^0.11.8",
-		"type-fest": "^4.9.0",
-		"winston": "^3.11.0",
-		"yargs": "^17.7.2"
-	},
-	"lint-staged": {
-		"*.{js,css,json,md,scss}": [
-			"prettier"
-		],
-		"*.{ts,tsx}": [
-			"eslint"
-		]
-	},
-	"prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
+    "name": "@sofie-prompter-editor/apps-backend",
+    "version": "0.0.0",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon dist/index.js",
+        "unbuild": "run -T rimraf dist",
+        "build": "run build:main",
+        "watch": "run build:main -w --preserveWatchOutput",
+        "build:main": "tsc -p tsconfig.json",
+        "lint": "run -T eslint --ext .ts --ext .tsx --ext .js --ignore-pattern dist",
+        "__test": "jest"
+    },
+    "engines": {
+        "node": ">=18.12.0"
+    },
+    "devDependencies": {
+        "@types/lodash.isequal": "^4.5.8",
+        "@types/object-path": "^0.11.1",
+        "@types/yargs": "^17.0.24",
+        "nodemon": "^3.0.1"
+    },
+    "dependencies": {
+        "@feathersjs/errors": "^5.0.11",
+        "@feathersjs/feathers": "^5.0.11",
+        "@feathersjs/koa": "^5.0.11",
+        "@feathersjs/socketio": "^5.0.11",
+        "@feathersjs/socketio-client": "^5.0.11",
+        "@koa/router": "^12.0.1",
+        "@sofie-automation/blueprints-integration": "1.50.0-nightly-release50-20240118-095438-6aada67.0",
+        "@sofie-automation/server-core-integration": "1.50.0-nightly-release50-20240118-095438-6aada67.0",
+        "@sofie-automation/shared-lib": "1.50.0-nightly-release50-20240118-095438-6aada67.0",
+        "@sofie-prompter-editor/shared-lib": "0.0.0",
+        "@sofie-prompter-editor/shared-model": "0.0.0",
+        "eventemitter3": "^5.0.1",
+        "fast-clone": "^1.5.13",
+        "koa": "^2.14.2",
+        "koa-bodyparser": "^4.4.1",
+        "lodash.isequal": "^4.5.0",
+        "mobx": "^6.11.0",
+        "mobx-utils": "^6.0.8",
+        "object-path": "^0.11.8",
+        "type-fest": "^4.9.0",
+        "winston": "^3.11.0",
+        "yargs": "^17.7.2"
+    },
+    "lint-staged": {
+        "*.{js,css,json,md,scss}": [
+            "prettier"
+        ],
+        "*.{ts,tsx}": [
+            "eslint"
+        ]
+    },
+    "prettier": "@sofie-automation/code-standard-preset/.prettierrc.json"
 }
