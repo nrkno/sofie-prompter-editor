@@ -1,5 +1,5 @@
 import { Plugin } from 'prosemirror-state'
-import { UILineId } from '../../model/UILine'
+import { UILineId } from '../../../model/UILine'
 import { Node } from 'prosemirror-model'
 import { schema } from '../scriptSchema'
 

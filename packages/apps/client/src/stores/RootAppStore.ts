@@ -48,13 +48,15 @@ class RootAppStoreClass {
 		this.uiStore = new UIStore()
 
 		this.connection.on('disconnected', this.onDisconnected)
-
 		this.connection.on('connected', this.onConnected)
 
 		this.connection.systemStatus.subscribe()
 		this.connection.systemStatus.on('updated', this.onSystemStatusUpdated)
-
 		this.connection.systemStatus.get(null).then(this.onSystemStatusUpdated)
+
+		this.triggerStore.on('action', (action) => {
+			console.log('TriggerStore action', JSON.stringify(action))
+		})
 	}
 
 	onSystemStatusUpdated = action(

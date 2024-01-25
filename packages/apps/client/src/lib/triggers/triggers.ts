@@ -1,12 +1,15 @@
 import { TriggerConfig, TriggerConfigType } from './triggerConfig.ts'
 
-export const triggers: TriggerConfig[] = [
+// We might move these to a config file later:
+export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.KEYBOARD,
 		keys: 'ArrowUp',
 		action: {
 			type: 'prompterMove',
-			speed: -3,
+			payload: {
+				speed: -3,
+			},
 		},
 	},
 	{
@@ -14,7 +17,68 @@ export const triggers: TriggerConfig[] = [
 		keys: 'ArrowDown',
 		action: {
 			type: 'prompterMove',
-			speed: 3,
+			payload: {
+				speed: 3,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 1,
+		action: {
+			type: 'prompterMove',
+			payload: {
+				speed: -3,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 2,
+		action: {
+			type: 'prompterMove',
+			payload: {
+				speed: 3,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.STREAMDECK,
+		modelId: null,
+		serialNumber: null,
+		eventType: 'down',
+		index: 0,
+		action: {
+			type: 'prompterMove',
+			payload: {
+				speed: 3,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.STREAMDECK,
+		modelId: null,
+		serialNumber: null,
+		eventType: 'rotate',
+		index: 0,
+		action: {
+			type: 'prompterMove',
+		},
+	},
+	{
+		type: TriggerConfigType.SPACEMOUSE,
+		productId: null,
+		unitId: null,
+		eventType: 'rotate',
+		index: 0,
+		action: {
+			type: 'prompterMove',
 		},
 	},
 ]

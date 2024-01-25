@@ -1,82 +1,95 @@
 import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
-import Sorensen from '@sofie-automation/sorensen'
-import { OutputSettings } from '@sofie-prompter-editor/shared-model'
-import { APIConnection, RootAppStore } from './RootAppStore.ts'
-import { triggers } from '../lib/triggers/triggers.ts'
-import { TriggerConfigType } from '../lib/triggers/triggerConfig.ts'
+import { EventEmitter } from 'eventemitter3'
 
+import { APIConnection, RootAppStore } from './RootAppStore'
+import { hardCodedTriggers } from '../lib/triggers/triggers'
+
+import { TriggerHandlerEvents } from '../lib/triggers/triggerHandlers/TriggerHandler'
+import { TriggerHandlerXKeys } from '../lib/triggers/triggerHandlers/TriggerHandlerXKeys'
+import { TriggerHandlerKeyboard } from '../lib/triggers/triggerHandlers/TriggerHandlerKeyboard'
+import { TriggerHandlerStreamdeck } from '../lib/triggers/triggerHandlers/TriggerHandlerStreamdeck'
+import { TriggerHandlerSpaceMouse } from '../lib/triggers/triggerHandlers/TriggerHandlerSpaceMouse'
+
+export interface TriggerStoreEvents {
+	action: TriggerHandlerEvents['action']
+}
 /**
  * The TriggerStore is responsible for listening to triggers (eg keyboard shortcuts) and dispatching action events
  */
-export class TriggerStore {
+export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
 	// initialized = false
 	// private initializing = false
 
+	/** Is true when if xkeys requests access to HIDDevices */
+	public xKeysRequestsAccess = false
+	/** Is true when if streamdeck requests access to HIDDevices */
+	public streamdeckRequestsAccess = false
+	/** Is true when if space mouse requests access to HIDDevices */
+	public spacemouseRequestsAccess = false
+
 	reactions: IReactionDisposer[] = []
-	listeners: {
-		actionListener: () => void
-	}[] = []
 
-	private sorensen = Sorensen
-
-	private triggers = triggers
+	private triggers = hardCodedTriggers
+	private keyboard = new TriggerHandlerKeyboard()
+	private xkeys = new TriggerHandlerXKeys()
+	private streamdeck = new TriggerHandlerStreamdeck()
+	private spacemouse = new TriggerHandlerSpaceMouse()
 
 	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
+		super()
 		makeObservable(this, {
-			// outputSettings: observable,
+			xKeysRequestsAccess: observable,
+			streamdeckRequestsAccess: observable,
 			// initialized: observable,
 		})
+
+		this.keyboard.on('action', (...args) => this.emit('action', ...args))
+		this.xkeys.on('action', (...args) => this.emit('action', ...args))
+		this.xkeys.on(
+			'requestXkeysAccess',
+			action(() => {
+				this.xKeysRequestsAccess = true
+			})
+		)
+		this.streamdeck.on('action', (...args) => this.emit('action', ...args))
+		this.streamdeck.on(
+			'requestStreamdeckAccess',
+			action(() => {
+				this.streamdeckRequestsAccess = true
+			})
+		)
+		this.spacemouse.on('action', (...args) => this.emit('action', ...args))
+		this.spacemouse.on(
+			'requestSpacemouseAccess',
+			action(() => {
+				this.spacemouseRequestsAccess = true
+			})
+		)
 
 		this.initialize().catch(console.error)
 	}
 
-	public async initialize() {
-		// if (!this.initializing && !this.initialized) {
-		// 	this.initializing = true
-		// 	this.setupSubscription()
-		// 	this.loadInitialData()
-		// }
+	public xkeysAccess = action((allow: boolean) => {
+		this.xKeysRequestsAccess = false
+		this.xkeys.allowAccess(allow)
+	})
+	public streamdeckAccess = action((allow: boolean) => {
+		this.streamdeckRequestsAccess = false
+		this.streamdeck.allowAccess(allow)
+	})
+	public spacemouseAccess = action((allow: boolean) => {
+		this.spacemouseRequestsAccess = false
+		this.spacemouse.allowAccess(allow)
+	})
+
+	private async initialize() {
+		await this.keyboard.initialize(this.triggers)
+		await this.xkeys.initialize(this.triggers)
+		await this.streamdeck.initialize(this.triggers)
+		await this.spacemouse.initialize(this.triggers)
 	}
-
-	public async setupKeyboard() {
-		await Sorensen.init()
-
-		for (const trigger of triggers) {
-			if (trigger.type !== TriggerConfigType.KEYBOARD) continue
-
-			const actionListener = () => {}
-
-			this.sorensen.bind(trigger.keys, actionListener, {
-				up: trigger.up,
-				exclusive: true,
-				ordered: 'modifiersFirst',
-				preventDefaultPartials: false,
-				preventDefaultDown: true,
-				global: trigger.global,
-			})
-
-			this.listeners.push({
-				actionListener,
-			})
-		}
-
-		// sorensen.bind('Shift', onKey, {
-		// 	up: false,
-		// 	global: true,
-		// })
-		// this.sorensen.bind(Settings.confirmKeyCode, this.preventDefault, {
-		// 	up: false,
-		// 	prepend: true,
-		// })
-		// this.sorensen.bind(Settings.confirmKeyCode, this.handleKey, {
-		// 	up: true,
-		// 	prepend: true,
-		// })
-	}
-	public async setupXKeys() {}
 
 	destroy = () => {
 		this.reactions.forEach((dispose) => dispose())
-		this.sorensen.destroy().catch((e: Error) => console.error('Sorensen.destroy', e))
 	}
 }
