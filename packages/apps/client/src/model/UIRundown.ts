@@ -148,9 +148,11 @@ export class UIRundown {
 		existing.updateFromJson(json)
 	})
 
-	async updatePartScript(id: PartId, script: ScriptContents): Promise<void> {
-		// TODO - is this in the correct place?
-		await this.store.connection.part.updateScript(id, script)
+	async updatePartScript(partId: PartId, script: ScriptContents): Promise<void> {
+		await this.store.connection.part.updateScript({
+			partId,
+			script,
+		})
 
 		// TODO - should this have any side effects?
 	}

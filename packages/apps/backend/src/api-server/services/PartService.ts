@@ -116,8 +116,14 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 		throw new NotImplemented(`Not supported`)
 	}
 
-	public async updateScript(_id: Id, _scriptContents: ScriptContents): Promise<void> {
-		throw new NotImplemented(`Not implemented`)
+	public async updateScript(
+		data: {
+			partId: Id
+			script: ScriptContents
+		},
+		_params?: Params
+	): Promise<void> {
+		this.store.parts.updateScript(data.partId, data.script)
 	}
 }
 type Result = Definition.Result

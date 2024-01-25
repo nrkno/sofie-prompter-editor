@@ -56,9 +56,9 @@ export function toMarkdown(nodes: ProsemirrorNode[]): string {
 
 function stringifyMarkdown(mdAst: MdAstNode): string {
 	if (mdAst.type === 'root') {
-		return mdAst.children.map(stringifyMarkdown).join('')
+		return mdAst.children.map(stringifyMarkdown).join('\n')
 	} else if (mdAst.type === 'paragraph') {
-		return mdAst.children.map(stringifyMarkdown).join('') + '\n'
+		return mdAst.children.map(stringifyMarkdown).join('')
 	} else if (mdAst.type === 'text') {
 		return mdAst.value
 	} else if (mdAst.type === 'emphasis' || mdAst.type === 'strong' || mdAst.type === 'reverse') {

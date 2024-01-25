@@ -35,7 +35,13 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 
 	/** updates .isNew */
 	// setIsNew(read: boolean): Promise<void>
-	updateScript(id: Id, scriptContents: ScriptContents): Promise<void>
+	updateScript(
+		data: {
+			partId: Id
+			script: ScriptContents
+		},
+		params?: Params
+	): Promise<void>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

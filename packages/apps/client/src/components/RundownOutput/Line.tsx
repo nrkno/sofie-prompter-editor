@@ -6,10 +6,11 @@ export const Line = observer(function Line({ line }: { line: UILine }): React.Re
 	return (
 		<>
 			<h3>{line.slug}</h3>
-			{!line.script ? <p>&nbsp;</p> : null}
-			{line.script?.split('\n').map((paragraph) => (
-				<p key={paragraph}>{paragraph}</p>
-			))}
+			{!line.script ? (
+				<p>&nbsp;</p>
+			) : (
+				line.script.split('\n').map((paragraph, i) => <p key={paragraph + '_' + i}>{paragraph}</p>)
+			)}
 		</>
 	)
 })
