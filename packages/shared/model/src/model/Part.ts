@@ -46,7 +46,10 @@ export interface Part extends DataObject {
 		label: string // ie sourceLayer.name in Sofie
 	}
 
+	/** scriptContents from Core */
 	scriptContents?: ScriptContents
+	/** edited scriptContents. While this is set, display this in favor of scriptContents */
+	editedScriptContents?: ScriptContents
 }
 
 export enum PartDisplayType {

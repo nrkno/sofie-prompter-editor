@@ -1,6 +1,11 @@
 import EventEmitter from 'eventemitter3'
 import { Application, PaginationParams, Params } from '@feathersjs/feathers'
-import { ServiceTypes, Services, PartServiceDefinition as Definition } from '@sofie-prompter-editor/shared-model'
+import {
+	ServiceTypes,
+	Services,
+	PartServiceDefinition as Definition,
+	ScriptContents,
+} from '@sofie-prompter-editor/shared-model'
 export { PlaylistServiceDefinition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
 import { CustomFeathersService } from './lib.js'
@@ -109,6 +114,16 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 	/** @deprecated not supported */
 	public async remove(_id: NullId, _params?: Params): Promise<Result> {
 		throw new NotImplemented(`Not supported`)
+	}
+
+	public async updateScript(
+		data: {
+			partId: Id
+			script: ScriptContents
+		},
+		_params?: Params
+	): Promise<void> {
+		this.store.parts.updateScript(data.partId, data.script)
 	}
 }
 type Result = Definition.Result

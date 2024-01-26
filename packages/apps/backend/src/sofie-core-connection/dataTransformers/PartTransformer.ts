@@ -180,9 +180,8 @@ export class PartTransformer {
 				label: derived.displayLabel,
 			},
 			scriptContents: derived.scriptContents,
+			editedScriptContents: undefined,
 		})
-
-		return undefined
 	})
 
 	updateCorePart(partId: Core.PartId, part: Core.DBPart | undefined) {

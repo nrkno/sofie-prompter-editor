@@ -1,9 +1,11 @@
 import { action, computed, makeAutoObservable, observable } from 'mobx'
 import {
+	PartId,
 	Rundown,
 	RundownId,
 	RundownPlaylist,
 	RundownPlaylistId,
+	ScriptContents,
 	Segment,
 	SegmentId,
 } from '@sofie-prompter-editor/shared-model'
@@ -29,7 +31,7 @@ export class UIRundown {
 		})
 		this.init().catch(console.error)
 	}
-	async init() {
+	private async init() {
 		await this.store.connection.rundown.subscribeToRundownsInPlaylist(this.id)
 
 		const rundowns = await this.store.connection.rundown.find({
@@ -145,4 +147,11 @@ export class UIRundown {
 		// update existing segment
 		existing.updateFromJson(json)
 	})
+
+	async updatePartScript(partId: PartId, script: ScriptContents): Promise<void> {
+		await this.store.connection.part.updateScript({
+			partId,
+			script,
+		})
+	}
 }
