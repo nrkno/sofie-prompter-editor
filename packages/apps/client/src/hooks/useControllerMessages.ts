@@ -19,9 +19,9 @@ export function useControllerMessages(ref: React.RefObject<HTMLElement>, heightP
 
 		const onFrame = (now: number) => {
 			const frameTime = lastFrameTime.current === null ? 16 : now - lastFrameTime.current
-			const scrollBy = ((speed.current * fontSizePx) / 300) * frameTime
+			const scrollBy = ((speed.current * fontSizePx) / 300000000) * frameTime
 			position.current = Math.max(0, position.current + scrollBy)
-			console.log(position.current)
+			// console.log(position.current, scrollBy)
 
 			ref.current?.scrollTo(0, position.current)
 

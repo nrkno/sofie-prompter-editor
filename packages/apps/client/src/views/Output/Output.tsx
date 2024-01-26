@@ -28,7 +28,9 @@ const Output = observer(function Output(): React.ReactElement {
 	const scaleVertical = outputSettings.mirrorVertically ? '-1' : '1'
 	const scaleHorizontal = outputSettings.mirrorHorizontally ? '-1' : '1'
 
-	useControllerMessages(rootEl, size.height, (fontSize * size.width) / 100)
+	const sizeCorrection = 1
+
+	useControllerMessages(rootEl, size.height, ((fontSize * size.width) / 100) * sizeCorrection)
 
 	const onViewPortSizeChanged = useCallback(() => {
 		const width = window.innerWidth
@@ -140,10 +142,10 @@ const Output = observer(function Output(): React.ReactElement {
 	const styleVariables = useMemo(
 		() =>
 			({
-				'--prompter-font-size-base': `${fontSize}vw`,
+				'--prompter-font-size-base': `${(fontSize * size.width * sizeCorrection) / 100}px`,
 				transform: `scale(${scaleHorizontal}, ${scaleVertical})`,
 			} as React.CSSProperties),
-		[fontSize, scaleVertical, scaleHorizontal]
+		[fontSize, size.width, scaleVertical, scaleHorizontal]
 	)
 
 	const className = `Prompter ${classes.Output}`
