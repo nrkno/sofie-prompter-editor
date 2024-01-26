@@ -9,7 +9,7 @@ export class PartStore {
 	public readonly parts = observable.map<PartId, Part>()
 
 	/**
-	 * This is not observable, as it is internal and reactivity is handled manually when updating
+	 * This is not observable, as it is internal and reactivity is handled manually when updating this Map
 	 */
 	private readonly _partScripts = new Map<PartId, ScriptContents>()
 

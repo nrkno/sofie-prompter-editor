@@ -217,7 +217,6 @@ function makeNewEditorState(doc: Node): EditorState {
 			keymap(baseKeymap),
 			readOnlyNodeFilter(),
 			updateModel((lineId, lineNodes) => {
-
 				// Future: debounce? locking? require manual triggering of the save?
 				const openRundown = RootAppStore.rundownStore.openRundown
 				if (openRundown) {
