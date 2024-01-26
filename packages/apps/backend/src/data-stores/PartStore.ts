@@ -46,7 +46,7 @@ export class PartStore {
 
 							if (part) {
 								const oldPart = this.parts.get(partId)
-								const hasScriptChanged = oldPart && oldPart.scriptContents !== part.scriptContents
+								const hasScriptChanged = oldPart && !isEqual(oldPart.scriptContents, part.scriptContents)
 								if (hasScriptChanged) {
 									// Discard the edited script whenever the original script changes
 									this._partScripts.delete(partId)
