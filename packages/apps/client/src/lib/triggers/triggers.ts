@@ -23,6 +23,16 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		},
 	},
 	{
+		type: TriggerConfigType.KEYBOARD,
+		keys: 'Numpad0',
+		action: {
+			type: 'prompterMove',
+			payload: {
+				speed: 0,
+			},
+		},
+	},
+	{
 		type: TriggerConfigType.XKEYS,
 		productId: null,
 		unitId: null,
