@@ -9,7 +9,7 @@ export function useControllerMessages(ref: React.RefObject<HTMLElement>, heightP
 
 	useEffect(() => {
 		const onMessage = (message: { speed: number }) => {
-			console.log('received message', message)
+			// console.log('received message', message)
 
 			speed.current = message.speed
 		}
@@ -21,7 +21,7 @@ export function useControllerMessages(ref: React.RefObject<HTMLElement>, heightP
 			const frameTime = lastFrameTime.current === null ? 16 : now - lastFrameTime.current
 			const scrollBy = ((speed.current * fontSizePx) / 300) * frameTime
 			position.current = Math.max(0, position.current + scrollBy)
-			console.log(position.current)
+			// console.log(position.current)
 
 			ref.current?.scrollTo(0, position.current)
 

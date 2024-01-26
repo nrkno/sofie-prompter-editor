@@ -464,6 +464,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@elgato-stream-deck/core@npm:6.0.0":
+  version: 6.0.0
+  resolution: "@elgato-stream-deck/core@npm:6.0.0"
+  dependencies:
+    eventemitter3: "npm:^4.0.7"
+    tslib: "npm:^2.6.2"
+  checksum: ef3dcbad3cb0118b870c84669b437d124d68b79f6970a77c70a7754dfd7d731afbd3ffc2c51168b62987d2432765743eb95f5ada7deb0882ebb82990277b1607
+  languageName: node
+  linkType: hard
+
+"@elgato-stream-deck/webhid@npm:^6.0.0":
+  version: 6.0.0
+  resolution: "@elgato-stream-deck/webhid@npm:6.0.0"
+  dependencies:
+    "@elgato-stream-deck/core": "npm:6.0.0"
+    "@types/w3c-web-hid": "npm:^1.0.6"
+    p-queue: "npm:^6.6.2"
+    tslib: "npm:^2.6.2"
+  checksum: 31a4074f22166890de34e0a413357405729642c287f23c0f6477f168981d766962a7c92e7c19e33e3d381e9b442d54474e034ee283a06a992beb6616d89923ad
+  languageName: node
+  linkType: hard
+
 "@esbuild/android-arm64@npm:0.18.20":
   version: 0.18.20
   resolution: "@esbuild/android-arm64@npm:0.18.20"
@@ -1924,6 +1946,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@sofie-automation/sorensen@npm:^1.4.2":
+  version: 1.4.2
+  resolution: "@sofie-automation/sorensen@npm:1.4.2"
+  checksum: e011d3d70083519966906a19cbe340480769b013e8d2f4e59b8cf21afb3dbd8d19c6bd4f01d3112dc96f58264961cf4c3fe52ecd1d2725be7254a209e00c61ae
+  languageName: node
+  linkType: hard
+
 "@sofie-prompter-editor/apps-app@workspace:packages/apps/app":
   version: 0.0.0-use.local
   resolution: "@sofie-prompter-editor/apps-app@workspace:packages/apps/app"
@@ -1969,8 +1998,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@sofie-prompter-editor/apps-client@workspace:packages/apps/client"
   dependencies:
+    "@elgato-stream-deck/webhid": "npm:^6.0.0"
     "@popperjs/core": "npm:^2.11.8"
     "@react-hook/resize-observer": "npm:^1.2.6"
+    "@sofie-automation/sorensen": "npm:^1.4.2"
     "@sofie-prompter-editor/shared-lib": "npm:0.0.0"
     "@sofie-prompter-editor/shared-model": "npm:0.0.0"
     "@types/bootstrap": "npm:^5"
@@ -1981,6 +2012,7 @@ __metadata:
     "@typescript-eslint/parser": "npm:^6.10.0"
     "@vitejs/plugin-react": "npm:^4.1.1"
     bootstrap: "npm:^5.3.2"
+    buffer: "npm:^6.0.3"
     eslint: "npm:^8.53.0"
     eslint-plugin-react-hooks: "npm:^4.6.0"
     eslint-plugin-react-refresh: "npm:^0.4.4"
@@ -2003,9 +2035,11 @@ __metadata:
     react-router-dom: "npm:^6.18.0"
     sass: "npm:^1.69.5"
     socket.io-client: "npm:^4.7.2"
+    spacemouse-webhid: "npm:^0.0.2"
     typescript: "npm:^5.2.2"
     uuid: "npm:^9.0.1"
     vite: "npm:^4.5.0"
+    xkeys-webhid: "npm:^3.1.0"
   languageName: unknown
   linkType: soft
 
@@ -2026,6 +2060,15 @@ __metadata:
     zod: "npm:^3.22.4"
   languageName: unknown
   linkType: soft
+
+"@spacemouse-lib/core@npm:0.0.2":
+  version: 0.0.2
+  resolution: "@spacemouse-lib/core@npm:0.0.2"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: c5cab7ee31d06e011763948dde032af9ede3a47fb9024caae0434a4bb4e303b4f9a5b493ace6b7fb07ddb51206982095498150f942802bed13b1b7f90cc6575e
+  languageName: node
+  linkType: hard
 
 "@swc/helpers@npm:^0.5.0":
   version: 0.5.3
@@ -2622,6 +2665,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/w3c-web-hid@npm:^1.0.3, @types/w3c-web-hid@npm:^1.0.6":
+  version: 1.0.6
+  resolution: "@types/w3c-web-hid@npm:1.0.6"
+  checksum: 8e92c302708771cc154c26b5033e11530f465143c1a3c78dc779208d828491e44a9b2f02fac720b1de6a8d93d6daf82853758aaf122aeecc64bfb8431045d3ae
+  languageName: node
+  linkType: hard
+
 "@types/warning@npm:^3.0.0":
   version: 3.0.3
   resolution: "@types/warning@npm:3.0.3"
@@ -2916,6 +2966,15 @@ __metadata:
   peerDependencies:
     vite: ^4.2.0
   checksum: f0374e5242da7e97ac7be5bec9bfe34c1fde50b2e3b5178cebbec76caa1f21b3c7d23d43a9a54ec18403164aa2b1a2ae7c3f5912c0371327f95a3278e39db05e
+  languageName: node
+  linkType: hard
+
+"@xkeys-lib/core@npm:3.1.0":
+  version: 3.1.0
+  resolution: "@xkeys-lib/core@npm:3.1.0"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: a780ee0e41ea8813106248844dc210a175e1028f895448860bde427ab44299a82c9272ce3a6d5a576493c346520578004fd4417fcaf3dd728859246baf5a1bfa
   languageName: node
   linkType: hard
 
@@ -3481,6 +3540,16 @@ __metadata:
     base64-js: "npm:^1.3.1"
     ieee754: "npm:^1.1.13"
   checksum: 27cac81cff434ed2876058d72e7c4789d11ff1120ef32c9de48f59eab58179b66710c488987d295ae89a228f835fc66d088652dffeb8e3ba8659f80eb091d55e
+  languageName: node
+  linkType: hard
+
+"buffer@npm:^6.0.3":
+  version: 6.0.3
+  resolution: "buffer@npm:6.0.3"
+  dependencies:
+    base64-js: "npm:^1.3.1"
+    ieee754: "npm:^1.2.1"
+  checksum: 2a905fbbcde73cc5d8bd18d1caa23715d5f83a5935867c2329f0ac06104204ba7947be098fe1317fbd8830e26090ff8e764f08cd14fefc977bb248c3487bcbd0
   languageName: node
   linkType: hard
 
@@ -6203,7 +6272,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ieee754@npm:^1.1.13":
+"ieee754@npm:^1.1.13, ieee754@npm:^1.2.1":
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
   checksum: b0782ef5e0935b9f12883a2e2aa37baa75da6e66ce6515c168697b42160807d9330de9a32ec1ed73149aea02e0d822e572bca6f1e22bdcbd2149e13b050b17bb
@@ -9208,7 +9277,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"p-queue@npm:6.6.2":
+"p-queue@npm:6.6.2, p-queue@npm:^6.6.2":
   version: 6.6.2
   resolution: "p-queue@npm:6.6.2"
   dependencies:
@@ -10767,6 +10836,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"spacemouse-webhid@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "spacemouse-webhid@npm:0.0.2"
+  dependencies:
+    "@spacemouse-lib/core": "npm:0.0.2"
+    "@types/w3c-web-hid": "npm:^1.0.3"
+    buffer: "npm:^6.0.3"
+    p-queue: "npm:^6.6.2"
+  checksum: 32c7f5efb55ad726fa5f3166da52ffb4774be16f20f4f49aba047acd707677a2a71a8a47fbbe32e09e1527532cf4f56a9d880b4d1790d69c3dad668ee396443a
+  languageName: node
+  linkType: hard
+
 "spawn-command@npm:0.0.2":
   version: 0.0.2
   resolution: "spawn-command@npm:0.0.2"
@@ -11361,7 +11442,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.5.1":
+"tslib@npm:^2.1.0, tslib@npm:^2.3.0, tslib@npm:^2.4.0, tslib@npm:^2.5.1, tslib@npm:^2.6.2":
   version: 2.6.2
   resolution: "tslib@npm:2.6.2"
   checksum: e03a8a4271152c8b26604ed45535954c0a45296e32445b4b87f8a5abdb2421f40b59b4ca437c4346af0f28179780d604094eb64546bee2019d903d01c6c19bdb
@@ -12023,6 +12104,18 @@ __metadata:
     utf-8-validate:
       optional: true
   checksum: b672b312f357afba8568b9dbb9e08b9e8a20845659b35fa6b340dc848efe371379f5e22bb1dc89c4b2940d5e2dc52dd1de85dde41776875fce115a448f94754f
+  languageName: node
+  linkType: hard
+
+"xkeys-webhid@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "xkeys-webhid@npm:3.1.0"
+  dependencies:
+    "@types/w3c-web-hid": "npm:^1.0.3"
+    "@xkeys-lib/core": "npm:3.1.0"
+    buffer: "npm:^6.0.3"
+    p-queue: "npm:^6.6.2"
+  checksum: f3c20a4e93fc1389d028b52d1fe1f23defcd311a9f6e21fbe2b9aa9da2b03605bf412b9978c7cc42ff18e19ed4039d9809860006f6a054fde6fff1eb795d7b39
   languageName: node
   linkType: hard
 
