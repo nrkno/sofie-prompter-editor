@@ -5,7 +5,7 @@ export const Line = observer(function Line({ line }: { line: UILine }): React.Re
 	// TODO: line.script needs to be parsed, if it's markdownish and displayed across paragraphs
 	return (
 		<>
-			<h3>{line.slug}</h3>
+			<h3 data-obj-id={line.id}>{line.slug}</h3>
 			{!line.script ? (
 				<p>&nbsp;</p>
 			) : (

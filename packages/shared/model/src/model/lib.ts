@@ -26,5 +26,5 @@ export function ZodProtectedStringOrNull<T extends AnyProtectedString>(): Omit<
 	_output: T | null
 	_input: T | null
 } {
-	return z.string() as any
+	return z.string().nullable() as any
 }

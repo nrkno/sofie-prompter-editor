@@ -1,5 +1,5 @@
-import { observable, action, flow, makeObservable, IReactionDisposer, reaction } from 'mobx'
-import { ViewPort } from '@sofie-prompter-editor/shared-model'
+import { observable, action, flow, makeObservable, IReactionDisposer, reaction, toJS } from 'mobx'
+import { ViewPort, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
 import { APIConnection, RootAppStore } from './RootAppStore.ts'
 
 export class ViewPortStore {
@@ -62,6 +62,15 @@ export class ViewPortStore {
 			// @ts-expect-error hack
 			this.viewPort[key] = value
 		}
+	})
+
+	update = action('update', (aspectRatio: number, state: ViewPortLastKnownState) => {
+		console.log('Sending updated known state', toJS(state))
+		this.connection.viewPort.update(null, {
+			_id: '',
+			aspectRatio,
+			lastKnownState: toJS(state),
+		})
 	})
 
 	destroy = () => {

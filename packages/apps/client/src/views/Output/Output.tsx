@@ -10,6 +10,36 @@ import { useQueryParam } from 'src/lib/useQueryParam'
 
 import classes from './Output.module.scss'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
+import { toJS } from 'mobx'
+import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
+
+function createState(
+	rootEl: HTMLElement,
+	_rootElSize: Size,
+	fontSize: number,
+	message: ControllerMessage
+): ViewPortLastKnownState {
+	// TODO: Find an anchoring point closest to the "focus area",
+	// and use that as opposed to the "top of page" null value
+	const target = null
+	const offset = rootEl.scrollTop / fontSize
+
+	return {
+		timestamp: getCurrentTime(),
+		controllerMessage: {
+			speed: message.speed,
+			offset: {
+				target,
+				offset,
+			},
+		},
+	}
+}
+
+type Size = {
+	width: number
+	height: number
+}
 
 const Output = observer(function Output(): React.ReactElement {
 	const rootEl = useRef<HTMLDivElement>(null)
@@ -19,8 +49,9 @@ const Output = observer(function Output(): React.ReactElement {
 
 	// On startup
 	useEffect(() => {
-		RootAppStore.outputSettingsStore.initialize() // load and subscribe
-	})
+		RootAppStore.outputSettingsStore.initialize()
+		RootAppStore.viewportStore.initialize()
+	}, [])
 
 	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
@@ -28,31 +59,58 @@ const Output = observer(function Output(): React.ReactElement {
 	const scaleVertical = outputSettings.mirrorVertically ? '-1' : '1'
 	const scaleHorizontal = outputSettings.mirrorHorizontally ? '-1' : '1'
 
-	const sizeCorrection = 1
+	const onControllerMessage = useCallback(
+		(message: ControllerMessage) => {
+			if (!isPrimary) return
+			if (!rootEl.current) return
+			const aspectRatio = size.width / size.height
 
-	useControllerMessages(rootEl, size.height, ((fontSize * size.width) / 100) * sizeCorrection)
+			const state = createState(rootEl.current, size, fontSize, message)
+
+			RootAppStore.viewportStore.update(aspectRatio, state)
+		},
+		[rootEl, size, fontSize, isPrimary]
+	)
+
+	const [viewportState, setLastKnownState] = useControllerMessages(
+		rootEl,
+		(fontSize * size.width) / 100,
+		onControllerMessage
+	)
+
+	const viewPortLastKnownState = RootAppStore.viewportStore.viewPort.lastKnownState
+
+	useEffect(() => {
+		if (isPrimary) return
+		if (!viewPortLastKnownState) return
+
+		setLastKnownState(toJS(viewPortLastKnownState))
+	}, [isPrimary, viewPortLastKnownState, setLastKnownState])
 
 	const onViewPortSizeChanged = useCallback(() => {
+		if (!isPrimary) return
+		if (!rootEl.current) return
 		const width = window.innerWidth
 		const height = window.innerHeight
-		const aspectRatio = width / height
 		setSize({ width, height })
 
-		if (!isPrimary) return
+		const aspectRatio = width / height
 
-		RootAppStore.connection.viewPort.update(null, {
-			_id: '',
-			aspectRatio,
-			// TODO: This should return the actual lastKnownState
-			lastKnownState: {
-				timestamp: getCurrentTime(),
-				controllerMessage: {
-					offset: null,
-					speed: 0,
-				},
+		const state = createState(
+			rootEl.current,
+			{
+				width,
+				height,
 			},
-		})
-	}, [isPrimary])
+			fontSize,
+			viewportState.current?.controllerMessage ?? {
+				speed: 0,
+				offset: null,
+			}
+		)
+
+		RootAppStore.viewportStore.update(aspectRatio, state)
+	}, [rootEl, fontSize, viewportState, isPrimary])
 
 	useEffect(() => {
 		window.addEventListener('resize', onViewPortSizeChanged)
@@ -142,7 +200,7 @@ const Output = observer(function Output(): React.ReactElement {
 	const styleVariables = useMemo(
 		() =>
 			({
-				'--prompter-font-size-base': `${(fontSize * size.width * sizeCorrection) / 100}px`,
+				'--prompter-font-size-base': `${(fontSize * size.width) / 100}px`,
 				transform: `scale(${scaleHorizontal}, ${scaleVertical})`,
 			} as React.CSSProperties),
 		[fontSize, size.width, scaleVertical, scaleHorizontal]

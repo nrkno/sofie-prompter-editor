@@ -20,13 +20,20 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 
 	const viewPortAspectRatio = RootAppStore.viewportStore.viewPort.aspectRatio
 
+	const lastKnownState = RootAppStore.viewportStore.viewPort.lastKnownState
+
 	const fontSize = outputSettings.fontSize
 
 	const size = useSize(rootEl)
 	const previewWidth = size?.width ?? 0
-	const previewHeight = size?.height ?? 0
 
-	useControllerMessages(rootEl, previewHeight, (previewWidth * fontSize) / 100)
+	const [_, setBaseState] = useControllerMessages(rootEl, (previewWidth * fontSize) / 100)
+
+	useEffect(() => {
+		if (!lastKnownState) return
+
+		setBaseState(lastKnownState)
+	}, [setBaseState, lastKnownState])
 
 	const style = useMemo(
 		() =>
