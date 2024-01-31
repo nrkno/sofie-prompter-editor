@@ -98,7 +98,7 @@ function prosemirrorNodeToMarkdown(node: ProsemirrorNode): MdAstNode {
 			textNode = {
 				type: 'emphasis',
 				children: [textNode],
-				code: '__',
+				code: '_',
 			}
 		}
 		if (node.marks.find((mark) => mark.type === schema.marks.reverse)) {
