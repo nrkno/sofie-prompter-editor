@@ -54,13 +54,17 @@ export function toMarkdown(nodes: ProsemirrorNode[]): string {
 	return stringifyMarkdown(mdAst)
 }
 
+function escapeText(text: string): string {
+	return text.replace(/([_*~\\])/gi, '\\$1')
+}
+
 function stringifyMarkdown(mdAst: MdAstNode): string {
 	if (mdAst.type === 'root') {
 		return mdAst.children.map(stringifyMarkdown).join('\n')
 	} else if (mdAst.type === 'paragraph') {
 		return mdAst.children.map(stringifyMarkdown).join('')
 	} else if (mdAst.type === 'text') {
-		return mdAst.value
+		return escapeText(mdAst.value)
 	} else if (mdAst.type === 'emphasis' || mdAst.type === 'strong' || mdAst.type === 'reverse') {
 		return `${mdAst.code}${mdAst.children.map(stringifyMarkdown).join('')}${mdAst.code}`
 	} else {
