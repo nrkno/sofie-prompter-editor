@@ -1,16 +1,17 @@
 import { observer } from 'mobx-react-lite'
 import { UILine } from 'src/model/UILine'
+import { MdDisplay } from './MdDisplay'
+import { TextDisplay } from './TextDisplay'
 
 export const Line = observer(function Line({ line }: { line: UILine }): React.ReactElement {
-	// TODO: line.script needs to be parsed, if it's markdownish and displayed across paragraphs
+	const script = line.script
+
+	const isMdIsh = true
+
 	return (
 		<>
 			<h3 data-obj-id={line.id}>{line.slug}</h3>
-			{!line.script ? (
-				<p>&nbsp;</p>
-			) : (
-				line.script.split('\n').map((paragraph, i) => <p key={paragraph + '_' + i}>{paragraph}</p>)
-			)}
+			{!script ? <p>&nbsp;</p> : isMdIsh ? <MdDisplay source={script} /> : <TextDisplay source={script} />}
 		</>
 	)
 })
