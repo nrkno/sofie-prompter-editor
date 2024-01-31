@@ -19,6 +19,8 @@ import {
 import { OutputSettingsStore } from './OutputSettingsStore.ts'
 import { SystemStatusStore } from './SystemStatusStore.ts'
 import { ViewPortStore } from './ViewportStateStore.ts'
+import { TriggerStore } from './TriggerStore.ts'
+import { TriggerActionHandler } from '../lib/triggerActions/TriggerActionHandler.ts'
 
 const USE_MOCK_CONNECTION = false
 
@@ -30,7 +32,10 @@ class RootAppStoreClass {
 	systemStatusStore: SystemStatusStore
 	outputSettingsStore: OutputSettingsStore
 	viewportStore: ViewPortStore
+	triggerStore: TriggerStore
 	uiStore: UIStore
+
+	private triggerActionHandler: TriggerActionHandler
 
 	constructor() {
 		makeObservable(this, {
@@ -45,16 +50,17 @@ class RootAppStoreClass {
 		this.systemStatusStore = new SystemStatusStore(this, this.connection)
 		this.outputSettingsStore = new OutputSettingsStore(this, this.connection)
 		this.viewportStore = new ViewPortStore(this, this.connection)
+		this.triggerStore = new TriggerStore(this, this.connection)
 		this.uiStore = new UIStore()
 
 		this.connection.on('disconnected', this.onDisconnected)
-
 		this.connection.on('connected', this.onConnected)
 
 		this.connection.systemStatus.subscribe()
 		this.connection.systemStatus.on('updated', this.onSystemStatusUpdated)
-
 		this.connection.systemStatus.get(null).then(this.onSystemStatusUpdated)
+
+		this.triggerActionHandler = new TriggerActionHandler(this)
 	}
 
 	onSystemStatusUpdated = action(

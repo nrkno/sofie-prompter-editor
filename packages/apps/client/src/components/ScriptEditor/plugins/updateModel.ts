@@ -1,5 +1,5 @@
 import { Plugin } from 'prosemirror-state'
-import { UILineId } from '../../model/UILine'
+import { UILineId } from '../../../model/UILine'
 import { Node } from 'prosemirror-model'
 import { AddMarkStep, RemoveMarkStep, StepMap } from 'prosemirror-transform'
 import { schema } from '../scriptSchema'

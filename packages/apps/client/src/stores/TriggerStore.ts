@@ -1,0 +1,77 @@
+import { observable, action } from 'mobx'
+import { EventEmitter } from 'eventemitter3'
+
+import { APIConnection, RootAppStore } from './RootAppStore'
+import { hardCodedTriggers } from '../lib/triggers/triggers'
+
+import { TriggerHandlerEvents } from '../lib/triggers/triggerHandlers/TriggerHandler'
+import { TriggerHandlerXKeys } from '../lib/triggers/triggerHandlers/TriggerHandlerXKeys'
+import { TriggerHandlerKeyboard } from '../lib/triggers/triggerHandlers/TriggerHandlerKeyboard'
+import { TriggerHandlerStreamdeck } from '../lib/triggers/triggerHandlers/TriggerHandlerStreamdeck'
+import { TriggerHandlerSpaceMouse } from '../lib/triggers/triggerHandlers/TriggerHandlerSpaceMouse'
+
+export interface TriggerStoreEvents {
+	action: TriggerHandlerEvents['action']
+}
+/**
+ * The TriggerStore is responsible for listening to triggers (eg keyboard shortcuts) and dispatching action events
+ */
+export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
+	/** When set, indicates that a TriggerHandler wants to request access to HIDDevices */
+	public hidDeviceAccessRequests = observable.map<
+		string,
+		{
+			deviceName: string
+			callback: (allow: boolean) => void
+		}
+	>()
+
+	private triggers = hardCodedTriggers
+	private triggerHandlers = [
+		new TriggerHandlerKeyboard(),
+		new TriggerHandlerXKeys(),
+		new TriggerHandlerStreamdeck(),
+		new TriggerHandlerSpaceMouse(),
+	]
+
+	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
+		super()
+
+		for (const triggerHandler of this.triggerHandlers) {
+			// Just pipe action events through:
+			triggerHandler.on('action', (...args) => this.emit('action', ...args))
+
+			// Handle requests for HIDDevice access:
+			// HIDDevice access requests can only be initiated by a user action,
+			// this event indicates that a TriggerHandler wants to request access to a HIDDevice
+			// The user will then be prompted to allow access to the device, and the callback will be called
+			triggerHandler.on(
+				'requestHIDDeviceAccess',
+				action((deviceName: string, callback: (allow: boolean) => void) => {
+					const key = triggerHandler.constructor.name
+					this.hidDeviceAccessRequests.set(key, {
+						deviceName,
+						callback: (allow: boolean) => {
+							this.hidDeviceAccessRequests.delete(key)
+							callback(allow)
+						},
+					})
+				})
+			)
+		}
+
+		this.initialize().catch(console.error)
+	}
+
+	private async initialize() {
+		for (const triggerHandler of this.triggerHandlers) {
+			await triggerHandler.initialize(this.triggers)
+		}
+	}
+
+	async destroy() {
+		for (const triggerHandler of this.triggerHandlers) {
+			await triggerHandler.destroy()
+		}
+	}
+}
