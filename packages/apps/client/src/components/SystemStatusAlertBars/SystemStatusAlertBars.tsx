@@ -8,18 +8,18 @@ export const SystemStatusAlertBars = observer(function SystemStatusAlertBars(): 
 	const isAPIConnected = RootAppStore.connected
 	const isSofieConnected = RootAppStore.sofieConnected
 
-	const hidAccessRequest = Array.from(RootAppStore.triggerStore.hidDeviceAccessRequests.values())[0]
+	const apiAccessRequest = Array.from(RootAppStore.triggerStore.apiAccessRequests.values())[0]
 
 	let requestAccess: {
 		name: string
 		allow: () => void
 		deny: () => void
 	} | null = null
-	if (hidAccessRequest) {
+	if (apiAccessRequest) {
 		requestAccess = {
-			name: hidAccessRequest.deviceName,
-			allow: () => hidAccessRequest.callback(true),
-			deny: () => hidAccessRequest.callback(false),
+			name: apiAccessRequest.deviceName,
+			allow: () => apiAccessRequest.callback(true),
+			deny: () => apiAccessRequest.callback(false),
 		}
 	}
 

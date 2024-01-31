@@ -17,8 +17,12 @@ export interface TriggerStoreEvents {
  * The TriggerStore is responsible for listening to triggers (eg keyboard shortcuts) and dispatching action events
  */
 export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
-	/** When set, indicates that a TriggerHandler wants to request access to HIDDevices */
-	public hidDeviceAccessRequests = observable.map<
+	/**
+	 * When set, indicates that a TriggerHandler wants to request access to some Browser API that requires user interaction.
+	 * Examples include Web HID, Web MIDI, Web Serial, etc.
+	 * The callback needs to be called as a part of an event handler for a user action.
+	 */
+	public apiAccessRequests = observable.map<
 		string,
 		{
 			deviceName: string
@@ -49,10 +53,10 @@ export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
 				'requestHIDDeviceAccess',
 				action((deviceName: string, callback: (allow: boolean) => void) => {
 					const key = triggerHandler.constructor.name
-					this.hidDeviceAccessRequests.set(key, {
+					this.apiAccessRequests.set(key, {
 						deviceName,
 						callback: (allow: boolean) => {
-							this.hidDeviceAccessRequests.delete(key)
+							this.apiAccessRequests.delete(key)
 							callback(allow)
 						},
 					})
