@@ -4,17 +4,17 @@ import { ControllerMessage } from '@sofie-prompter-editor/shared-model'
 
 export type AnyTriggerAction =
 	| TriggerAction<
-			'prompterMove',
+			'prompterSetSpeed',
 			{
 				/** The speed to move the prompter */
 				speed: number
 			}
 	  >
 	| TriggerAction<
-			'prompterAccelerate',
+			'prompterAddSpeed',
 			{
-				/** The acceleration move the prompter */
-				accelerate: number
+				/** Change the speed by this amount */
+				deltaSpeed: number
 			}
 	  >
 	| TriggerAction<

@@ -17,11 +17,11 @@ export class TriggerActionHandler {
 	private onAction(action: AnyTriggerAction) {
 		console.log('action', JSON.stringify(action))
 
-		if (action.type === 'prompterMove') {
+		if (action.type === 'prompterSetSpeed') {
 			this.prompterSpeed = action.payload.speed
 			this.sendPrompterSpeed()
-		} else if (action.type === 'prompterAccelerate') {
-			this.prompterSpeed += action.payload.accelerate
+		} else if (action.type === 'prompterAddSpeed') {
+			this.prompterSpeed += action.payload.deltaSpeed
 			this.sendPrompterSpeed()
 		} else if (action.type === 'prompterJump') {
 			// TODO

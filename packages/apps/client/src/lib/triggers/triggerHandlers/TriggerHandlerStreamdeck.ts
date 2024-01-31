@@ -162,9 +162,9 @@ export class TriggerHandlerStreamdeck extends TriggerHandler {
 
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			// ignore
-		} else if (trigger.action.type === 'prompterAccelerate') {
+		} else if (trigger.action.type === 'prompterAddSpeed') {
 			// ignore
 		} else if (trigger.action.type === 'prompterJump') {
 			// ignore
@@ -187,9 +187,9 @@ export class TriggerHandlerStreamdeck extends TriggerHandler {
 
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
-				type: 'prompterMove',
+				type: 'prompterSetSpeed',
 				payload: { speed: value },
 			}
 		}

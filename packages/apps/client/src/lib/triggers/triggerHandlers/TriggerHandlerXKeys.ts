@@ -107,7 +107,7 @@ export class TriggerHandlerXKeys extends TriggerHandler {
 				if (action) this.emit('action', action)
 			})
 			xkeys.on('tbar', (index, value) => {
-				const action = this.getAnalogAction('tbar', index, value, 127, 127)
+				const action = this.getAnalogAction('tbar', index, value, -127, 127)
 				if (action) this.emit('action', action)
 			})
 			xkeys.on('trackball', (index, value) => {
@@ -178,9 +178,9 @@ export class TriggerHandlerXKeys extends TriggerHandler {
 
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			// ignore
-		} else if (trigger.action.type === 'prompterAccelerate') {
+		} else if (trigger.action.type === 'prompterAddSpeed') {
 			// ignore
 		} else if (trigger.action.type === 'prompterJump') {
 			// ignore
@@ -209,17 +209,17 @@ export class TriggerHandlerXKeys extends TriggerHandler {
 
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			const normalValue = (value - zeroValue) / scaleMaxValue
 			return {
-				type: 'prompterMove',
+				type: 'prompterSetSpeed',
 				payload: { speed: normalValue },
 			}
-		} else if (trigger.action.type === 'prompterAccelerate') {
+		} else if (trigger.action.type === 'prompterAddSpeed') {
 			const normalValue = (value - zeroValue) / scaleMaxValue
 			return {
-				type: 'prompterAccelerate',
-				payload: { accelerate: normalValue },
+				type: 'prompterAddSpeed',
+				payload: { deltaSpeed: normalValue },
 			}
 		}
 		return undefined
@@ -236,15 +236,15 @@ export class TriggerHandlerXKeys extends TriggerHandler {
 		if (!trigger) return undefined
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
-				type: 'prompterMove',
+				type: 'prompterSetSpeed',
 				payload: { speed: xyz.y },
 			}
-		} else if (trigger.action.type === 'prompterAccelerate') {
+		} else if (trigger.action.type === 'prompterAddSpeed') {
 			return {
-				type: 'prompterAccelerate',
-				payload: { accelerate: xyz.y },
+				type: 'prompterAddSpeed',
+				payload: { deltaSpeed: xyz.y },
 			}
 		}
 		return undefined

@@ -150,9 +150,9 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler {
 
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			// ignore
-		} else if (trigger.action.type === 'prompterAccelerate') {
+		} else if (trigger.action.type === 'prompterAddSpeed') {
 			// ignore
 		} else if (trigger.action.type === 'prompterJump') {
 			// ignore
@@ -172,15 +172,15 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler {
 		if (!trigger) return undefined
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterMove') {
+		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
-				type: 'prompterMove',
+				type: 'prompterSetSpeed',
 				payload: { speed: xyz.x + xyz.y + xyz.z },
 			}
-		} else if (trigger.action.type === 'prompterAccelerate') {
+		} else if (trigger.action.type === 'prompterAddSpeed') {
 			return {
-				type: 'prompterAccelerate',
-				payload: { accelerate: xyz.x + xyz.y + xyz.z },
+				type: 'prompterAddSpeed',
+				payload: { deltaSpeed: xyz.x + xyz.y + xyz.z },
 			}
 		}
 		return undefined
