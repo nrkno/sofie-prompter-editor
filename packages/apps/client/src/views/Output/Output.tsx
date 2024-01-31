@@ -116,13 +116,14 @@ const Output = observer(function Output(): React.ReactElement {
 	}, [bootTime, isPrimary, viewPortLastKnownState, setLastKnownState])
 
 	const onViewPortSizeChanged = useCallback(() => {
-		if (!isPrimary) return
 		if (!rootEl.current) return
 		const width = window.innerWidth
 		const height = window.innerHeight
 		setSize({ width, height })
 
 		const aspectRatio = width / height
+
+		if (!isPrimary) return
 
 		const state = createState(
 			rootEl.current,
