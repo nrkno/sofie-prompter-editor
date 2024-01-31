@@ -3,6 +3,7 @@ import { OutputSettings, RundownPlaylist, RundownPlaylistId } from '@sofie-promp
 import { APIConnection, RootAppStore } from './RootAppStore'
 import { UIRundown } from '../model/UIRundown'
 import { UIRundownEntry } from '../model/UIRundownEntry'
+import { getCurrentTime } from 'src/lib/getCurrentTime'
 
 export class RundownStore {
 	showingOnlyScripts = false
@@ -96,7 +97,18 @@ export class RundownStore {
 
 	sendRundownToOutput = (id: RundownPlaylistId) => {
 		if (!this.outputSettings) return
-		// TODO: This really shouldn't require the entire outputSettings object to be available first
+		this.connection.viewPort.patch(null, {
+			lastKnownState: {
+				controllerMessage: {
+					offset: {
+						target: null,
+						offset: 0,
+					},
+					speed: 0,
+				},
+				timestamp: getCurrentTime(),
+			},
+		})
 		this.connection.outputSettings.patch(null, {
 			activeRundownPlaylistId: id,
 		})

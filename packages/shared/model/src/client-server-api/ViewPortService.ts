@@ -14,7 +14,7 @@ export const ALL_METHODS = [
 	'get',
 	// 'create',
 	'update',
-	// 'patch',
+	'patch',
 	// 'remove',
 	//
 	'subscribeToViewPort',
@@ -25,6 +25,7 @@ interface Methods {
 	get(id: null, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
 	update(id: null, data: Data, params?: Params): Promise<Result>
+	patch(_id: null, _data: Partial<Data>, _params?: Params): Promise<Result>
 
 	/** Subscribe to ViewPort data */
 	subscribeToViewPort(_?: unknown, params?: Params): Promise<void>

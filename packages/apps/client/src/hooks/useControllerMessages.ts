@@ -11,8 +11,14 @@ type SetBaseViewPortState = (state: ViewPortLastKnownState) => void
 export function useControllerMessages(
 	ref: React.RefObject<HTMLElement>,
 	fontSizePx: number,
-	onControllerMessage?: (message: ControllerMessage) => void
+	opts?: {
+		enableControl?: boolean
+		onControllerMessage?: (message: ControllerMessage) => void
+	}
 ): [React.RefObject<ViewPortLastKnownState | null>, SetBaseViewPortState] {
+	const enableControl = opts?.enableControl ?? true
+	const onControllerMessage = opts?.onControllerMessage
+
 	const speed = useRef(0)
 	const position = useRef(0)
 	const lastRequest = useRef<number | null>(null)
@@ -26,21 +32,21 @@ export function useControllerMessages(
 
 			let targetTop = position.current
 
-			if (message.offset?.target !== undefined) {
-				const targetEl = document.querySelector(`[data-obj-id="${message.offset.target}"]`)
-				if (!targetEl) {
-					console.error(`Could not find target "${message.offset.target}"`)
-					return
+			if (message.offset) {
+				targetTop = 0
+
+				if (message.offset.target !== null) {
+					const targetEl = document.querySelector(`[data-obj-id="${message.offset.target}"]`)
+					if (!targetEl) {
+						console.error(`Could not find target "${message.offset.target}"`)
+						return
+					}
+
+					const targetRect = targetEl.getBoundingClientRect()
+					targetTop = targetRect.top + position.current
 				}
 
-				const targetRect = targetEl.getBoundingClientRect()
-				targetTop = targetRect.top + position.current
-			} else if (message.offset?.target === null) {
-				targetTop = 0
-			}
-
-			if (message.offset?.offset) {
-				targetTop = targetTop + message.offset?.offset * fontSizePx
+				targetTop = targetTop + message.offset.offset * fontSizePx
 			}
 
 			if (message.speed) {
@@ -69,6 +75,8 @@ export function useControllerMessages(
 	)
 
 	useEffect(() => {
+		if (!enableControl) return
+
 		const onMessage = (message: ControllerMessage) => {
 			console.log('received message', message)
 
@@ -108,7 +116,7 @@ export function useControllerMessages(
 
 			if (lastRequest.current !== null) window.cancelAnimationFrame(lastRequest.current)
 		}
-	}, [ref, fontSizePx, onControllerMessage, applyControllerMessage])
+	}, [enableControl, ref, fontSizePx, onControllerMessage, applyControllerMessage])
 
 	return [lastKnownState, setBaseViewPortState]
 }

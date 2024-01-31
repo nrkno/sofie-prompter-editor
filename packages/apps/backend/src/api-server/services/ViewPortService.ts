@@ -1,5 +1,5 @@
 import EventEmitter from 'eventemitter3'
-import { Application, PaginationParams, Params } from '@feathersjs/feathers'
+import { Application, PaginationParams, Params, Query } from '@feathersjs/feathers'
 import { ServiceTypes, Services, ViewPortServiceDefinition as Definition } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
 import { CustomFeathersService } from './lib.js'
@@ -41,13 +41,9 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 		this.observers.push(
 			observe(this.store.viewPort.viewPort, (change) => {
 				this.log.debug('observed change', change)
-				if (change.type === 'add') {
-					this.emit('created', change.object)
-				} else if (change.type === 'update') {
-					this.emit('updated', change.object)
-				} else if (change.type === 'remove') {
-					this.emit('updated', change.object)
-				} else assertNever(change)
+				if (change.type === 'update') {
+					this.emit('updated', change.object.get())
+				} else assertNever(change.type)
 			})
 		)
 	}
@@ -59,15 +55,21 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 	}
 
 	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return [this.store.viewPort.viewPort]
+		return [this.store.viewPort.viewPort.get()]
 	}
 	public async get(_id: null, _params?: Params): Promise<Data> {
-		const data = this.store.viewPort.viewPort
+		const data = this.store.viewPort.viewPort.get()
 		return data
 	}
 	public async update(_id: null, data: Data, _params?: Params): Promise<Result> {
 		this.store.viewPort.update(data)
 		return this.get(null)
+	}
+	public async patch(_id: null, data: Partial<Data>, _params?: Params<Query> | undefined): Promise<Definition.Result> {
+		this.store.viewPort.patch(data)
+		return {
+			_id: '',
+		}
 	}
 
 	public async subscribeToViewPort(_: unknown, params: Params): Promise<void> {

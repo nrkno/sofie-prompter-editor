@@ -4,10 +4,6 @@ import useResizeObserver from '@react-hook/resize-observer'
 export function useSize(target: React.RefObject<HTMLElement>): BoxSize | undefined {
 	const [size, setSize] = useState<{ width: number; height: number }>()
 
-	useEffect(() => {
-		console.log(size, target.current)
-	}, [size, target])
-
 	useLayoutEffect(() => {
 		if (!target.current) return
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore.ts'
 
@@ -10,19 +10,22 @@ import { useQueryParam } from 'src/lib/useQueryParam'
 
 import classes from './Output.module.scss'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
-import { toJS } from 'mobx'
+import { reaction, toJS } from 'mobx'
 import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
 
 function createState(
 	rootEl: HTMLElement,
-	_rootElSize: Size,
+	rootElSize: Size,
 	fontSize: number,
 	message: ControllerMessage
 ): ViewPortLastKnownState {
 	// TODO: Find an anchoring point closest to the "focus area",
 	// and use that as opposed to the "top of page" null value
 	const target = null
-	const offset = rootEl.scrollTop / fontSize
+
+	const fontSizePx = (rootElSize.width * fontSize) / 100
+
+	const offset = rootEl.scrollTop / fontSizePx
 
 	return {
 		timestamp: getCurrentTime(),
@@ -43,6 +46,7 @@ type Size = {
 
 const Output = observer(function Output(): React.ReactElement {
 	const rootEl = useRef<HTMLDivElement>(null)
+	const bootTime = useMemo(() => getCurrentTime(), [])
 	const [size, setSize] = useState({ height: window.innerHeight, width: window.innerWidth })
 
 	const isPrimary = useQueryParam('primary') !== null
@@ -72,20 +76,44 @@ const Output = observer(function Output(): React.ReactElement {
 		[rootEl, size, fontSize, isPrimary]
 	)
 
-	const [viewportState, setLastKnownState] = useControllerMessages(
-		rootEl,
-		(fontSize * size.width) / 100,
-		onControllerMessage
-	)
+	const [viewportState, setLastKnownState] = useControllerMessages(rootEl, (fontSize * size.width) / 100, {
+		onControllerMessage,
+	})
+
+	const rundown = RootAppStore.rundownStore.openRundown
 
 	const viewPortLastKnownState = RootAppStore.viewportStore.viewPort.lastKnownState
 
+	useEffect(
+		() =>
+			reaction(
+				() => RootAppStore.rundownStore.openRundown?.id,
+				() => {
+					if (!isPrimary) return
+					setLastKnownState({
+						controllerMessage: {
+							offset: {
+								target: null,
+								offset: 0,
+							},
+							speed: 0,
+						},
+						timestamp: getCurrentTime(),
+					})
+				},
+				{
+					fireImmediately: false,
+				}
+			),
+		[setLastKnownState, isPrimary]
+	)
+
 	useEffect(() => {
-		if (isPrimary) return
 		if (!viewPortLastKnownState) return
+		if (isPrimary && viewPortLastKnownState.timestamp > bootTime) return
 
 		setLastKnownState(toJS(viewPortLastKnownState))
-	}, [isPrimary, viewPortLastKnownState, setLastKnownState])
+	}, [bootTime, isPrimary, viewPortLastKnownState, setLastKnownState])
 
 	const onViewPortSizeChanged = useCallback(() => {
 		if (!isPrimary) return
@@ -105,14 +133,17 @@ const Output = observer(function Output(): React.ReactElement {
 			fontSize,
 			viewportState.current?.controllerMessage ?? {
 				speed: 0,
-				offset: null,
+				offset: {
+					offset: 0,
+					target: null,
+				},
 			}
 		)
 
 		RootAppStore.viewportStore.update(aspectRatio, state)
 	}, [rootEl, fontSize, viewportState, isPrimary])
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		window.addEventListener('resize', onViewPortSizeChanged)
 
 		onViewPortSizeChanged()
@@ -131,8 +162,6 @@ const Output = observer(function Output(): React.ReactElement {
 			// TODO: unload rundown?
 		}
 	}, [activeRundownPlaylistId])
-
-	const rundown = RootAppStore.rundownStore.openRundown
 
 	/*
 	Implementation notes:
@@ -208,20 +237,11 @@ const Output = observer(function Output(): React.ReactElement {
 
 	const className = `Prompter ${classes.Output}`
 
-	if (!rundown) {
-		return (
-			<>
-				{GLOBAL_SETTINGS}
-				<div className={className}></div>
-			</>
-		)
-	}
-
 	return (
 		<>
 			{GLOBAL_SETTINGS}
 			<div className={className} style={styleVariables} ref={rootEl}>
-				<RundownOutput rundown={rundown} />
+				{rundown && <RundownOutput rundown={rundown} />}
 			</div>
 		</>
 	)

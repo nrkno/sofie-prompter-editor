@@ -18,6 +18,9 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const rundown = RootAppStore.rundownStore.openRundown
 	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 
+	const rundownIsInOutput =
+		outputSettings.activeRundownPlaylistId !== null && rundown?.id === outputSettings.activeRundownPlaylistId
+
 	const viewPortAspectRatio = RootAppStore.viewportStore.viewPort.aspectRatio
 
 	const lastKnownState = RootAppStore.viewportStore.viewPort.lastKnownState
@@ -27,13 +30,16 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const size = useSize(rootEl)
 	const previewWidth = size?.width ?? 0
 
-	const [_, setBaseState] = useControllerMessages(rootEl, (previewWidth * fontSize) / 100)
+	const [_, setBaseState] = useControllerMessages(rootEl, (previewWidth * fontSize) / 100, {
+		enableControl: rundownIsInOutput,
+	})
 
 	useEffect(() => {
 		if (!lastKnownState) return
+		if (!rundownIsInOutput) return
 
 		setBaseState(lastKnownState)
-	}, [setBaseState, lastKnownState])
+	}, [rundownIsInOutput, setBaseState, lastKnownState])
 
 	const style = useMemo(
 		() =>

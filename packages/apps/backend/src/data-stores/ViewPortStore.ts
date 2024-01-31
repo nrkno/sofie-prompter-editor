@@ -4,7 +4,7 @@ import { ViewPort, ViewPortSchema } from '@sofie-prompter-editor/shared-model'
 import { getCurrentTime } from '../lib/getCurrentTime.js'
 
 export class ViewPortStore {
-	public viewPort = observable.object<ViewPort>({
+	public viewPort = observable.box<ViewPort>({
 		_id: '',
 
 		// TODO: load these from persistent store upon startup?
@@ -34,6 +34,10 @@ export class ViewPortStore {
 	update(data: ViewPort) {
 		this._updateIfChanged(data)
 	}
+	patch(partialData: Partial<ViewPort>) {
+		const data = { ...this.viewPort.get(), ...partialData }
+		this._updateIfChanged(data)
+	}
 
 	// private verifyData(viewPort: ViewPort) {
 
@@ -56,7 +60,7 @@ export class ViewPortStore {
 	private _updateIfChanged(viewPort: ViewPort) {
 		if (!isEqual(this.viewPort, viewPort)) {
 			ViewPortSchema.parse(viewPort)
-			this.viewPort = viewPort
+			this.viewPort.set(viewPort)
 		}
 	}
 }
