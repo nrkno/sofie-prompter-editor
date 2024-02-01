@@ -2,36 +2,36 @@ import { TriggerConfig, TriggerConfigType } from './triggerConfig.ts'
 
 // We might move these to a config file later:
 export const hardCodedTriggers: TriggerConfig[] = [
-	// {
-	// 	type: TriggerConfigType.KEYBOARD,
-	// 	keys: 'ArrowUp',
-	// 	action: {
-	// 		type: 'prompterSetSpeed',
-	// 		payload: {
-	// 			speed: -0.3,
-	// 		},
-	// 	},
-	// },
-	// {
-	// 	type: TriggerConfigType.KEYBOARD,
-	// 	keys: 'ArrowDown',
-	// 	action: {
-	// 		type: 'prompterSetSpeed',
-	// 		payload: {
-	// 			speed: 0.3,
-	// 		},
-	// 	},
-	// },
-	// {
-	// 	type: TriggerConfigType.KEYBOARD,
-	// 	keys: 'Numpad0',
-	// 	action: {
-	// 		type: 'prompterSetSpeed',
-	// 		payload: {
-	// 			speed: 0,
-	// 		},
-	// 	},
-	// },
+	{
+		type: TriggerConfigType.KEYBOARD,
+		keys: 'F4',
+		action: {
+			type: 'prompterAddSpeed',
+			payload: {
+				deltaSpeed: -0.3,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.KEYBOARD,
+		keys: 'F6',
+		action: {
+			type: 'prompterAddSpeed',
+			payload: {
+				deltaSpeed: 0.3,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.KEYBOARD,
+		keys: 'F5',
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+	},
 	{
 		type: TriggerConfigType.XKEYS,
 		productId: null,
