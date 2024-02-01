@@ -14,6 +14,7 @@ export function MdDisplay({ source }: { source: string }): React.ReactNode {
 function MdNode({ content }: { content: Node }): React.ReactNode {
 	switch (content.type) {
 		case 'paragraph':
+			if (content.children.length === 0) return <p>&nbsp;</p>
 			return <p>{renderChildren(content)}</p>
 		case 'root':
 			return <>{renderChildren(content)}</>
