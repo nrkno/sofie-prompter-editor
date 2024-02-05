@@ -30,7 +30,7 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const size = useSize(rootEl)
 	const previewWidth = size?.width ?? 0
 
-	const [_, setBaseState] = useControllerMessages(rootEl, (previewWidth * fontSize) / 100, {
+	const [_, setBaseState] = useControllerMessages(rootEl, (previewWidth * fontSize) / 100, rundown, {
 		enableControl: rundownIsInOutput,
 	})
 

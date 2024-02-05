@@ -12,6 +12,7 @@ import classes from './Output.module.scss'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
 import { reaction, toJS } from 'mobx'
 import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
+import { useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
 
 function createState(
 	rootEl: HTMLElement,
@@ -25,7 +26,8 @@ function createState(
 
 	const fontSizePx = (rootElSize.width * fontSize) / 100
 
-	const offset = rootEl.scrollTop / fontSizePx
+	let offset = rootEl.scrollTop / fontSizePx
+	if (!Number.isFinite(offset)) offset = 0
 
 	return {
 		timestamp: getCurrentTime(),
@@ -76,11 +78,11 @@ const Output = observer(function Output(): React.ReactElement {
 		[rootEl, size, fontSize, isPrimary]
 	)
 
-	const [viewportState, setLastKnownState] = useControllerMessages(rootEl, (fontSize * size.width) / 100, {
+	const rundown = RootAppStore.rundownStore.openRundown
+
+	const [viewportState, setLastKnownState] = useControllerMessages(rootEl, (fontSize * size.width) / 100, rundown, {
 		onControllerMessage,
 	})
-
-	const rundown = RootAppStore.rundownStore.openRundown
 
 	const viewPortLastKnownState = RootAppStore.viewportStore.viewPort.lastKnownState
 

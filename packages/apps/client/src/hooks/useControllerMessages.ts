@@ -1,7 +1,9 @@
 import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
 import { useCallback, useEffect, useRef } from 'react'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
+import { UIRundown } from 'src/model/UIRundown'
 import { RootAppStore } from 'src/stores/RootAppStore'
+import { useKeepRundownOutputInPosition } from './useKeepRundownOutputInPosition'
 
 const SPEED_CONSTANT = 300 // this is an arbitrary number to scale a reasonable speed number * font size to pixels/frame
 const STANDARD_FRAME_TIME = 16 // a 60Hz framerate roughly equates to 16ms/frame
@@ -11,6 +13,7 @@ type SetBaseViewPortState = (state: ViewPortLastKnownState) => void
 export function useControllerMessages(
 	ref: React.RefObject<HTMLElement>,
 	fontSizePx: number,
+	rundown: UIRundown | null,
 	opts?: {
 		enableControl?: boolean
 		onControllerMessage?: (message: ControllerMessage) => void
@@ -64,6 +67,8 @@ export function useControllerMessages(
 		},
 		[ref, fontSizePx]
 	)
+
+	useKeepRundownOutputInPosition(ref, rundown, position)
 
 	const setBaseViewPortState = useCallback(
 		(state: ViewPortLastKnownState) => {
