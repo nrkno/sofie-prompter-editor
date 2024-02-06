@@ -6,6 +6,7 @@ import { RootAppStore } from 'src/stores/RootAppStore'
 import classes from './PreviewPanel.module.scss'
 import { useSize } from 'src/lib/useSize'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
+import { useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
 
 export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const rootEl = useRef<HTMLDivElement>(null)
@@ -30,9 +31,14 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const size = useSize(rootEl)
 	const previewWidth = size?.width ?? 0
 
-	const [_, setBaseState] = useControllerMessages(rootEl, (previewWidth * fontSize) / 100, rundown, {
-		enableControl: rundownIsInOutput,
-	})
+	const { setBaseViewPortState: setBaseState, position } = useControllerMessages(
+		rootEl,
+		(previewWidth * fontSize) / 100,
+		{
+			enableControl: rundownIsInOutput,
+		}
+	)
+	useKeepRundownOutputInPosition(rootEl, rundown, position, 0)
 
 	useEffect(() => {
 		if (!lastKnownState) return

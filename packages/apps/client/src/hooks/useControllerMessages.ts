@@ -1,24 +1,44 @@
 import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
+import { toJS } from 'mobx'
 import { useCallback, useEffect, useRef } from 'react'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
-import { UIRundown } from 'src/model/UIRundown'
 import { RootAppStore } from 'src/stores/RootAppStore'
-import { useKeepRundownOutputInPosition } from './useKeepRundownOutputInPosition'
 
 const SPEED_CONSTANT = 300 // this is an arbitrary number to scale a reasonable speed number * font size to pixels/frame
 const STANDARD_FRAME_TIME = 16 // a 60Hz framerate roughly equates to 16ms/frame
 
 type SetBaseViewPortState = (state: ViewPortLastKnownState) => void
 
+/**
+ * This is a hook that allows you to control a container element using Controller messages.
+ *
+ * @export
+ * @param {React.RefObject<HTMLElement>} ref The container element that will be scrolled
+ * @param {number} fontSizePx The size of the font in pixels
+ * @param {{
+ * 		enableControl?: boolean
+ * 		onControllerMessage?: (message: ControllerMessage) => void
+ * 	}} [opts] Additional properties for conditionally enabling the hook and listening for controller messages
+ * @return {*}  {({
+ * 	lastKnownState: React.RefObject<ViewPortLastKnownState | null>
+ * 	position: React.MutableRefObject<number>
+ * 	speed: React.MutableRefObject<number>
+ * 	setBaseViewPortState: SetBaseViewPortState
+ * })}
+ */
 export function useControllerMessages(
 	ref: React.RefObject<HTMLElement>,
 	fontSizePx: number,
-	rundown: UIRundown | null,
 	opts?: {
 		enableControl?: boolean
 		onControllerMessage?: (message: ControllerMessage) => void
 	}
-): [React.RefObject<ViewPortLastKnownState | null>, SetBaseViewPortState] {
+): {
+	lastKnownState: React.RefObject<ViewPortLastKnownState | null>
+	position: React.MutableRefObject<number>
+	speed: React.MutableRefObject<number>
+	setBaseViewPortState: SetBaseViewPortState
+} {
 	const enableControl = opts?.enableControl ?? true
 	const onControllerMessage = opts?.onControllerMessage
 
@@ -46,17 +66,15 @@ export function useControllerMessages(
 					}
 
 					const targetRect = targetEl.getBoundingClientRect()
-					targetTop = targetRect.top + position.current
+					targetTop = targetRect.top + position.current - message.offset.offset * fontSizePx
+				} else {
+					targetTop = targetTop + message.offset.offset * fontSizePx
 				}
-
-				targetTop = targetTop + message.offset.offset * fontSizePx
 			}
 
-			if (message.speed) {
-				speed.current = message.speed
-				const timeDifference = getCurrentTime() - timestamp
-				targetTop = targetTop + ((speed.current * fontSizePx) / SPEED_CONSTANT) * timeDifference
-			}
+			speed.current = message.speed
+			const timeDifference = getCurrentTime() - timestamp
+			targetTop = targetTop + ((speed.current * fontSizePx) / SPEED_CONSTANT) * timeDifference
 
 			position.current = targetTop
 
@@ -68,11 +86,9 @@ export function useControllerMessages(
 		[ref, fontSizePx]
 	)
 
-	useKeepRundownOutputInPosition(ref, rundown, position)
-
 	const setBaseViewPortState = useCallback(
 		(state: ViewPortLastKnownState) => {
-			console.log(`Received a new lastKnownState`, state)
+			console.log(`Received a new lastKnownState`, toJS(state))
 
 			applyControllerMessage(state.controllerMessage, state.timestamp)
 		},
@@ -99,13 +115,23 @@ export function useControllerMessages(
 		RootAppStore.connection.controller.subscribeToMessages().catch(console.error)
 
 		const onFrame = (now: number) => {
+			const el = ref.current
+			if (!el) return
+
 			const frameTime = lastFrameTime.current === null ? STANDARD_FRAME_TIME : now - lastFrameTime.current
 			const scrollBy = ((speed.current * fontSizePx) / SPEED_CONSTANT) * frameTime
-			position.current = Math.max(0, position.current + scrollBy)
+
+			if (scrollBy === 0) {
+				lastFrameTime.current = now
+				lastRequest.current = window.requestAnimationFrame(onFrame)
+				return
+			}
+
+			position.current = Math.min(Math.max(0, position.current + scrollBy), el.scrollHeight - el.offsetHeight)
 
 			// console.log(position.current)
 
-			ref.current?.scrollTo({
+			el.scrollTo({
 				top: position.current,
 				behavior: 'instant',
 			})
@@ -123,5 +149,10 @@ export function useControllerMessages(
 		}
 	}, [enableControl, ref, fontSizePx, onControllerMessage, applyControllerMessage])
 
-	return [lastKnownState, setBaseViewPortState]
+	return {
+		lastKnownState,
+		setBaseViewPortState,
+		position,
+		speed,
+	}
 }

@@ -4,41 +4,72 @@ import { Lambda, observe } from 'mobx'
 import { UISegment, UISegmentId } from 'src/model/UISegment'
 import { UILine, UILineId } from 'src/model/UILine'
 
+export type UpdateProps = {
+	element: HTMLElement
+	offset: number
+}
+
+/**
+ * This is a hook that keeps `ref` element in place while updates happen inside `rundown`.
+ * `focusPosition` declares the "focus" offset, the position where to look for the anchoring element.
+ *
+ * @export
+ * @param {React.RefObject<HTMLElement>} ref
+ * @param {(UIRundown | null)} rundown
+ * @param {React.MutableRefObject<number>} positionRef
+ * @param {number} focusPosition
+ * @param {{
+ * 		onUpdate: (message: UpdateProps) => void
+ * 	}} [opts]
+ */
 export function useKeepRundownOutputInPosition(
-	rootEl: React.RefObject<HTMLElement>,
+	ref: React.RefObject<HTMLElement>,
 	rundown: UIRundown | null,
-	positionRef: React.MutableRefObject<number>
+	positionRef: React.MutableRefObject<number>,
+	focusPosition: number,
+	opts?: {
+		onUpdate: (message: UpdateProps) => void
+	}
 ) {
 	const frameRequest = useRef<number | null>(null)
+
+	const onUpdate = opts?.onUpdate
 
 	useEffect(
 		() =>
 			observeUIRundown(rundown, () => {
 				if (frameRequest.current) return
-				if (!rootEl.current) return
+				if (!ref.current) return
 
 				const els = document.querySelectorAll<HTMLElement>('[data-obj-id]')
-				const [anchorTop, anchorEl] = findClosestElement(els, 0, positionRef.current)
+				const [anchorOffset, anchorEl] = findClosestElement(els, focusPosition, positionRef.current)
 
-				console.debug('Chosen anchor is: ', anchorTop, anchorEl)
+				console.log('Chosen anchor is: ', anchorOffset, anchorEl, 'position is: ', positionRef.current)
 
 				frameRequest.current = window.requestAnimationFrame(() => {
 					frameRequest.current = null
 
 					const newBox = anchorEl.getBoundingClientRect()
-					const diff = newBox.y - anchorTop
+					const diff = newBox.y - anchorOffset
 					if (diff === 0) return
-					if (!rootEl.current) return
-					const boxEl = rootEl.current
+					if (!ref.current) return
+					const boxEl = ref.current
 
 					positionRef.current = positionRef.current + diff
 					boxEl.scrollTo({
 						top: positionRef.current,
 						behavior: 'instant',
 					})
+
+					console.log('Position now is: ', positionRef.current, diff)
+
+					onUpdate?.({
+						element: anchorEl,
+						offset: anchorOffset,
+					})
 				})
 			}),
-		[rootEl, positionRef, rundown]
+		[ref, positionRef, focusPosition, rundown, onUpdate]
 	)
 }
 

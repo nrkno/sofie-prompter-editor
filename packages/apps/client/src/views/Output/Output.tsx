@@ -11,30 +11,51 @@ import { useQueryParam } from 'src/lib/useQueryParam'
 import classes from './Output.module.scss'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
 import { reaction, toJS } from 'mobx'
-import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
-import { useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
+import {
+	ControllerMessage,
+	PartId,
+	SegmentId,
+	TextMarkerId,
+	ViewPortLastKnownState,
+	protectString,
+} from '@sofie-prompter-editor/shared-model'
+import { UpdateProps, useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
+
+type AnyElementId = SegmentId | PartId | TextMarkerId
 
 function createState(
 	rootEl: HTMLElement,
 	rootElSize: Size,
 	fontSize: number,
-	message: ControllerMessage
+	speed: number,
+	target: {
+		element: HTMLElement
+		offset: number
+	} | null
 ): ViewPortLastKnownState {
 	// TODO: Find an anchoring point closest to the "focus area",
 	// and use that as opposed to the "top of page" null value
-	const target = null
+	let targetEl = null
+	let offset = 0
 
 	const fontSizePx = (rootElSize.width * fontSize) / 100
 
-	let offset = rootEl.scrollTop / fontSizePx
-	if (!Number.isFinite(offset)) offset = 0
+	if (target !== null) {
+		targetEl = protectString<AnyElementId>(target.element.dataset['objId']) ?? null
+		offset = target.offset / fontSizePx
+	}
+
+	if (targetEl === null) {
+		offset = rootEl.scrollTop / fontSizePx
+		if (!Number.isFinite(offset)) offset = 0
+	}
 
 	return {
 		timestamp: getCurrentTime(),
 		controllerMessage: {
-			speed: message.speed,
+			speed,
 			offset: {
-				target,
+				target: targetEl,
 				offset,
 			},
 		},
@@ -71,7 +92,7 @@ const Output = observer(function Output(): React.ReactElement {
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, size, fontSize, message)
+			const state = createState(rootEl.current, size, fontSize, message.speed, null)
 
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
@@ -80,8 +101,33 @@ const Output = observer(function Output(): React.ReactElement {
 
 	const rundown = RootAppStore.rundownStore.openRundown
 
-	const [viewportState, setLastKnownState] = useControllerMessages(rootEl, (fontSize * size.width) / 100, rundown, {
+	const {
+		lastKnownState: viewportState,
+		setBaseViewPortState: setLastKnownState,
+		position,
+	} = useControllerMessages(rootEl, (fontSize * size.width) / 100, {
 		onControllerMessage,
+	})
+
+	const onUpdate = useCallback(
+		(change: UpdateProps) => {
+			if (!isPrimary) return
+			if (!rootEl.current) return
+			const aspectRatio = size.width / size.height
+
+			console.log(change)
+			const state = createState(rootEl.current, size, fontSize, viewportState.current?.controllerMessage.speed ?? 0, {
+				element: change.element,
+				offset: change.offset,
+			})
+
+			RootAppStore.viewportStore.update(aspectRatio, state)
+		},
+		[rootEl, size, fontSize, isPrimary, viewportState]
+	)
+
+	useKeepRundownOutputInPosition(rootEl, rundown, position, 0, {
+		onUpdate,
 	})
 
 	const viewPortLastKnownState = RootAppStore.viewportStore.viewPort.lastKnownState
@@ -134,13 +180,8 @@ const Output = observer(function Output(): React.ReactElement {
 				height,
 			},
 			fontSize,
-			viewportState.current?.controllerMessage ?? {
-				speed: 0,
-				offset: {
-					offset: 0,
-					target: null,
-				},
-			}
+			viewportState.current?.controllerMessage.speed ?? 0,
+			null
 		)
 
 		RootAppStore.viewportStore.update(aspectRatio, state)
