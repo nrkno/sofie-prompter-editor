@@ -25,8 +25,7 @@ type AnyElementId = SegmentId | PartId | TextMarkerId
 
 function createState(
 	rootEl: HTMLElement,
-	rootElSize: Size,
-	fontSize: number,
+	fontSizePx: number,
 	speed: number,
 	target: {
 		element: HTMLElement
@@ -37,8 +36,6 @@ function createState(
 	// and use that as opposed to the "top of page" null value
 	let targetEl = null
 	let offset = 0
-
-	const fontSizePx = (rootElSize.width * fontSize) / 100
 
 	if (target !== null) {
 		targetEl = protectString<AnyElementId>(target.element.dataset['objId']) ?? null
@@ -86,17 +83,19 @@ const Output = observer(function Output(): React.ReactElement {
 	const scaleVertical = outputSettings.mirrorVertically ? '-1' : '1'
 	const scaleHorizontal = outputSettings.mirrorHorizontally ? '-1' : '1'
 
+	const fontSizePx = (fontSize * size.width) / 100
+
 	const onControllerMessage = useCallback(
 		(message: ControllerMessage) => {
 			if (!isPrimary) return
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, size, fontSize, message.speed, null)
+			const state = createState(rootEl.current, fontSizePx, message.speed, null)
 
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
-		[rootEl, size, fontSize, isPrimary]
+		[rootEl, size, fontSizePx, isPrimary]
 	)
 
 	const rundown = RootAppStore.rundownStore.openRundown
@@ -105,7 +104,8 @@ const Output = observer(function Output(): React.ReactElement {
 		lastKnownState: viewportState,
 		setBaseViewPortState: setLastKnownState,
 		position,
-	} = useControllerMessages(rootEl, (fontSize * size.width) / 100, {
+		speed,
+	} = useControllerMessages(rootEl, fontSizePx, {
 		onControllerMessage,
 	})
 
@@ -115,18 +115,17 @@ const Output = observer(function Output(): React.ReactElement {
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			console.log(change)
-			const state = createState(rootEl.current, size, fontSize, viewportState.current?.controllerMessage.speed ?? 0, {
+			const state = createState(rootEl.current, fontSizePx, viewportState.current?.controllerMessage.speed ?? 0, {
 				element: change.element,
 				offset: change.offset,
 			})
 
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
-		[rootEl, size, fontSize, isPrimary, viewportState]
+		[rootEl, size, fontSizePx, isPrimary, viewportState]
 	)
 
-	useKeepRundownOutputInPosition(rootEl, rundown, position, 0, {
+	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, position, 0, {
 		onUpdate,
 	})
 
@@ -173,19 +172,10 @@ const Output = observer(function Output(): React.ReactElement {
 
 		if (!isPrimary) return
 
-		const state = createState(
-			rootEl.current,
-			{
-				width,
-				height,
-			},
-			fontSize,
-			viewportState.current?.controllerMessage.speed ?? 0,
-			null
-		)
+		const state = createState(rootEl.current, fontSizePx, viewportState.current?.controllerMessage.speed ?? 0, null)
 
 		RootAppStore.viewportStore.update(aspectRatio, state)
-	}, [rootEl, fontSize, viewportState, isPrimary])
+	}, [rootEl, fontSizePx, viewportState, isPrimary])
 
 	useLayoutEffect(() => {
 		window.addEventListener('resize', onViewPortSizeChanged)

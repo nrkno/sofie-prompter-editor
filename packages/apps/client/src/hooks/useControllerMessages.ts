@@ -4,8 +4,7 @@ import { useCallback, useEffect, useRef } from 'react'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { RootAppStore } from 'src/stores/RootAppStore'
 
-const SPEED_CONSTANT = 300 // this is an arbitrary number to scale a reasonable speed number * font size to pixels/frame
-const STANDARD_FRAME_TIME = 16 // a 60Hz framerate roughly equates to 16ms/frame
+export const SPEED_CONSTANT = 300 // this is an arbitrary number to scale a reasonable speed number * font size to pixels/frame
 
 type SetBaseViewPortState = (state: ViewPortLastKnownState) => void
 
@@ -45,7 +44,7 @@ export function useControllerMessages(
 	const speed = useRef(0)
 	const position = useRef(0)
 	const lastRequest = useRef<number | null>(null)
-	const lastFrameTime = useRef<number | null>(null)
+	const lastFrameTime = useRef<number>(Number(document.timeline.currentTime))
 
 	const lastKnownState = useRef<ViewPortLastKnownState | null>(null)
 
@@ -118,7 +117,7 @@ export function useControllerMessages(
 			const el = ref.current
 			if (!el) return
 
-			const frameTime = lastFrameTime.current === null ? STANDARD_FRAME_TIME : now - lastFrameTime.current
+			const frameTime = now - lastFrameTime.current
 			const scrollBy = ((speed.current * fontSizePx) / SPEED_CONSTANT) * frameTime
 
 			if (scrollBy === 0) {

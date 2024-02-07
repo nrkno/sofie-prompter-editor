@@ -3,6 +3,7 @@ import { UIRundown } from 'src/model/UIRundown'
 import { Lambda, observe } from 'mobx'
 import { UISegment, UISegmentId } from 'src/model/UISegment'
 import { UILine, UILineId } from 'src/model/UILine'
+import { SPEED_CONSTANT } from './useControllerMessages'
 
 export type UpdateProps = {
 	element: HTMLElement
@@ -25,6 +26,8 @@ export type UpdateProps = {
 export function useKeepRundownOutputInPosition(
 	ref: React.RefObject<HTMLElement>,
 	rundown: UIRundown | null,
+	fontSizePx: number,
+	speedRef: React.RefObject<number>,
 	positionRef: React.MutableRefObject<number>,
 	focusPosition: number,
 	opts?: {
@@ -41,13 +44,21 @@ export function useKeepRundownOutputInPosition(
 				if (frameRequest.current) return
 				if (!ref.current) return
 
+				const speed = speedRef.current
+				if (speed === null) return
+
 				const els = document.querySelectorAll<HTMLElement>('[data-obj-id]')
 				const [anchorOffset, anchorEl] = findClosestElement(els, focusPosition, positionRef.current)
 
 				console.log('Chosen anchor is: ', anchorOffset, anchorEl, 'position is: ', positionRef.current)
 
-				frameRequest.current = window.requestAnimationFrame(() => {
+				const beforeTime = Number(document.timeline.currentTime)
+
+				const onNextFrame = (now: number) => {
 					frameRequest.current = null
+
+					const frameTime = now - beforeTime
+					const scrollBy = ((speed * fontSizePx) / SPEED_CONSTANT) * frameTime
 
 					const newBox = anchorEl.getBoundingClientRect()
 					const diff = newBox.y - anchorOffset
@@ -55,7 +66,7 @@ export function useKeepRundownOutputInPosition(
 					if (!ref.current) return
 					const boxEl = ref.current
 
-					positionRef.current = positionRef.current + diff
+					positionRef.current = positionRef.current + diff + scrollBy
 					boxEl.scrollTo({
 						top: positionRef.current,
 						behavior: 'instant',
@@ -67,9 +78,11 @@ export function useKeepRundownOutputInPosition(
 						element: anchorEl,
 						offset: anchorOffset,
 					})
-				})
+				}
+
+				frameRequest.current = window.requestAnimationFrame(onNextFrame)
 			}),
-		[ref, positionRef, focusPosition, rundown, onUpdate]
+		[ref, positionRef, focusPosition, rundown, fontSizePx, speedRef, onUpdate]
 	)
 }
 

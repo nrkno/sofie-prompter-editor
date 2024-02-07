@@ -31,14 +31,16 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const size = useSize(rootEl)
 	const previewWidth = size?.width ?? 0
 
-	const { setBaseViewPortState: setBaseState, position } = useControllerMessages(
-		rootEl,
-		(previewWidth * fontSize) / 100,
-		{
-			enableControl: rundownIsInOutput,
-		}
-	)
-	useKeepRundownOutputInPosition(rootEl, rundown, position, 0)
+	const fontSizePx = (previewWidth * fontSize) / 100
+
+	const {
+		setBaseViewPortState: setBaseState,
+		position,
+		speed,
+	} = useControllerMessages(rootEl, fontSizePx, {
+		enableControl: rundownIsInOutput,
+	})
+	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, position, 0)
 
 	useEffect(() => {
 		if (!lastKnownState) return

@@ -18,7 +18,8 @@ export class ViewPortStore {
 			},
 			timestamp: getCurrentTime(),
 		},
-		aspectRatio: 1,
+		// assume a 16/9 default screen
+		aspectRatio: 1.77,
 	})
 
 	constructor() {
