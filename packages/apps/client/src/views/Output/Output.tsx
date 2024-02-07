@@ -20,6 +20,7 @@ import {
 	protectString,
 } from '@sofie-prompter-editor/shared-model'
 import { UpdateProps, useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
+import { combineDisposers } from 'src/lib/lib'
 
 type AnyElementId = SegmentId | PartId | TextMarkerId
 
@@ -59,11 +60,6 @@ function createState(
 	}
 }
 
-type Size = {
-	width: number
-	height: number
-}
-
 const Output = observer(function Output(): React.ReactElement {
 	const rootEl = useRef<HTMLDivElement>(null)
 	const bootTime = useMemo(() => getCurrentTime(), [])
@@ -72,10 +68,14 @@ const Output = observer(function Output(): React.ReactElement {
 	const isPrimary = useQueryParam('primary') !== null
 
 	// On startup
-	useEffect(() => {
-		RootAppStore.outputSettingsStore.initialize()
-		RootAppStore.viewportStore.initialize()
-	}, [])
+	useEffect(
+		() =>
+			combineDisposers(
+				RootAppStore.whenConnected(() => RootAppStore.outputSettingsStore.initialize()),
+				RootAppStore.whenConnected(() => RootAppStore.viewportStore.initialize())
+			),
+		[]
+	)
 
 	const outputSettings = RootAppStore.outputSettingsStore.outputSettings
 

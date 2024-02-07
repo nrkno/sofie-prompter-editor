@@ -7,14 +7,19 @@ import classes from './PreviewPanel.module.scss'
 import { useSize } from 'src/lib/useSize'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
 import { useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
+import { combineDisposers } from 'src/lib/lib'
 
 export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const rootEl = useRef<HTMLDivElement>(null)
 
-	useEffect(() => {
-		RootAppStore.outputSettingsStore.initialize()
-		RootAppStore.viewportStore.initialize()
-	}, [])
+	useEffect(
+		() =>
+			combineDisposers(
+				RootAppStore.whenConnected(() => RootAppStore.outputSettingsStore.initialize()),
+				RootAppStore.whenConnected(() => RootAppStore.viewportStore.initialize())
+			),
+		[]
+	)
 
 	const rundown = RootAppStore.rundownStore.openRundown
 	const outputSettings = RootAppStore.outputSettingsStore.outputSettings

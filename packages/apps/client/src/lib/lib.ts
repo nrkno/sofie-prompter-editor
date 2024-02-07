@@ -1,3 +1,4 @@
+import { IReactionDisposer } from 'mobx'
 import React, { useCallback, useEffect, useRef } from 'react'
 import { v4 } from 'uuid'
 
@@ -38,4 +39,12 @@ export function useDebouncedCallback(clb: () => void, deps: React.DependencyList
 		}, opts.delay)
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, deps)
+}
+
+/** Take multiple `IReactionDisposers` and return a single disposer function. Useful when combining multiple
+ * reactions/autoruns with React's `useEffect`  */
+export function combineDisposers(...disposers: IReactionDisposer[]): () => void {
+	return () => {
+		disposers.forEach((dispose) => dispose())
+	}
 }

@@ -81,6 +81,8 @@ class RootAppStoreClass {
 		this.connected = false
 	})
 
+	/** Run the callback as soon as the backend connection is set up and re-run every time the system reconnects.
+	 * Useful for setting up subscriptions and getting initial data. */
 	whenConnected = (clb: () => void | Promise<void>): IReactionDisposer => {
 		return reaction(
 			() => this.connected,
