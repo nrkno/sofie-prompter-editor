@@ -1,6 +1,7 @@
 import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
 import { toJS } from 'mobx'
 import { useCallback, useEffect, useRef } from 'react'
+import { getAnchorElementById } from 'src/lib/anchorElements'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { RootAppStore } from 'src/stores/RootAppStore'
 
@@ -58,7 +59,7 @@ export function useControllerMessages(
 				targetTop = 0
 
 				if (message.offset.target !== null) {
-					const targetEl = document.querySelector(`[data-obj-id="${message.offset.target}"]`)
+					const targetEl = getAnchorElementById(message.offset.target)
 					if (!targetEl) {
 						console.error(`Could not find target "${message.offset.target}"`)
 						return
