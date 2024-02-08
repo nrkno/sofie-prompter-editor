@@ -1,4 +1,4 @@
-import { action, makeAutoObservable, makeObservable, observable } from 'mobx'
+import { action, makeObservable, observable } from 'mobx'
 import { UILineId } from '../model/UILine'
 
 export class UIStore {

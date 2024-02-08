@@ -47,6 +47,7 @@
 	padding: 0;
 	margin: 0;
 	border: 1px solid transparent;
+	--cell-background: var(--color-dark-2);
 }
 
 .LineSelected {
@@ -54,9 +55,13 @@
 	border: 1px solid var(--bs-primary);
 }
 
+.Line:focus {
+	--cell-background: var(--color-primary-dark);
+}
+
 .LineItem {
 	padding: var(--cell-padding);
-	background: var(--color-dark-2);
+	background: var(--cell-background);
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

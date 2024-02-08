@@ -14,30 +14,21 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 	}
 
 	function onFocus(e: React.FocusEvent<HTMLLIElement>) {
-		const lineId = e.currentTarget.dataset['lineId'] as UILineId
+		const lineId = e.currentTarget.dataset['objId'] as UILineId
 		RootAppStore.uiStore.setSelectedLineId(lineId)
 	}
 
 	return (
-		<>
+		<li data-segment-id={segment.id} className={classes.SegmentContainer} role="tree">
 			<div className={classes.SegmentIdentifier} role="heading">
 				{segment.name}
 			</div>
 			<ul className={classes.LineContainer}>
 				{segment.linesInOrder.map((line) => (
-					<li
-						key={line.id}
-						className={isSelected(line.id) ? classes.LineSelected : classes.Line}
-						onFocus={onFocus}
-						data-line-id={line.id}
-						tabIndex={0}
-						role="treeitem"
-					>
-						<Line line={line} />
-					</li>
+					<Line key={line.id} line={line} selected={isSelected(line.id)} onFocus={onFocus} />
 				))}
 			</ul>
-		</>
+		</li>
 	)
 })
 Segment.displayName = 'Segment'

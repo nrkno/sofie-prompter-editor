@@ -14,16 +14,6 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	},
 	{
 		type: TriggerConfigType.KEYBOARD,
-		keys: 'F6',
-		action: {
-			type: 'prompterAddSpeed',
-			payload: {
-				deltaSpeed: 0.3,
-			},
-		},
-	},
-	{
-		type: TriggerConfigType.KEYBOARD,
 		keys: 'F5',
 		action: {
 			type: 'prompterSetSpeed',
@@ -32,6 +22,26 @@ export const hardCodedTriggers: TriggerConfig[] = [
 			},
 		},
 	},
+	{
+		type: TriggerConfigType.KEYBOARD,
+		keys: 'F6',
+		action: {
+			type: 'prompterAddSpeed',
+			payload: {
+				deltaSpeed: 0.3,
+			},
+		},
+	},
+
+	{
+		type: TriggerConfigType.KEYBOARD,
+		keys: 'F9',
+		action: {
+			type: 'movePrompterToHere',
+			payload: {},
+		},
+	},
+
 	{
 		type: TriggerConfigType.XKEYS,
 		productId: null,

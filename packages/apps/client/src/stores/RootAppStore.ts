@@ -21,6 +21,7 @@ import { SystemStatusStore } from './SystemStatusStore.ts'
 import { ViewPortStore } from './ViewportStateStore.ts'
 import { TriggerStore } from './TriggerStore.ts'
 import { TriggerActionHandler } from '../lib/triggerActions/TriggerActionHandler.ts'
+import { ControlStore } from './ControlStore.ts'
 
 const USE_MOCK_CONNECTION = false
 
@@ -34,6 +35,7 @@ class RootAppStoreClass {
 	viewportStore: ViewPortStore
 	triggerStore: TriggerStore
 	uiStore: UIStore
+	control: ControlStore
 
 	private triggerActionHandler: TriggerActionHandler
 
@@ -52,6 +54,7 @@ class RootAppStoreClass {
 		this.viewportStore = new ViewPortStore(this, this.connection)
 		this.triggerStore = new TriggerStore(this, this.connection)
 		this.uiStore = new UIStore()
+		this.control = new ControlStore(this, this.connection)
 
 		this.connection.on('disconnected', this.onDisconnected)
 		this.connection.on('connected', this.onConnected)

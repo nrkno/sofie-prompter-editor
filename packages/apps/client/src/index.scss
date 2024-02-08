@@ -1,5 +1,6 @@
 /* The following line can be included in a src/App.scss */
 $primary: #1769ff;
+$primary-dark: #132039;
 //$dark: #252627; // this is Origo's original dark color
 $dark-1: #1d1d1d;
 $dark-2: #2a2a2a;
@@ -33,6 +34,7 @@ $theme-colors: (
 	-webkit-font-smoothing: antialiased;
 	--color-dark-1: #{$dark-1};
 	--color-dark-2: #{$dark-2};
+	--color-primary-dark: #{$primary-dark};
 }
 
 /* Remove outline for non-keyboard :focus */

@@ -12,11 +12,11 @@ import classes from './Output.module.scss'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
 import { reaction, toJS } from 'mobx'
 import {
-	ControllerMessage,
 	PartId,
 	SegmentId,
 	TextMarkerId,
 	ViewPortLastKnownState,
+	ViewPortState,
 	protectString,
 } from '@sofie-prompter-editor/shared-model'
 import { UpdateProps, useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
@@ -85,13 +85,13 @@ const Output = observer(function Output(): React.ReactElement {
 
 	const fontSizePx = (fontSize * size.width) / 100
 
-	const onControllerMessage = useCallback(
-		(message: ControllerMessage) => {
+	const onStateChange = useCallback(
+		(viewPortState: ViewPortState) => {
 			if (!isPrimary) return
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, fontSizePx, message.speed, null)
+			const state = createState(rootEl.current, fontSizePx, viewPortState.speed, null)
 
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
@@ -106,7 +106,7 @@ const Output = observer(function Output(): React.ReactElement {
 		position,
 		speed,
 	} = useControllerMessages(rootEl, fontSizePx, {
-		onControllerMessage,
+		onStateChange,
 	})
 
 	const onUpdate = useCallback(

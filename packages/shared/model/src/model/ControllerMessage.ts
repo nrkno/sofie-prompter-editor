@@ -22,7 +22,8 @@ export const ControllerMessageSchema = z.object({
 		})
 		.nullable(),
 
-	speed: z.number(),
+	/** When set, change the speed of scrolling */
+	speed: z.number().nullable(),
 })
 
 /** TBD, something used to mark places in ScriptContents */

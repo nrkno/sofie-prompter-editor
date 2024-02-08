@@ -1,4 +1,4 @@
-import { ControllerMessage, ViewPortLastKnownState } from '@sofie-prompter-editor/shared-model'
+import { ControllerMessage, ViewPortLastKnownState, ViewPortState } from '@sofie-prompter-editor/shared-model'
 import { toJS } from 'mobx'
 import { useCallback, useEffect, useRef } from 'react'
 import { getAnchorElementById } from 'src/lib/anchorElements'
@@ -31,7 +31,7 @@ export function useControllerMessages(
 	fontSizePx: number,
 	opts?: {
 		enableControl?: boolean
-		onControllerMessage?: (message: ControllerMessage) => void
+		onStateChange?: (message: ViewPortState) => void
 	}
 ): {
 	lastKnownState: React.RefObject<ViewPortLastKnownState | null>
@@ -40,7 +40,7 @@ export function useControllerMessages(
 	setBaseViewPortState: SetBaseViewPortState
 } {
 	const enableControl = opts?.enableControl ?? true
-	const onControllerMessage = opts?.onControllerMessage
+	const onStateChange = opts?.onStateChange
 
 	const speed = useRef(0)
 	const position = useRef(0)
@@ -51,7 +51,7 @@ export function useControllerMessages(
 
 	const applyControllerMessage = useCallback(
 		(message: ControllerMessage, timestamp = getCurrentTime()) => {
-			speed.current = message.speed
+			speed.current = message.speed ?? speed.current
 
 			let targetTop = position.current
 
@@ -72,7 +72,6 @@ export function useControllerMessages(
 				}
 			}
 
-			speed.current = message.speed
 			const timeDifference = getCurrentTime() - timestamp
 			targetTop = targetTop + ((speed.current * fontSizePx) / SPEED_CONSTANT) * timeDifference
 
@@ -103,12 +102,21 @@ export function useControllerMessages(
 
 			applyControllerMessage(message)
 
-			lastKnownState.current = {
-				timestamp: getCurrentTime(),
-				controllerMessage: message,
+			const combinedMessage = {
+				offset: message.offset ??
+					lastKnownState.current?.controllerMessage.offset ?? {
+						target: null,
+						offset: 0,
+					},
+				speed: speed.current,
 			}
 
-			onControllerMessage?.(message)
+			lastKnownState.current = {
+				timestamp: getCurrentTime(),
+				controllerMessage: combinedMessage,
+			}
+
+			onStateChange?.(combinedMessage)
 		}
 
 		RootAppStore.connection.controller.on('message', onMessage)
@@ -147,7 +155,7 @@ export function useControllerMessages(
 
 			if (lastRequest.current !== null) window.cancelAnimationFrame(lastRequest.current)
 		}
-	}, [enableControl, ref, fontSizePx, onControllerMessage, applyControllerMessage])
+	}, [enableControl, ref, fontSizePx, onStateChange, applyControllerMessage])
 
 	return {
 		lastKnownState,
