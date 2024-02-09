@@ -16,6 +16,7 @@ import { deselectAll } from './commands/deselectAll'
 import { fromMarkdown, toMarkdown } from 'src/lib/prosemirrorDoc'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
+import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
 
 export function Editor({
 	className,
@@ -25,6 +26,36 @@ export function Editor({
 }): React.JSX.Element {
 	const containerEl = useRef<HTMLDivElement>(null)
 	const editorView = useRef<EditorView>()
+
+	const onMovePrompterToHere = useCallback(() => {
+		if (!editorView.current) return
+
+		const view = editorView.current
+		const state = view.state
+
+		const nodeAtHead = state.selection.$head
+		const parentOfHead = nodeAtHead.node(nodeAtHead.depth - 1)
+
+		const objId = parentOfHead.attrs['lineId']
+		if (!objId) return
+
+		console.log(view.coordsAtPos(state.selection.$head.pos))
+
+		RootAppStore.control.jumpToObject(objId)
+	}, [])
+
+	useEffect(() => {
+		function onAction(action: AnyTriggerAction) {
+			if (!editorView.current || !editorView.current.hasFocus()) return
+			if (action.type === 'movePrompterToHere') onMovePrompterToHere()
+		}
+
+		RootAppStore.triggerStore.addListener('action', onAction)
+
+		return () => {
+			RootAppStore.triggerStore.removeListener('action', onAction)
+		}
+	}, [onMovePrompterToHere])
 
 	useEffect(() => {
 		if (!containerEl.current) return

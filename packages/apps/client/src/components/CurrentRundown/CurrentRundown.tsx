@@ -34,8 +34,6 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		const objId = RootAppStore.uiStore.selectedLineId
 		if (objId === null) return
 
-		console.log(objId)
-
 		RootAppStore.control.jumpToObject(objId)
 	}, [isListFocused])
 

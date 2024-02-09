@@ -5,7 +5,6 @@ import 'src/PrompterStyles.css'
 import classes from './ScriptEditor.module.scss'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore'
-import { useDebouncedCallback } from 'src/lib/lib'
 import { useSize } from 'src/lib/useSize'
 
 export const ScriptEditor = observer(function ScriptEditor(): React.JSX.Element {
