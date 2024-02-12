@@ -63,6 +63,22 @@ export class UISegment {
 			.sort((a, b) => a.rank - b.rank)
 	}
 
+	get linesInOrderFiltered(): UILine[] {
+		return Array.from(this.lines.values())
+			.slice()
+			.filter(this.doesLineMatchFilter)
+			.sort((a, b) => a.rank - b.rank)
+	}
+
+	private doesLineMatchFilter = (line: UILine): boolean => {
+		if (this.owner.filter === null) return true
+		if (this.owner.filter === 'onlyScript') {
+			if (line.script === null || line.script.trim() === '') return false
+			return true
+		}
+		return true
+	}
+
 	private onPartCreated = action('onPartCreated', (json: Part) => {
 		if (json.segmentId !== this.id) return
 

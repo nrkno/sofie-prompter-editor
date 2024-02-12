@@ -3,7 +3,7 @@ import { action } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { Segment } from './Segment'
-import { Button } from 'react-bootstrap'
+import { Button, ButtonGroup, ToggleButton } from 'react-bootstrap'
 import classes from './CurrentRundown.module.scss'
 import { useNavigate } from 'react-router-dom'
 import { SystemStatusAlertBars } from 'src/components/SystemStatusAlertBars/SystemStatusAlertBars'
@@ -86,6 +86,18 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		[segmentLineListEl]
 	)
 
+	const onShowOnlyLinesWithScriptToggle = () => {
+		if (!openRundown) return
+		const oldState = openRundown.filter ?? null
+
+		if (oldState === null) {
+			openRundown.setFilter('onlyScript')
+			return
+		}
+
+		openRundown.setFilter(null)
+	}
+
 	if (!openRundown) {
 		return <p>No open rundown</p>
 	}
@@ -93,17 +105,29 @@ const CurrentRundown = observer((): React.JSX.Element => {
 	return (
 		<>
 			<h1>{openRundown.name}</h1>
-			<p>
+			<div>
 				<Button variant="secondary" onClick={onClose}>
 					Close
 				</Button>
 				<Button variant="primary" onClick={onSendToOutput}>
 					Send to Output
 				</Button>
-			</p>
+				<ButtonGroup>
+					<ToggleButton
+						variant="secondary"
+						type="checkbox"
+						value={'1'}
+						checked={!!openRundown.filter}
+						id="rundown-filter-toggle-button"
+						onChange={onShowOnlyLinesWithScriptToggle}
+					>
+						Show only Lines with script
+					</ToggleButton>
+				</ButtonGroup>
+			</div>
 			<SystemStatusAlertBars />
 			<ul className={classes.SegmentLineList} role="tree" ref={setSegmentLineListEl} onKeyDown={onKeyDown}>
-				{openRundown.segmentsInOrder.map((segment) => (
+				{openRundown.segmentsInOrderFiltered.map((segment) => (
 					<Segment segment={segment} key={segment.id} />
 				))}
 			</ul>
