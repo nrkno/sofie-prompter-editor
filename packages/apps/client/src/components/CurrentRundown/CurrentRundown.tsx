@@ -8,6 +8,7 @@ import classes from './CurrentRundown.module.scss'
 import { useNavigate } from 'react-router-dom'
 import { SystemStatusAlertBars } from 'src/components/SystemStatusAlertBars/SystemStatusAlertBars'
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
+import { getNextFocus } from '@bbc/tv-lrud-spatial'
 
 const CurrentRundown = observer((): React.JSX.Element => {
 	const [segmentLineListEl, setSegmentLineListEl] = useState<HTMLUListElement | null>(null)
@@ -42,12 +43,10 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		if (!el) return
 
 		function onFocusIn() {
-			console.log('focusIn')
 			setIsListFocused(true)
 		}
 
 		function onFocusOut() {
-			console.log('focusOut')
 			setIsListFocused(false)
 		}
 
@@ -72,6 +71,21 @@ const CurrentRundown = observer((): React.JSX.Element => {
 		}
 	}, [onMovePrompterToHere])
 
+	const onKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLUListElement>) => {
+			if (!segmentLineListEl) return
+			const activeElement = document.activeElement
+			if (!activeElement || !(activeElement instanceof HTMLElement)) return
+
+			const nextFocus = getNextFocus(activeElement, e.key, segmentLineListEl)
+			if (!nextFocus) return
+
+			nextFocus.focus()
+			e.preventDefault()
+		},
+		[segmentLineListEl]
+	)
+
 	if (!openRundown) {
 		return <p>No open rundown</p>
 	}
@@ -88,7 +102,7 @@ const CurrentRundown = observer((): React.JSX.Element => {
 				</Button>
 			</p>
 			<SystemStatusAlertBars />
-			<ul className={classes.SegmentLineList} role="tree" ref={setSegmentLineListEl}>
+			<ul className={classes.SegmentLineList} role="tree" ref={setSegmentLineListEl} onKeyDown={onKeyDown}>
 				{openRundown.segmentsInOrder.map((segment) => (
 					<Segment segment={segment} key={segment.id} />
 				))}

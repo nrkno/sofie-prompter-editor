@@ -34,6 +34,7 @@
         "vite": "^4.5.0"
     },
     "dependencies": {
+        "@bbc/tv-lrud-spatial": "^0.0.10",
         "@elgato-stream-deck/webhid": "^6.0.0",
         "@popperjs/core": "^2.11.8",
         "@react-hook/resize-observer": "^1.2.6",
