@@ -17,7 +17,7 @@
 		"node": ">=20.9.0"
 	},
 	"devDependencies": {
-		"@feathersjs/feathers": "^5.0.11",
+		"@feathersjs/feathers": "^5.0.21",
 		"eventemitter3": "^5.0.1"
 	},
 	"dependencies": {
