@@ -11,7 +11,7 @@ const loggerConfig = {}
 initializeLogger(loggerConfig)
 const log: LoggerInstance = setupLogger(loggerConfig, 'backend')
 
-async function init() {
+try {
 	const options = await getConfigOptions()
 	if (options.logLevel && isLogLevel(options.logLevel)) setLogLevel(options.logLevel)
 
@@ -54,9 +54,8 @@ async function init() {
 	await httpAPI.initialized
 
 	log.info('Backend initialized')
-}
-init().catch((err) => {
+} catch (err: any) {
 	log.error(`Error during init`)
 	log.error(err)
 	log.error(err.stack)
-})
+}

@@ -95,14 +95,8 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 			console.log('a pong', payload)
 		})
 
-		this.initialized = new Promise<void>((resolve, reject) => {
-			this.app
-				.listen(port)
-				.then(() => {
-					this.log.info('Feathers server listening on localhost:' + port)
-					resolve()
-				})
-				.catch(reject)
+		this.initialized = this.app.listen(port).then(() => {
+			this.log.info('Feathers server listening on localhost:' + port)
 		})
 	}
 }
