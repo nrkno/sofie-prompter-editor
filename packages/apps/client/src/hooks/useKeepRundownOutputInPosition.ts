@@ -94,12 +94,12 @@ function observeUIRundown(rundown: UIRundown | null, clb: Lambda): Lambda {
 	const destructors: Lambda[] = []
 
 	destructors.push(
-		observe(rundown, 'name', (change) => {
+		observe(rundown, 'name', () => {
 			// console.log('rundown:name', change)
 
 			clb()
 		}),
-		observe(rundown, 'ready', (change) => {
+		observe(rundown, 'ready', () => {
 			// console.log('rundown:ready', change)
 
 			clb()
@@ -139,7 +139,7 @@ function observeUISegment(segment: UISegment | null, clb: Lambda): Lambda {
 	const destructors: Lambda[] = []
 
 	destructors.push(
-		observe(segment, (change) => {
+		observe(segment, () => {
 			// console.log('segment', change)
 
 			clb()
