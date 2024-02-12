@@ -11,6 +11,12 @@ export default defineConfig({
 			src: '/src',
 		},
 	},
+	server: {
+		proxy: {
+			'/api': 'http://localhost:5600',
+			'/socket.io': 'http://localhost:5600',
+		},
+	},
 	optimizeDeps: {
 		include: ['packages/shared/*/dist/*'],
 	},
