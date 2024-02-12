@@ -22,7 +22,7 @@ export const schema = new Schema({
 		},
 		line: {
 			group: 'block',
-			content: 'lineTitle paragraph*',
+			content: 'lineTitle paragraph paragraph*',
 			attrs: {
 				lineId: {
 					default: null,
