@@ -27,18 +27,18 @@ export {
 }
 
 export enum Services {
-	Example = 'example',
+	Example = 'api/example',
 
-	SystemStatus = 'systemStatus',
+	SystemStatus = 'api/systemStatus',
 
-	Playlist = 'playlist',
-	Rundown = 'rundown',
-	Segment = 'segment',
-	Part = 'part',
+	Playlist = 'api/playlist',
+	Rundown = 'api/rundown',
+	Segment = 'api/segment',
+	Part = 'api/part',
 
-	Controller = 'controller',
-	OutputSettings = 'outputSettings',
-	ViewPort = 'viewPort',
+	Controller = 'api/controller',
+	OutputSettings = 'api/outputSettings',
+	ViewPort = 'api/viewPort',
 }
 export type ServiceTypes = {
 	[Services.Example]: ExampleServiceDefinition.Service
