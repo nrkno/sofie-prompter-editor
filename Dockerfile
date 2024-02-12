@@ -10,7 +10,7 @@ RUN yarn build
 RUN yarn workspaces focus --production @sofie-prompter-editor/apps-backend # purge dev-dependencies
 
 # perform some cleanup
-RUN rm -R packages/apps/client/node_modules
+RUN rm -R packages/apps/client/node_modules || true
 
 # DEPLOY IMAGE
 FROM node:20-alpine
