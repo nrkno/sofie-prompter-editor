@@ -17,6 +17,7 @@ import { fromMarkdown, toMarkdown } from 'src/lib/prosemirrorDoc'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
+import { findMatchingAncestor } from 'src/lib/findMatchingAncestor'
 
 export function Editor({
 	className,
@@ -33,15 +34,22 @@ export function Editor({
 		const view = editorView.current
 		const state = view.state
 
-		const nodeAtHead = state.selection.$head
-		const parentOfHead = nodeAtHead.node(nodeAtHead.depth - 1)
+		const resPosAtHead = state.selection.$head
+		const parentOfHead = resPosAtHead.node(resPosAtHead.depth - 1)
 
 		const objId = parentOfHead.attrs['lineId']
 		if (!objId) return
 
-		console.log(view.coordsAtPos(state.selection.$head.pos))
+		const currentCoords = view.coordsAtPos(resPosAtHead.pos)
+		const currentElement = view.domAtPos(resPosAtHead.pos).node
+		const lineDiv = findMatchingAncestor(currentElement, '.Line')
+		if (!lineDiv) return
+		const computedStyle = getComputedStyle(lineDiv)
+		const fontSizePx = parseFloat(computedStyle.fontSize)
+		const lineBox = lineDiv.getBoundingClientRect()
+		const offset = (currentCoords.top - lineBox.top) / fontSizePx
 
-		RootAppStore.control.jumpToObject(objId)
+		RootAppStore.control.jumpToObject(objId, offset * -1)
 	}, [])
 
 	useEffect(() => {
@@ -79,7 +87,7 @@ export function Editor({
 
 		const editorState = editorView.current.state
 
-		const line = find(editorState.doc, (node) => node.attrs['lineId'] === lineId)
+		const line = findNode(editorState.doc, (node) => node.attrs['lineId'] === lineId)
 
 		if (!line) return
 
@@ -321,7 +329,7 @@ function nearestElement(node: globalThis.Node | null): HTMLElement | null {
 	return node?.parentElement ?? null
 }
 
-function find(
+function findNode(
 	node: Node,
 	predicate: (needle: Node, offset: number, index: number) => boolean
 ): undefined | NodeWithPosition {
