@@ -32,7 +32,7 @@ export const TestViewPort: React.FC<{ api: APIConnection }> = ({ api }) => {
 
 			// Also fetch initial settings:
 			api.viewPort
-				.get('')
+				.get(null)
 				.then((data) => {
 					setViewPort(data)
 				})
@@ -53,7 +53,7 @@ export const TestViewPort: React.FC<{ api: APIConnection }> = ({ api }) => {
 					<EditObject
 						obj={viewPort}
 						onChange={(newViewPort) => {
-							api.viewPort.update('', newViewPort).catch(console.error)
+							api.viewPort.update(null, newViewPort).catch(console.error)
 						}}
 					/>
 				</div>
