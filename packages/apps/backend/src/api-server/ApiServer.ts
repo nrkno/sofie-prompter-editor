@@ -57,7 +57,7 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 
 		const errorHandlerMiddleware = errorHandler()
 		this.app.use((ctx: FeathersKoaContext, next) => {
-			if (ctx.path.startsWith('/api/') || ctx.path.startsWith('/api')) {
+			if (ctx.path.startsWith('/api/') || ctx.path === '/api') {
 				return errorHandlerMiddleware(ctx, next)
 			} else if (ctx.status === 404) {
 				// Force serve the index as this is a SPA
