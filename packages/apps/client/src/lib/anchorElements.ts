@@ -6,6 +6,9 @@ export function getAllAnchorElements(): NodeListOf<HTMLElement> {
 	return document.querySelectorAll<HTMLElement>('[data-obj-id]')
 }
 
-export function getAnchorElementById(id: UISegmentId | UILineId | TextMarkerId): HTMLElement | null {
-	return document.querySelector(`[data-obj-id="${id}"]`)
+export function getAnchorElementById(
+	container: HTMLElement | Document,
+	id: UISegmentId | UILineId | TextMarkerId
+): HTMLElement | null {
+	return container.querySelector(`[data-obj-id="${id}"]`)
 }

@@ -51,7 +51,9 @@ export function useControllerMessages(
 
 	const applyControllerMessage = useCallback(
 		(message: ControllerMessage, timestamp = getCurrentTime()) => {
+			if (!ref.current) return
 			speed.current = message.speed ?? speed.current
+			const container = ref.current
 
 			let targetTop = position.current
 
@@ -59,16 +61,16 @@ export function useControllerMessages(
 				targetTop = 0
 
 				if (message.offset.target !== null) {
-					const targetEl = getAnchorElementById(message.offset.target)
+					const targetEl = getAnchorElementById(container, message.offset.target)
 					if (!targetEl) {
 						console.error(`Could not find target "${message.offset.target}"`)
 						return
 					}
 
 					const targetRect = targetEl.getBoundingClientRect()
-					targetTop = targetRect.top + position.current - message.offset.offset * fontSizePx
+					targetTop = position.current + targetRect.top - message.offset.offset * fontSizePx
 				} else {
-					targetTop = targetTop + message.offset.offset * fontSizePx
+					targetTop = message.offset.offset * fontSizePx
 				}
 			}
 
@@ -77,7 +79,7 @@ export function useControllerMessages(
 
 			position.current = targetTop
 
-			ref.current?.scrollTo({
+			container.scrollTo({
 				top: targetTop,
 				behavior: 'instant',
 			})
