@@ -58,16 +58,13 @@ export class UISegment {
 	}
 
 	get linesInOrder(): UILine[] {
-		return Array.from(this.lines.values())
-			.slice()
-			.sort((a, b) => a.rank - b.rank)
+		return Array.from(this.lines.values()).sort((a, b) => a.rank - b.rank)
 	}
 
 	get linesInOrderFiltered(): UILine[] {
-		return Array.from(this.lines.values())
-			.slice()
-			.filter(this.doesLineMatchFilter)
-			.sort((a, b) => a.rank - b.rank)
+		let lines = Array.from(this.lines.values())
+		if (this.owner.filter) lines = lines.filter(this.doesLineMatchFilter)
+		return lines.sort((a, b) => a.rank - b.rank)
 	}
 
 	private doesLineMatchFilter = (line: UILine): boolean => {
