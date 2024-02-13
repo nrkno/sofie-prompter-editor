@@ -229,21 +229,7 @@ export function Editor({
 		}
 	}, [updateLineScript])
 
-	function onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
-		if (!containerEl.current) return
-		if (!(!e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey)) return
-
-		switch (e.code) {
-			case 'ArrowUp':
-				scrollContainerWithCaret(containerEl.current, 'up')
-				break
-			case 'ArrowDown':
-				scrollContainerWithCaret(containerEl.current, 'down')
-				break
-		}
-	}
-
-	return <div ref={containerEl} className={className} spellCheck="false" onKeyDown={onKeyDown}></div>
+	return <div ref={containerEl} className={className} spellCheck="false"></div>
 }
 
 function makeNewEditorState(doc: Node): EditorState {
@@ -266,30 +252,6 @@ function makeNewEditorState(doc: Node): EditorState {
 			}),
 		],
 		doc,
-	})
-}
-
-function scrollContainerWithCaret(container: HTMLElement, upOrDown: 'up' | 'down') {
-	const backwardsForwards = upOrDown === 'down' ? 'forward' : 'backward'
-	const currentSelection = window.getSelection()
-	if (!currentSelection) return
-	const bounds = currentSelection.getRangeAt(0).getBoundingClientRect()
-	currentSelection.modify('move', backwardsForwards, 'line')
-	const modifiedSelection = window.getSelection()
-	if (!modifiedSelection) return
-	const modifiedBounds = modifiedSelection.getRangeAt(0).getBoundingClientRect()
-	let scrollAmount = modifiedBounds.top - bounds.top
-	if (scrollAmount === 0) {
-		if (modifiedBounds.left !== bounds.left) {
-			scrollAmount = modifiedBounds.left < bounds.left ? -19 : 19
-		}
-	}
-
-	console.log(scrollAmount, bounds, modifiedBounds)
-
-	container.scrollBy({
-		top: scrollAmount,
-		behavior: 'instant',
 	})
 }
 
