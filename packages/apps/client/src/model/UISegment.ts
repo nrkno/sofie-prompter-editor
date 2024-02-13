@@ -58,9 +58,22 @@ export class UISegment {
 	}
 
 	get linesInOrder(): UILine[] {
-		return Array.from(this.lines.values())
-			.slice()
-			.sort((a, b) => a.rank - b.rank)
+		return Array.from(this.lines.values()).sort((a, b) => a.rank - b.rank)
+	}
+
+	get linesInOrderFiltered(): UILine[] {
+		let lines = Array.from(this.lines.values())
+		if (this.owner.filter) lines = lines.filter(this.doesLineMatchFilter)
+		return lines.sort((a, b) => a.rank - b.rank)
+	}
+
+	private doesLineMatchFilter = (line: UILine): boolean => {
+		if (this.owner.filter === null) return true
+		if (this.owner.filter === 'onlyScript') {
+			if (line.script === null || line.script.trim() === '') return false
+			return true
+		}
+		return true
 	}
 
 	private onPartCreated = action('onPartCreated', (json: Part) => {

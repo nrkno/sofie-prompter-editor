@@ -52,7 +52,7 @@ export function useKeepRundownOutputInPosition(
 				const els = getAllAnchorElements()
 				const [anchorOffset, anchorEl] = findClosestElement(els, focusPosition, positionRef.current)
 
-				console.log('Chosen anchor is: ', anchorOffset, anchorEl, 'position is: ', positionRef.current)
+				// console.log('Chosen anchor is: ', anchorOffset, anchorEl, 'position is: ', positionRef.current)
 
 				const beforeTime = Number(document.timeline.currentTime)
 
@@ -74,7 +74,7 @@ export function useKeepRundownOutputInPosition(
 						behavior: 'instant',
 					})
 
-					console.log('Position now is: ', positionRef.current, diff)
+					// console.log('Position now is: ', positionRef.current, diff)
 
 					onUpdate?.({
 						element: anchorEl,
@@ -94,8 +94,13 @@ function observeUIRundown(rundown: UIRundown | null, clb: Lambda): Lambda {
 	const destructors: Lambda[] = []
 
 	destructors.push(
-		observe(rundown, () => {
-			// console.log('rundown', change)
+		observe(rundown, 'name', () => {
+			// console.log('rundown:name', change)
+
+			clb()
+		}),
+		observe(rundown, 'ready', () => {
+			// console.log('rundown:ready', change)
 
 			clb()
 		})
@@ -175,22 +180,22 @@ function observeUILine(line: UILine | null, clb: Lambda): Lambda {
 
 	destructors.push(
 		observe(line, 'identifier', () => {
-			// console.log('line:identifier', change)
+			// console.log('line:identifier')
 
 			clb()
 		}),
 		observe(line, 'slug', () => {
-			// console.log('line:slug', change)
+			// console.log('line:slug')
 
 			clb()
 		}),
 		observe(line, 'rank', () => {
-			// console.log('line:rank', change)
+			// console.log('line:rank')
 
 			clb()
 		}),
 		observe(line, 'script', () => {
-			// console.log('line:script', change)
+			// console.log('line:script')
 
 			clb()
 		})

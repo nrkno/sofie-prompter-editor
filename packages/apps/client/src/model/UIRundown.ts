@@ -14,6 +14,8 @@ import { RundownStore } from '../stores/RundownStore'
 
 export type UIRundownId = RundownPlaylistId
 
+type UIRundownFilter = 'onlyScript' | null
+
 export class UIRundown {
 	name: string = ''
 
@@ -23,11 +25,11 @@ export class UIRundown {
 
 	private rundowns = observable.map<RundownId, Rundown>()
 
+	filter: UIRundownFilter = null
+
 	constructor(private store: RundownStore, public id: UIRundownId) {
 		makeAutoObservable(this, {
-			updateFromJson: action,
 			segmentsInOrder: computed,
-			close: action,
 		})
 		this.init().catch(console.error)
 	}
@@ -101,10 +103,10 @@ export class UIRundown {
 		this.store.connection.segment.on('created', this.onSegmentCreated)
 	}
 
-	updateFromJson(json: RundownPlaylist) {
+	updateFromJson = action((json: RundownPlaylist) => {
 		this.name = json.label
 		this.ready = true
-	}
+	})
 
 	get segmentsInOrder(): UISegment[] {
 		return Array.from(this.segments.values()).sort((a, b) => {
@@ -115,12 +117,20 @@ export class UIRundown {
 		})
 	}
 
-	close(): void {
+	get segmentsInOrderFiltered(): UISegment[] {
+		return this.segmentsInOrder
+	}
+
+	setFilter = action((filter: UIRundownFilter) => {
+		this.filter = filter
+	})
+
+	close = action(() => {
 		this.store.openRundown = null
 
 		this.store.connection.rundown.unSubscribeFromRundownsInPlaylist(this.id).catch(console.error)
 		this.dispose()
-	}
+	})
 
 	dispose(): void {
 		// unregister event handlers from services
