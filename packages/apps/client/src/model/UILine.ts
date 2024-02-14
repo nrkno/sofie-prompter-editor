@@ -1,4 +1,4 @@
-import { Part, PartDisplayType, PartId, ProtectedString, protectString } from '@sofie-prompter-editor/shared-model'
+import { Part, PartDisplayType, PartId } from '@sofie-prompter-editor/shared-model'
 import { RundownStore } from '../stores/RundownStore'
 import { action, makeAutoObservable } from 'mobx'
 import { UISegment } from './UISegment'
