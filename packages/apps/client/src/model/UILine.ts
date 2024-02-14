@@ -22,6 +22,8 @@ export class UILine {
 
 	expectedDuration: number | null = null
 
+	readTime: number | null = null
+
 	isNew: boolean = false
 
 	ready: boolean = false
