@@ -2,6 +2,7 @@ import { Part, PartDisplayType, PartId } from '@sofie-prompter-editor/shared-mod
 import { RundownStore } from '../stores/RundownStore'
 import { action, makeAutoObservable } from 'mobx'
 import { UISegment } from './UISegment'
+import { convertPlainTextScriptToMarkdown } from 'src/lib/markdownishUtils'
 
 export type UILineId = PartId
 
@@ -54,7 +55,7 @@ export class UILine {
 		this.identifier = json.identifier ?? null
 		this.slug = json.label
 		this.rank = json.rank
-		this.script = json.editedScriptContents ?? json.scriptContents ?? null
+		this.script = json.editedScriptContents ?? this.convertScriptContentsToMarkdown(json.scriptContents) ?? null
 		this.isNew = json.isNew ?? false
 		this.expectedDuration = json.expectedDuration ?? null
 		this.lineType = {
@@ -73,6 +74,11 @@ export class UILine {
 	dispose() {
 		this.store.connection.part.off('updated', this.onPartUpdated)
 		this.store.connection.part.off('removed', this.onPartRemoved)
+	}
+
+	private convertScriptContentsToMarkdown(script: string | undefined): string | undefined {
+		if (script === undefined) return undefined
+		return convertPlainTextScriptToMarkdown(script)
 	}
 }
 

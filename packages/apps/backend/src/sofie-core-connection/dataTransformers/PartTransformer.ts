@@ -102,7 +102,7 @@ export class PartTransformer {
 				// Script is special, since we need to parse it allways
 				if (sourceLayer.type === SourceLayerType.SCRIPT) {
 					const pieceContent = piece.content as ScriptContent
-					derived.scriptContents = this.convertPlainTextScriptToMarkdown(pieceContent.fullScript ?? '')
+					derived.scriptContents = pieceContent.fullScript ?? ''
 					continue
 				}
 
@@ -255,12 +255,4 @@ export class PartTransformer {
 	private convertId<A, B>(id: A): B {
 		return id as any
 	}
-
-	private convertPlainTextScriptToMarkdown(script: string): string {
-		// first, escape all markdownish control codes, then mark square-bracket text with Reverse formating
-		return script.replaceAll(MARKDOWNISH_CONTROL_CODES, '\\$1').replaceAll(SQUARE_BRACKETS_REVERSE, '~[$1]~')
-	}
 }
-
-const MARKDOWNISH_CONTROL_CODES = /([\\*_~])/g
-const SQUARE_BRACKETS_REVERSE = /\[([^\]]+)\]/g

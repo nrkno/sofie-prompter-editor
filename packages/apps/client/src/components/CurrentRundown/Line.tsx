@@ -4,7 +4,7 @@ import { UILine } from 'src/model/UILine'
 import classes from './CurrentRundown.module.scss'
 import { LineTypeIcon } from './LineTypeIcon'
 import { TimeSpan } from '../TimeSpan/TimeSpan'
-import { removeMarkdownish } from 'src/lib/removeMarkdownish'
+import { removeMarkdownish } from 'src/lib/markdownishUtils'
 
 const Line = observer(
 	({
