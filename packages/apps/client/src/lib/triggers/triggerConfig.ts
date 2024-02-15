@@ -7,12 +7,14 @@ export type TriggerConfig =
 	| TriggerConfigXkeys
 	| TriggerConfigStreamdeck
 	| TriggerConfigSpacemouse
+	| TriggerConfigJoycon
 
 export enum TriggerConfigType {
 	KEYBOARD = 'keyboard',
 	XKEYS = 'xkeys',
 	STREAMDECK = 'streamdeck',
 	SPACEMOUSE = 'spacemouse',
+	JOYCON = 'joycon',
 }
 export interface TriggerConfigBase {
 	type: TriggerConfigType
@@ -98,5 +100,22 @@ export interface TriggerConfigSpacemouse extends TriggerConfigBase {
 		| {
 				type: AnyTriggerAction['type']
 				// no payload, use value from the xkeys
+		  }
+}
+export interface TriggerConfigJoycon extends TriggerConfigBase {
+	type: TriggerConfigType.JOYCON
+
+	controllerType: 'left' | 'right' | 'any'
+
+	eventType: 'asdf'
+	/** Index of the key, joystick, etc */
+	index: number
+
+	/** If action.payload is not set, use value from the joycon */
+	action:
+		| AnyTriggerAction
+		| {
+				type: AnyTriggerAction['type']
+				// no payload, use value from the joycon
 		  }
 }

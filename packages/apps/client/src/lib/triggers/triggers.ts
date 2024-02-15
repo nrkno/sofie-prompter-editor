@@ -131,4 +131,12 @@ export const hardCodedTriggers: TriggerConfig[] = [
 			type: 'prompterSetSpeed',
 		},
 	},
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'speed',
+		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+		},
+	},
 ]
