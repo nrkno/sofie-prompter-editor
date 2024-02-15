@@ -30,18 +30,18 @@ export class RundownStore {
 		this.loadOutputSettingsData()
 	}
 
-	setupOutputSettingsSubscription = action(() => {
-		this.reactions.push(this.appStore.whenConnected(() => this.connection.outputSettings.subscribe()))
-
-		this.connection.outputSettings.on('updated', this.onOutputSettingsUpdated)
-	})
-
 	private onOutputSettingsUpdated = action('onOutputSettingsUpdated', (outputSettings: OutputSettings) => {
 		this.outputSettings = outputSettings
 	})
 
 	loadOutputSettingsData = action(() => {
 		this.connection.outputSettings.get(null).then(this.onOutputSettingsUpdated)
+	})
+
+	setupOutputSettingsSubscription = action(() => {
+		this.reactions.push(this.appStore.whenConnected(() => this.connection.outputSettings.subscribe()))
+
+		this.connection.outputSettings.on('updated', this.onOutputSettingsUpdated)
 	})
 
 	setupUIRundownDataSubscriptions = action(() => {

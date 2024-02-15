@@ -34,19 +34,7 @@ export class ViewPortStore {
 	}
 
 	private setupSubscription = action(() => {
-		this.reactions.push(
-			reaction(
-				() => this.appStore.connected,
-				async (connected) => {
-					if (!connected) return
-
-					await this.connection.viewPort.subscribeToViewPort()
-				},
-				{
-					fireImmediately: true,
-				}
-			)
-		)
+		this.reactions.push(this.appStore.whenConnected(() => this.connection.viewPort.subscribeToViewPort()))
 
 		this.connection.viewPort.on('updated', this.onUpdatedViewPort)
 	})
