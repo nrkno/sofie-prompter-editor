@@ -6,16 +6,13 @@ import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 import { Buffer as WebBuffer } from 'buffer'
 window.Buffer = WebBuffer // This is a polyfill to get the Streamdeck working in the browser
 
-export class TriggerHandlerStreamdeck extends TriggerHandler {
+export class TriggerHandlerStreamdeck extends TriggerHandler<TriggerConfigStreamdeck> {
 	private neededPanelIds = new Set<{
 		modelId: DeviceModelId | null
 		serialNumber: string | null
 	}>()
 
 	private connectedPanels: StreamDeckWeb[] = []
-
-	private triggerKeys: TriggerConfigStreamdeck[] = []
-	private triggerAnalog: TriggerConfigStreamdeck[] = []
 
 	async initialize(triggers?: TriggerConfig[]): Promise<void> {
 		if (triggers) this.triggers = triggers
@@ -77,32 +74,28 @@ export class TriggerHandlerStreamdeck extends TriggerHandler {
 			panel.removeAllListeners('encoderDown')
 			panel.removeAllListeners('encoderUp')
 
+			const serialNumber = await panel.getSerialNumber()
+
 			panel.on('error', (e) => {
 				console.error('streamdeck error', e)
 			})
 			panel.on('down', (keyIndex: number) => {
-				const action = this.getKeyAction('down', keyIndex)
-				if (action) this.emit('action', action)
+				this.doKeyAction(panel, serialNumber, 'down', keyIndex)
 			})
 			panel.on('up', (keyIndex: number) => {
-				const action = this.getKeyAction('up', keyIndex)
-				if (action) this.emit('action', action)
+				this.doKeyAction(panel, serialNumber, 'up', keyIndex)
 			})
 			panel.on('rotateLeft', (index: number, value) => {
-				const action = this.getAnalogAction('rotate', index, -value)
-				if (action) this.emit('action', action)
+				this.doAnalogAction(panel, serialNumber, 'rotate', index, -value)
 			})
 			panel.on('rotateRight', (index: number, value) => {
-				const action = this.getAnalogAction('rotate', index, value)
-				if (action) this.emit('action', action)
+				this.doAnalogAction(panel, serialNumber, 'rotate', index, value)
 			})
 			panel.on('encoderDown', (index: number) => {
-				const action = this.getKeyAction('encoderDown', index)
-				if (action) this.emit('action', action)
+				this.doKeyAction(panel, serialNumber, 'encoderDown', index)
 			})
 			panel.on('encoderUp', (index: number) => {
-				const action = this.getKeyAction('encoderUp', index)
-				if (action) this.emit('action', action)
+				this.doKeyAction(panel, serialNumber, 'encoderUp', index)
 			})
 		}
 	}
@@ -154,45 +147,40 @@ export class TriggerHandlerStreamdeck extends TriggerHandler {
 		return matched
 	}
 	/** Generate an action from a key input */
-	private getKeyAction(eventType: string, keyIndex: number): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigStreamdeck | undefined = this.triggerKeys.find(
-			(t) => t.eventType === eventType && t.index === keyIndex
+	private doKeyAction(
+		panel: StreamDeckWeb,
+		serialNumber: string,
+		eventType: TriggerConfigStreamdeck['eventType'],
+		keyIndex: number
+	): void {
+		const action = this.getKeyAction(
+			(t) =>
+				(t.modelId === null || t.modelId === panel.MODEL) &&
+				(t.serialNumber === null || t.serialNumber === serialNumber) &&
+				t.eventType === eventType &&
+				t.index === keyIndex
 		)
-		if (!trigger) return undefined
-
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
-
-		if (trigger.action.type === 'prompterSetSpeed') {
-			// ignore
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			// ignore
-		} else if (trigger.action.type === 'prompterJump') {
-			// ignore
-		} else if (trigger.action.type === 'movePrompterToHere') {
-			return {
-				type: 'movePrompterToHere',
-				payload: {},
-			}
-		} else {
-			assertNever(trigger.action.type)
-		}
-		return undefined
+		if (action) this.emit('action', action)
+		else console.log('Streamdeck', eventType, panel.MODEL, serialNumber, keyIndex)
 	}
 	/** Generate an action from a "analog type" input */
-	private getAnalogAction(eventType: string, index: number, value: number): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigStreamdeck | undefined = this.triggerAnalog.find(
-			(t) => t.eventType === eventType && t.index === index
+	private doAnalogAction(
+		panel: StreamDeckWeb,
+		serialNumber: string,
+		eventType: TriggerConfigStreamdeck['eventType'],
+		index: number,
+		value: number
+	): void {
+		const action = this.getAnalogAction(
+			(t) =>
+				(t.modelId === null || t.modelId === panel.MODEL) &&
+				(t.serialNumber === null || t.serialNumber === serialNumber) &&
+				t.eventType === eventType &&
+				t.index === index,
+			value,
+			{}
 		)
-		if (!trigger) return undefined
-
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
-
-		if (trigger.action.type === 'prompterSetSpeed') {
-			return {
-				type: 'prompterSetSpeed',
-				payload: { speed: value },
-			}
-		}
-		return undefined
+		if (action) this.emit('action', action)
+		else console.log('Streamdeck', eventType, panel.MODEL, serialNumber, index, value)
 	}
 }

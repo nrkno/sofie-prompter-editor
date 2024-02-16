@@ -1,3 +1,4 @@
+/* eslint-disable no-mixed-spaces-and-tabs */
 import { BindOptions } from '@sofie-automation/sorensen'
 import { AnyTriggerAction } from '../triggerActions/triggerActions.ts'
 import { DeviceModelId } from '@elgato-stream-deck/webhid'
@@ -8,6 +9,7 @@ export type TriggerConfig =
 	| TriggerConfigStreamdeck
 	| TriggerConfigSpacemouse
 	| TriggerConfigJoycon
+	| TriggerConfigMidi
 
 export enum TriggerConfigType {
 	KEYBOARD = 'keyboard',
@@ -15,14 +17,22 @@ export enum TriggerConfigType {
 	STREAMDECK = 'streamdeck',
 	SPACEMOUSE = 'spacemouse',
 	JOYCON = 'joycon',
+	MIDI = 'midi',
 }
 export interface TriggerConfigBase {
 	type: TriggerConfigType
+
+	/** If action.payload is not set, use value from the input */
+	action:
+		| AnyTriggerAction
+		| {
+				type: AnyTriggerAction['type']
+				// no payload, use value from the input
+		  }
 }
 export interface TriggerConfigKeyboard extends TriggerConfigBase {
 	type: TriggerConfigType.KEYBOARD
 
-	action: AnyTriggerAction
 	/**
 	 * a "+" and space concatenated list of KeyboardEvent.key key values (see: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values),
 	 * in order (order not significant for modifier keys), f.g. "Control+Shift+KeyA", "Control+Shift+KeyB KeyU".
@@ -52,14 +62,6 @@ export interface TriggerConfigXkeys extends TriggerConfigBase {
 	eventType: 'down' | 'up' | 'jog' | 'joystick' | 'rotary' | 'shuttle' | 'tbar' | 'trackball'
 	/** Index of the key, joystick, etc */
 	index: number
-
-	/** If action.payload is not set, use value from the xkeys */
-	action:
-		| AnyTriggerAction
-		| {
-				type: AnyTriggerAction['type']
-				// no payload, use value from the xkeys
-		  }
 }
 export interface TriggerConfigStreamdeck extends TriggerConfigBase {
 	type: TriggerConfigType.STREAMDECK
@@ -72,50 +74,37 @@ export interface TriggerConfigStreamdeck extends TriggerConfigBase {
 	eventType: 'down' | 'up' | 'rotate' | 'encoderDown' | 'encoderUp'
 	/** Index of the key, knob, etc */
 	index: number
-
-	/** If action.payload is not set, use value from the xkeys */
-	action:
-		| AnyTriggerAction
-		| {
-				type: AnyTriggerAction['type']
-				// no payload, use value from the streamdeck
-		  }
 }
 
 export interface TriggerConfigSpacemouse extends TriggerConfigBase {
 	type: TriggerConfigType.SPACEMOUSE
 
-	/** userId of the xkeys panel, or null to match any */
+	/** userId of the spacemouse device, or null to match any */
 	productId: number | null
-	/** userId of the xkeys, or null to match any */
-	unitId: number | null
 
 	eventType: 'down' | 'up' | 'rotate' | 'translate'
 	/** Index of the key, if needed, 0 otherwise */
 	index: number
-
-	/** If action.payload is not set, use value from the xkeys */
-	action:
-		| AnyTriggerAction
-		| {
-				type: AnyTriggerAction['type']
-				// no payload, use value from the xkeys
-		  }
 }
 export interface TriggerConfigJoycon extends TriggerConfigBase {
 	type: TriggerConfigType.JOYCON
 
-	controllerType: 'left' | 'right' | 'any'
+	// controllerType: 'left' | 'right' | 'any'
 
-	eventType: 'asdf'
-	/** Index of the key, joystick, etc */
+	eventType: 'up' | 'down' | 'stick'
+	/** Index of the key, joystick, etc, 0 otherwise */
 	index: number
+}
 
-	/** If action.payload is not set, use value from the joycon */
-	action:
-		| AnyTriggerAction
-		| {
-				type: AnyTriggerAction['type']
-				// no payload, use value from the joycon
-		  }
+export interface TriggerConfigMidi extends TriggerConfigBase {
+	type: TriggerConfigType.MIDI
+
+	/** If set, match any midi devices with that name (case insensitive), null to match any*/
+	name: string | null
+
+	eventType: 'down' | 'up' | 'analog'
+	/** Index of the channel, or null to match any */
+	channel: number | null
+	/** Index of the key / control, or null to match any */
+	index: number | null
 }

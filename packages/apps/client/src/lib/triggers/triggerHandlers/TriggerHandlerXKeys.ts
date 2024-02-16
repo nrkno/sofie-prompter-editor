@@ -4,17 +4,13 @@ import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigXkeys } from '../triggerConfig'
 import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
-export class TriggerHandlerXKeys extends TriggerHandler {
+export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 	private neededPanelIds = new Set<{
 		productId: number | null
 		unitId: number | null
 	}>()
 
 	private connectedPanels: XKeys[] = []
-
-	private triggerKeys: TriggerConfigXkeys[] = []
-	private triggerAnalog: TriggerConfigXkeys[] = []
-	private triggerXYZ: TriggerConfigXkeys[] = []
 
 	async initialize(triggers?: TriggerConfig[]): Promise<void> {
 		if (triggers) this.triggers = triggers
@@ -87,37 +83,29 @@ export class TriggerHandlerXKeys extends TriggerHandler {
 				console.error('xkeys error', e)
 			})
 			xkeys.on('down', (keyIndex: number) => {
-				const action = this.getKeyAction('down', keyIndex)
-				if (action) this.emit('action', action)
+				this._doKeyAction(xkeys, 'down', keyIndex)
 			})
 			xkeys.on('up', (keyIndex: number) => {
-				const action = this.getKeyAction('up', keyIndex)
-				if (action) this.emit('action', action)
+				this._doKeyAction(xkeys, 'up', keyIndex)
 			})
 			xkeys.on('jog', (index, value) => {
-				const action = this.getAnalogAction('jog', index, value, 7)
-				if (action) this.emit('action', action)
+				this._doAnalogAction(xkeys, 'jog', index, value, 7) // [0, 7]
 			})
 			xkeys.on('rotary', (index, value) => {
-				const action = this.getAnalogAction('rotary', index, value, 8)
-				if (action) this.emit('action', action)
+				this._doAnalogAction(xkeys, 'rotary', index, value, 8)
 			})
 			xkeys.on('shuttle', (index, value) => {
-				const action = this.getAnalogAction('shuttle', index, value, 7)
-				if (action) this.emit('action', action)
+				this._doAnalogAction(xkeys, 'shuttle', index, value, 7)
 			})
 			xkeys.on('tbar', (index, value) => {
-				const action = this.getAnalogAction('tbar', index, value, -127, 127)
-				if (action) this.emit('action', action)
+				this._doAnalogAction(xkeys, 'tbar', index, value, -127, 127) // [-127, 127]
 			})
 			xkeys.on('trackball', (index, value) => {
-				const action = this.getXYZAction('trackball', index, value)
-				if (action) this.emit('action', action)
+				this.doXYZAction(xkeys, 'trackball', index, value)
 			})
 
 			xkeys.on('joystick', (index, value) => {
-				const action = this.getXYZAction('joystick', index, value)
-				if (action) this.emit('action', action)
+				this.doXYZAction(xkeys, 'joystick', index, value)
 			})
 		}
 	}
@@ -170,83 +158,61 @@ export class TriggerHandlerXKeys extends TriggerHandler {
 		return matched
 	}
 	/** Generate an action from a key input */
-	private getKeyAction(eventType: string, keyIndex: number): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigXkeys | undefined = this.triggerKeys.find(
-			(t) => t.eventType === eventType && t.index === keyIndex
+	private _doKeyAction(xkeys: XKeys, eventType: TriggerConfigXkeys['eventType'], keyIndex: number): void {
+		const action = this.getKeyAction(
+			(t) =>
+				(t.productId === null || t.productId === xkeys.info.productId) &&
+				(t.unitId === null || t.unitId === xkeys.info.unitId) &&
+				t.eventType === eventType &&
+				t.index === keyIndex
 		)
-		if (!trigger) return undefined
-
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
-
-		if (trigger.action.type === 'prompterSetSpeed') {
-			// ignore
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			// ignore
-		} else if (trigger.action.type === 'prompterJump') {
-			// ignore
-		} else if (trigger.action.type === 'movePrompterToHere') {
-			return {
-				type: 'movePrompterToHere',
-				payload: {},
-			}
-		} else {
-			assertNever(trigger.action.type)
-		}
-		return undefined
+		if (action) this.emit('action', action)
+		else console.log('Xkeys', eventType, xkeys.info.productId, xkeys.info.unitId, keyIndex)
 	}
+
 	/** Generate an action from a "analog type" input */
-	private getAnalogAction(
-		eventType: string,
+	private _doAnalogAction(
+		xkeys: XKeys,
+		eventType: TriggerConfigXkeys['eventType'],
 		index: number,
 		value: number,
 		scaleMaxValue = 1,
 		zeroValue = 0
-	): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigXkeys | undefined = this.triggerAnalog.find(
-			(t) => t.eventType === eventType && t.index === index
+	): void {
+		const action = this.getAnalogAction(
+			(t) =>
+				(t.productId === null || t.productId === xkeys.info.productId) &&
+				(t.unitId === null || t.unitId === xkeys.info.unitId) &&
+				t.eventType === eventType &&
+				t.index === index,
+			value,
+			{
+				scaleMaxValue,
+				zeroValue,
+			}
 		)
-		if (!trigger) return undefined
 
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
-
-		if (trigger.action.type === 'prompterSetSpeed') {
-			const normalValue = (value - zeroValue) / scaleMaxValue
-			return {
-				type: 'prompterSetSpeed',
-				payload: { speed: normalValue },
-			}
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			const normalValue = (value - zeroValue) / scaleMaxValue
-			return {
-				type: 'prompterAddSpeed',
-				payload: { deltaSpeed: normalValue },
-			}
-		}
-		return undefined
+		if (action) this.emit('action', action)
+		else console.log('Xkeys', eventType, xkeys.info.productId, xkeys.info.unitId, index, value)
 	}
 	/** Generate an action from a "XYZ type" input */
-	private getXYZAction(
-		eventType: string,
+	private doXYZAction(
+		xkeys: XKeys,
+		eventType: TriggerConfigXkeys['eventType'],
 		index: number,
 		xyz: { x: number; y: number; z?: number }
-	): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigXkeys | undefined = this.triggerXYZ.find(
-			(t) => t.eventType === eventType && t.index === index
+	): void {
+		const action = this.getXYZAction(
+			(t) =>
+				(t.productId === null || t.productId === xkeys.info.productId) &&
+				(t.unitId === null || t.unitId === xkeys.info.unitId) &&
+				t.eventType === eventType &&
+				t.index === index,
+			xyz,
+			xyz.y
 		)
-		if (!trigger) return undefined
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterSetSpeed') {
-			return {
-				type: 'prompterSetSpeed',
-				payload: { speed: xyz.y },
-			}
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			return {
-				type: 'prompterAddSpeed',
-				payload: { deltaSpeed: xyz.y },
-			}
-		}
-		return undefined
+		if (action) this.emit('action', action)
+		else console.log('Xkeys', eventType, xkeys.info.productId, xkeys.info.unitId, index, xyz)
 	}
 }

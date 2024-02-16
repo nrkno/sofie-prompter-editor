@@ -3,16 +3,10 @@ import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigJoycon } from '../triggerConfig'
 import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
-export class TriggerHandlerJoycon extends TriggerHandler {
-	// private neededPanelIds = new Set<{
-	// 	controllerType: 'left' | 'right' | 'any'
-	// 	// unitId: number | null
-	// }>()
-
+export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 	private destroyed = false
 	private updateJoyConsHandle: number | undefined = undefined
 
-	// private joyconState = new Map<number, JoyconWithData>()
 	private timestampOfLastUsedJoyconInput = 0
 
 	// private invertJoystick = false // change scrolling direction for joystick
@@ -24,9 +18,8 @@ export class TriggerHandlerJoycon extends TriggerHandler {
 	// private reverseSpeedMap = [1, 2, 3, 4, 5, 8, 12, 30]
 	private deadBand = 0.25
 
-	// private connectedPanels: XKeys[] = []
-
-	private prevSpeed = 0
+	private prevStickValue = 0
+	private prevButtons = new Map<number, number>()
 
 	private hasAnyJoyConTriggers = false
 
@@ -41,18 +34,37 @@ export class TriggerHandlerJoycon extends TriggerHandler {
 		for (const trigger of this.triggers) {
 			if (trigger.type !== TriggerConfigType.JOYCON) continue
 			this.hasAnyJoyConTriggers = true
-			break
+
+			if (trigger.eventType === 'stick') {
+				this.triggerAnalog.push(trigger)
+			} else if (trigger.eventType === 'up' || trigger.eventType === 'down') {
+				this.triggerKeys.push(trigger)
+			} else assertNever(trigger.eventType)
+		}
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		const theWindow = window as any
+		// hot-module-reload fix:
+		if (!theWindow.joyconInitialized) {
+			theWindow.joyconInitialized = true
+		} else {
+			if (theWindow.joyconListenerCleanup) {
+				theWindow.joyconListenerCleanup()
+				delete theWindow.joyconListenerCleanup
+			}
 		}
 
 		if (this.hasAnyJoyConTriggers) {
-			window.addEventListener('gamepadconnected', () => {
+			const onConnectionChange = () => {
 				this.updateJoyConsPosition()
-			})
-			window.addEventListener('gamepaddisconnected', () => {
-				this.updateJoyConsPosition()
-			})
+			}
+			window.addEventListener('gamepadconnected', onConnectionChange)
+			window.addEventListener('gamepaddisconnected', onConnectionChange)
 
-			this.updateJoyConsPosition()
+			theWindow.joyconListenerCleanup = () => {
+				window.removeEventListener('gamepadconnected', onConnectionChange)
+				window.removeEventListener('gamepaddisconnected', onConnectionChange)
+			}
 		}
 	}
 
@@ -63,21 +75,33 @@ export class TriggerHandlerJoycon extends TriggerHandler {
 		const joycons = this.getJoyconData()
 		if (!joycons?.length) return // No joycons connected, break the loop
 
-		const speed = this.calculateSpeed(joycons)
-		if (speed !== this.prevSpeed) {
-			this.prevSpeed = speed
+		const stickValue = this.calculateStickValue(joycons)
+		if (stickValue !== this.prevStickValue) {
+			this.prevStickValue = stickValue
 
-			// this.triggers
-			for (const trigger of this.triggers) {
-				if (trigger.type !== TriggerConfigType.JOYCON) continue
-				if (trigger.eventType === 'speed') {
-					if (trigger.action.type === 'prompterSetSpeed') {
-						const action: AnyTriggerAction = {
-							type: 'prompterSetSpeed',
-							payload: { speed: speed },
-						}
-						this.emit('action', action)
-					}
+			this._doAnalogAction('stick', 0, stickValue)
+		}
+
+		const buttons = new Map<number, number>()
+		for (const i of this.prevButtons.keys()) {
+			buttons.set(i, 0)
+		}
+
+		for (const joycon of joycons) {
+			for (let i = 0; i < joycon.buttons.length; i++) {
+				const value = joycon.buttons[i]
+				if (value !== 0) {
+					buttons.set(i, value)
+				}
+			}
+		}
+		for (const [i, value] of buttons) {
+			if (value !== this.prevButtons.get(i)) {
+				this.prevButtons.set(i, value)
+				if (value) {
+					this._doKeyAction('down', i)
+				} else {
+					this._doKeyAction('up', i)
 				}
 			}
 		}
@@ -161,19 +185,35 @@ export class TriggerHandlerJoycon extends TriggerHandler {
 		// it is random which controller is evaluated last and ultimately takes control
 		return lastSeenSpeed
 	}
-	private calculateSpeed(inputs: JoyconWithData[]): number {
+	private calculateStickValue(inputs: JoyconWithData[]): number {
 		// start by clamping value to the legal range
 		const inputValue: number = Math.min(
 			Math.max(this.getActiveInputsOfJoycons(inputs), this.rangeRevMin),
 			this.rangeFwdMax
 		) // clamps in between rangeRevMin and rangeFwdMax
 
-		return inputValue
+		return round(inputValue, 0.01)
 	}
 
 	async destroy(): Promise<void> {
 		this.destroyed = true
 		if (this.updateJoyConsHandle !== undefined) window.cancelAnimationFrame(this.updateJoyConsHandle)
+	}
+
+	/** Generate an action from a key input */
+	private _doKeyAction(eventType: TriggerConfigJoycon['eventType'], keyIndex: number): void {
+		const action = this.getKeyAction((t) => t.eventType === eventType && t.index === keyIndex)
+		if (action) this.emit('action', action)
+		else console.log('Joycon', eventType, keyIndex)
+	}
+
+	/** Generate an action from a "analog type" input */
+	private _doAnalogAction(eventType: TriggerConfigJoycon['eventType'], index: number, value: number): void {
+		const action = this.getAnalogAction((t) => t.eventType === eventType && t.index === index, value, {})
+
+		console.log(this.triggerAnalog)
+		if (action) this.emit('action', action)
+		else console.log('Joycon', eventType, index, value)
 	}
 }
 
@@ -185,3 +225,6 @@ interface JoyconWithData {
 	buttons: number[]
 }
 type JoyconMode = 'L' | 'R' | 'LR' | null
+function round(value: number, minValue: number): number {
+	return Math.round(value / minValue) * minValue
+}

@@ -1,8 +1,8 @@
 import Sorensen from '@sofie-automation/sorensen'
 import { TriggerHandler } from './TriggerHandler'
-import { TriggerConfig, TriggerConfigType } from '../triggerConfig'
+import { TriggerConfig, TriggerConfigKeyboard, TriggerConfigType } from '../triggerConfig'
 
-export class TriggerHandlerKeyboard extends TriggerHandler {
+export class TriggerHandlerKeyboard extends TriggerHandler<TriggerConfigKeyboard> {
 	async initialize(triggers?: TriggerConfig[]): Promise<void> {
 		if (triggers) this.triggers = triggers
 
@@ -20,10 +20,13 @@ export class TriggerHandlerKeyboard extends TriggerHandler {
 		for (const trigger of this.triggers) {
 			if (trigger.type !== TriggerConfigType.KEYBOARD) continue
 
+			this.triggerKeys.push(trigger)
+
 			Sorensen.bind(
 				trigger.keys,
 				() => {
-					this.emit('action', trigger.action)
+					const action = this.getKeyAction((t) => t === trigger)
+					if (action) this.emit('action', action)
 				},
 				{
 					up: trigger.up,
