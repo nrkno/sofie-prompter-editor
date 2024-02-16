@@ -4,15 +4,12 @@ import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigSpacemouse } from '../triggerConfig'
 import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
-export class TriggerHandlerSpaceMouse extends TriggerHandler {
+export class TriggerHandlerSpaceMouse extends TriggerHandler<TriggerConfigSpacemouse> {
 	private neededPanelIds = new Set<{
-		productId: number | null
+		productId: TriggerConfigSpacemouse['productId']
 	}>()
 
 	private connectedPanels: SpaceMouse[] = []
-
-	private triggerKeys: TriggerConfigSpacemouse[] = []
-	private triggerXYZ: TriggerConfigSpacemouse[] = []
 
 	async initialize(triggers?: TriggerConfig[]): Promise<void> {
 		if (triggers) this.triggers = triggers
@@ -74,12 +71,10 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler {
 				console.error('spacemouse error', e)
 			})
 			panel.on('down', (keyIndex: number) => {
-				const action = this.getKeyAction('down', keyIndex)
-				if (action) this.emit('action', action)
+				this.doKeyAction(panel, 'down', keyIndex)
 			})
 			panel.on('up', (keyIndex: number) => {
-				const action = this.getKeyAction('up', keyIndex)
-				if (action) this.emit('action', action)
+				this.doKeyAction(panel, 'up', keyIndex)
 			})
 
 			panel.on('rotate', (value) => {
@@ -88,12 +83,10 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler {
 					y: value.roll,
 					z: value.yaw,
 				}
-				const action = this.getXYZAction('rotate', xyz)
-				if (action) this.emit('action', action)
+				this.doXYZAction(panel, 'rotate', xyz)
 			})
 			panel.on('translate', (zyz) => {
-				const action = this.getXYZAction('translate', zyz)
-				if (action) this.emit('action', action)
+				this.doXYZAction(panel, 'translate', zyz)
 			})
 		}
 	}
@@ -142,47 +135,29 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler {
 		return matched
 	}
 	/** Generate an action from a key input */
-	private getKeyAction(eventType: string, keyIndex: number): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigSpacemouse | undefined = this.triggerKeys.find(
-			(t) => t.eventType === eventType && t.index === keyIndex
+	private doKeyAction(panel: SpaceMouse, eventType: TriggerConfigSpacemouse['eventType'], keyIndex: number): void {
+		const action = this.getKeyAction(
+			(t) =>
+				(t.productId === null || t.productId === panel.info.productId) &&
+				t.eventType === eventType &&
+				t.index === keyIndex
 		)
-		if (!trigger) return undefined
-
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
-
-		if (trigger.action.type === 'prompterSetSpeed') {
-			// ignore
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			// ignore
-		} else if (trigger.action.type === 'prompterJump') {
-			// ignore
-		} else if (trigger.action.type === 'movePrompterToHere') {
-			return {
-				type: 'movePrompterToHere',
-				payload: {},
-			}
-		} else {
-			assertNever(trigger.action.type)
-		}
-		return undefined
+		if (action) this.emit('action', action)
+		else console.log('SpaceMouse', eventType, panel.info.productId, keyIndex)
 	}
 	/** Generate an action from a "XYZ type" input */
-	private getXYZAction(eventType: string, xyz: { x: number; y: number; z: number }): AnyTriggerAction | undefined {
-		const trigger: TriggerConfigSpacemouse | undefined = this.triggerXYZ.find((t) => t.eventType === eventType)
-		if (!trigger) return undefined
-		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
-
-		if (trigger.action.type === 'prompterSetSpeed') {
-			return {
-				type: 'prompterSetSpeed',
-				payload: { speed: xyz.x + xyz.y + xyz.z },
-			}
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			return {
-				type: 'prompterAddSpeed',
-				payload: { deltaSpeed: xyz.x + xyz.y + xyz.z },
-			}
-		}
-		return undefined
+	private doXYZAction(
+		panel: SpaceMouse,
+		eventType: TriggerConfigSpacemouse['eventType'],
+		xyz: { x: number; y: number; z: number }
+	): void {
+		const action = this.getXYZAction(
+			(t) =>
+				(t.productId === null || t.productId === panel.info.productId) && t.eventType === eventType && t.index === 0,
+			xyz,
+			xyz.x + xyz.y + xyz.z
+		)
+		if (action) this.emit('action', action)
+		else console.log('SpaceMouse', eventType, panel.info.productId, xyz)
 	}
 }

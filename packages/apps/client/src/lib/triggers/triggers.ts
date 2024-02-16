@@ -124,9 +124,81 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.SPACEMOUSE,
 		productId: null,
-		unitId: null,
 		eventType: 'rotate',
 		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+		},
+	},
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'stick',
+		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+		},
+	},
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'down',
+		index: 3, // right key
+		action: {
+			type: 'movePrompterToHere',
+			payload: {},
+		},
+	},
+
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'down',
+		index: 2, // up key
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: -1.1,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'up',
+		index: 2, // up key
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'down',
+		index: 1, // down key
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 1.1,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.JOYCON,
+		eventType: 'up',
+		index: 1, // down key
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.MIDI,
+		eventType: 'analog',
+		// name: 'x-touch mini',
+		name: null,
+		channel: null,
+		index: null,
 		action: {
 			type: 'prompterSetSpeed',
 		},

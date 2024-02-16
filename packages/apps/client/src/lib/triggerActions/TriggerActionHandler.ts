@@ -39,8 +39,8 @@ export class TriggerActionHandler {
 	private sendPrompterSpeed() {
 		// Send message with speed:
 
-		// Modify the value so that
-		const speed = this.attackCurve(this.prompterSpeed, 10, 0.7)
+		// Modify the value according to an attack curve:
+		const speed = this.attackCurve(this.prompterSpeed, 5, 0.7)
 
 		this.store.connection.controller.sendMessage({
 			speed: speed,

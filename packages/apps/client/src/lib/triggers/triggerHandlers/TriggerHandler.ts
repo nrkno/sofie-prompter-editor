@@ -1,6 +1,7 @@
 import { EventEmitter } from 'eventemitter3'
 import { AnyTriggerAction } from '../../triggerActions/triggerActions.ts'
-import { TriggerConfig } from '../triggerConfig.ts'
+import { TriggerConfig, TriggerConfigBase } from '../triggerConfig.ts'
+import { assertNever } from '@sofie-prompter-editor/shared-lib'
 
 export interface TriggerHandlerEvents {
 	action: [action: AnyTriggerAction]
@@ -9,8 +10,92 @@ export interface TriggerHandlerEvents {
 	requestHIDDeviceAccess: [deviceName: string, callback: (access: boolean) => void]
 }
 
-export abstract class TriggerHandler extends EventEmitter<TriggerHandlerEvents> {
+export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends EventEmitter<TriggerHandlerEvents> {
 	protected triggers: TriggerConfig[] = []
 	abstract initialize(triggers?: TriggerConfig[]): Promise<void>
 	abstract destroy(): Promise<void>
+
+	protected triggerKeys: Trigger[] = []
+	protected triggerAnalog: Trigger[] = []
+	protected triggerXYZ: Trigger[] = []
+
+	/** Generate an action from a key input */
+	protected getKeyAction(filterTrigger: (trigger: Trigger) => boolean): AnyTriggerAction | undefined {
+		const trigger: Trigger | undefined = this.triggerKeys.find(filterTrigger)
+		if (!trigger) return undefined
+		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
+
+		if (trigger.action.type === 'prompterSetSpeed') {
+			// not supported (yet?), ignore
+		} else if (trigger.action.type === 'prompterAddSpeed') {
+			// not supported (yet?), ignore
+		} else if (trigger.action.type === 'prompterJump') {
+			// not supported (yet?), ignore
+		} else if (trigger.action.type === 'movePrompterToHere') {
+			return {
+				type: 'movePrompterToHere',
+				payload: {},
+			}
+		} else {
+			assertNever(trigger.action.type)
+		}
+		return undefined
+	}
+	/** Generate an action from a "analog type" input */
+	protected getAnalogAction(
+		filterTrigger: (trigger: Trigger) => boolean,
+		value: number,
+		options: {
+			scaleMaxValue?: number
+			zeroValue?: number
+			invert?: boolean
+		}
+	): AnyTriggerAction | undefined {
+		const trigger: Trigger | undefined = this.triggerAnalog.find(filterTrigger)
+		if (!trigger) return undefined
+		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
+
+		const scaleMaxValue = options?.scaleMaxValue ?? 1
+		const zeroValue = options?.zeroValue ?? 0
+		const invert = options?.invert ?? 0
+
+		const normalValue = ((value - zeroValue) / scaleMaxValue) * (invert ? -1 : 1)
+
+		if (trigger.action.type === 'prompterSetSpeed') {
+			return {
+				type: 'prompterSetSpeed',
+				payload: { speed: normalValue },
+			}
+		} else if (trigger.action.type === 'prompterAddSpeed') {
+			return {
+				type: 'prompterAddSpeed',
+				payload: { deltaSpeed: normalValue },
+			}
+		}
+		return undefined
+	}
+	/** Generate an action from a "XYZ type" input */
+	protected getXYZAction(
+		filterTrigger: (trigger: Trigger) => boolean,
+		_xyz: { x: number; y: number; z?: number },
+		/** calculated from xyz */
+		resultingValue: number
+	): AnyTriggerAction | undefined {
+		const trigger: Trigger | undefined = this.triggerXYZ.find(filterTrigger)
+		if (!trigger) return undefined
+		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
+
+		if (trigger.action.type === 'prompterSetSpeed') {
+			return {
+				type: 'prompterSetSpeed',
+				payload: { speed: resultingValue },
+			}
+		} else if (trigger.action.type === 'prompterAddSpeed') {
+			return {
+				type: 'prompterAddSpeed',
+				payload: { deltaSpeed: resultingValue },
+			}
+		}
+		return undefined
+	}
 }
