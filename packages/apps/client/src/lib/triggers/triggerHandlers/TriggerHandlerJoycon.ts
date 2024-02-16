@@ -1,7 +1,6 @@
 import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigJoycon } from '../triggerConfig'
-import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
 export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 	private destroyed = false
@@ -19,13 +18,9 @@ export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 	private deadBand = 0.25
 
 	private prevStickValue = 0
-	private prevButtons = new Map<number, number>()
+	private prevButtons: Record<number, Record<number, number>> = {}
 
 	private hasAnyJoyConTriggers = false
-
-	// private triggerKeys: TriggerConfigJoycon[] = []
-	// private triggerAnalog: TriggerConfigJoycon[] = []
-	// private triggerXYZ: TriggerConfigJoycon[] = []
 
 	async initialize(triggers?: TriggerConfig[]): Promise<void> {
 		if (triggers) this.triggers = triggers
@@ -68,6 +63,96 @@ export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 		}
 	}
 
+	private remapButtons(mode: JoyconMode, keyIndex: number): TriggerConfigJoycon['button'] | undefined {
+		/*
+		  This function remaps buttons to keys representing roughly the same buttons on both joycons
+		  Virtual button indexes:
+		  * left
+		  * down
+		  * up
+		  * right
+		  * LR (L or R)
+		  * Z
+		  * home (or "snapshot")
+		  * sign ( + or - )
+		  * stick (press stick)
+		*/
+
+		let remapping: Record<number, TriggerConfigJoycon['button']> = {}
+
+		if (mode === 'L') {
+			// Button overview JoyCon L single mode
+			// Arrows: Left = '0', Down = '1', Up = '2', Right = '3'
+			// Others: SL = '4', SR = '5', ZL = '6', L = '8', - = '9', Joystick = '10', Snapshot = '16'
+			remapping = {
+				[0]: 'left', // left
+				[1]: 'down', // down
+				[2]: 'up', //up
+				[3]: 'right', // right
+				// [4]: -1, // SL
+				// [5]: -1, // SR
+				[6]: 'Z', // ZL -> Z
+				// [7]: ,
+				[8]: 'LR', // L
+				[9]: 'sign', // - -> Sign
+				[10]: 'stickpress', // Stick down
+				[16]: 'home', // Snapshot -> home
+			}
+		} else if (mode === 'R') {
+			// Button overview JoyCon R single mode
+			// "Arrows": A = '0', X = '1', B = '2', Y = '3'
+			// Others: SL = '4', SR = '5', ZR = '7', R = '8', + = '9', Joystick = '10', Home = '16'
+
+			remapping = {
+				[0]: 'right', // A -> right
+				[1]: 'up', //  X -> up
+				[2]: 'down', // B -> down
+				[3]: 'left', // Y -> left
+				// [4]: -1, // SL
+				// [5]: -1, // SR
+				// [6]: , //
+				[7]: 'Z', // ZR -> Z
+				[8]: 'LR', // R -> L/R
+				[9]: 'sign', // + -> Sign
+				[10]: 'stickpress', // Stick
+				[16]: 'home', // Home
+			}
+		} else if (mode === 'LR') {
+			// Button overview JoyCon L+R paired mode
+			// L JoyCon Arrows: B = '0', A = '1', Y = '2', X = '3'
+			// L JoyCon Others: L = '4', ZL = '6', - = '8', Joystick = '10', Snapshot = '17', SL = '18', SR = '19'
+			// R JoyCon "Arrows": B = '0', A = '1', Y = '2', X = '3'
+			// R JoyCon Others: R = '5', ZR = '7', + = '9', Joystick = '11', Home = '16', SL = '20', SR = '21'
+
+			remapping = {
+				[0]: 'down', // B -> down
+				[1]: 'right', // A -> right
+				[2]: 'left', // Y -> left
+				[3]: 'up', // X -> up
+				[4]: 'LR', // L -> L/R
+				[5]: 'LR', // R -> L/R
+				[6]: 'Z', // ZL -> Z
+				[7]: 'Z', // ZR -> Z
+				[8]: 'sign', // - -> sign
+				[9]: 'sign', // + -> sign
+				[10]: 'stickpress', // stick down (right controller)
+				[11]: 'stickpress', // stick down (right controller)
+				[12]: 'up', // up
+				[13]: 'down', // down
+				[14]: 'left', // left
+				[15]: 'right', // right
+				[16]: 'home', // Home
+				[17]: 'home', // snapshot -> home
+				// [18]: -1, // SL
+				// [19]: -1, // SR
+				// [20]: -1, // SL (right controller)
+				// [21]: -1, // SR (right controller)
+			}
+		}
+
+		return remapping[keyIndex]
+	}
+
 	private updateJoyConsPosition(): void {
 		if (this.updateJoyConsHandle !== undefined) window.cancelAnimationFrame(this.updateJoyConsHandle)
 		if (this.destroyed) return
@@ -79,29 +164,24 @@ export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 		if (stickValue !== this.prevStickValue) {
 			this.prevStickValue = stickValue
 
-			this._doAnalogAction('stick', 0, stickValue)
-		}
-
-		const buttons = new Map<number, number>()
-		for (const i of this.prevButtons.keys()) {
-			buttons.set(i, 0)
+			console.log('stickValue', stickValue)
+			this._doAnalogAction('stick', stickValue)
 		}
 
 		for (const joycon of joycons) {
+			const prevButtons = this.prevButtons[joycon.index] || (this.prevButtons[joycon.index] = {})
+
 			for (let i = 0; i < joycon.buttons.length; i++) {
 				const value = joycon.buttons[i]
-				if (value !== 0) {
-					buttons.set(i, value)
-				}
-			}
-		}
-		for (const [i, value] of buttons) {
-			if (value !== this.prevButtons.get(i)) {
-				this.prevButtons.set(i, value)
-				if (value) {
-					this._doKeyAction('down', i)
-				} else {
-					this._doKeyAction('up', i)
+				if ((prevButtons[i] ?? 0) !== value) {
+					const button = this.remapButtons(joycon.mode, i)
+
+					if (button) {
+						if (value) this._doKeyAction('down', button)
+						else this._doKeyAction('up', button)
+					}
+
+					prevButtons[i] = value
 				}
 			}
 		}
@@ -201,19 +281,20 @@ export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 	}
 
 	/** Generate an action from a key input */
-	private _doKeyAction(eventType: TriggerConfigJoycon['eventType'], keyIndex: number): void {
-		const action = this.getKeyAction((t) => t.eventType === eventType && t.index === keyIndex)
+	private _doKeyAction(eventType: TriggerConfigJoycon['eventType'], button: TriggerConfigJoycon['button']): void {
+		const action = this.getKeyAction((t) => t.eventType === eventType && t.button === button)
 		if (action) this.emit('action', action)
-		else console.log('Joycon', eventType, keyIndex)
+		else console.log('Joycon', eventType, button)
 	}
 
 	/** Generate an action from a "analog type" input */
-	private _doAnalogAction(eventType: TriggerConfigJoycon['eventType'], index: number, value: number): void {
-		const action = this.getAnalogAction((t) => t.eventType === eventType && t.index === index, value, {})
+	private _doAnalogAction(eventType: TriggerConfigJoycon['eventType'], value: number): void {
+		const action = this.getAnalogAction((t) => t.eventType === eventType, value, {
+			invert: true,
+		})
 
-		console.log(this.triggerAnalog)
 		if (action) this.emit('action', action)
-		else console.log('Joycon', eventType, index, value)
+		else console.log('Joycon', eventType, value)
 	}
 }
 

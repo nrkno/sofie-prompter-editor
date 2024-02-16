@@ -29,6 +29,11 @@ export interface TriggerConfigBase {
 				type: AnyTriggerAction['type']
 				// no payload, use value from the input
 		  }
+
+	modifier?: {
+		/** (if applicable) Scale the analog value */
+		scale?: number
+	}
 }
 export interface TriggerConfigKeyboard extends TriggerConfigBase {
 	type: TriggerConfigType.KEYBOARD
@@ -89,11 +94,9 @@ export interface TriggerConfigSpacemouse extends TriggerConfigBase {
 export interface TriggerConfigJoycon extends TriggerConfigBase {
 	type: TriggerConfigType.JOYCON
 
-	// controllerType: 'left' | 'right' | 'any'
-
 	eventType: 'up' | 'down' | 'stick'
-	/** Index of the key, joystick, etc, 0 otherwise */
-	index: number
+	/** what key, '' for the joystick */
+	button: 'left' | 'down' | 'up' | 'right' | 'LR' | 'Z' | 'home' | 'sign' | 'stickpress' | ''
 }
 
 export interface TriggerConfigMidi extends TriggerConfigBase {

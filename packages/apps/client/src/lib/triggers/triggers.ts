@@ -133,15 +133,18 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.JOYCON,
 		eventType: 'stick',
-		index: 0,
+		button: '',
 		action: {
 			type: 'prompterSetSpeed',
 		},
+		// modifier: {
+		// 	scale: 1,
+		// },
 	},
 	{
 		type: TriggerConfigType.JOYCON,
 		eventType: 'down',
-		index: 3, // right key
+		button: 'right',
 		action: {
 			type: 'movePrompterToHere',
 			payload: {},
@@ -151,7 +154,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.JOYCON,
 		eventType: 'down',
-		index: 2, // up key
+		button: 'up',
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
@@ -162,7 +165,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.JOYCON,
 		eventType: 'up',
-		index: 2, // up key
+		button: 'up',
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
@@ -173,7 +176,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.JOYCON,
 		eventType: 'down',
-		index: 1, // down key
+		button: 'down',
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
@@ -184,7 +187,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 	{
 		type: TriggerConfigType.JOYCON,
 		eventType: 'up',
-		index: 1, // down key
+		button: 'down',
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {

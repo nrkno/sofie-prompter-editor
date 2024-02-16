@@ -2,7 +2,6 @@ import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { getOpenedSpaceMice, requestSpaceMice, setupSpaceMouse, SpaceMouse, VENDOR_IDS } from 'spacemouse-webhid'
 import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigSpacemouse } from '../triggerConfig'
-import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
 export class TriggerHandlerSpaceMouse extends TriggerHandler<TriggerConfigSpacemouse> {
 	private neededPanelIds = new Set<{
