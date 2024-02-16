@@ -10,6 +10,7 @@ import { TriggerHandlerKeyboard } from '../lib/triggers/triggerHandlers/TriggerH
 import { TriggerHandlerStreamdeck } from '../lib/triggers/triggerHandlers/TriggerHandlerStreamdeck'
 import { TriggerHandlerSpaceMouse } from '../lib/triggers/triggerHandlers/TriggerHandlerSpaceMouse'
 import { TriggerHandlerJoycon } from '../lib/triggers/triggerHandlers/TriggerHandlerJoycon.ts'
+import { TriggerHandlerMidi } from '../lib/triggers/triggerHandlers/TriggerHandlerMidi.ts'
 
 export interface TriggerStoreEvents {
 	action: TriggerHandlerEvents['action']
@@ -38,6 +39,7 @@ export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
 		new TriggerHandlerStreamdeck(),
 		new TriggerHandlerSpaceMouse(),
 		new TriggerHandlerJoycon(),
+		new TriggerHandlerMidi(),
 	]
 
 	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {
