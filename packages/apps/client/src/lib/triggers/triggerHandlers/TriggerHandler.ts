@@ -59,7 +59,9 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 		const zeroValue = options?.zeroValue ?? 0
 		const invert = options?.invert ?? 0
 
-		const normalValue = ((value - zeroValue) / scaleMaxValue) * (invert ? -1 : 1)
+		const scale = trigger.modifier?.scale ?? 1
+
+		const normalValue = ((value - zeroValue) / scaleMaxValue) * (invert ? -1 : 1) * scale
 
 		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
@@ -85,15 +87,19 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 		if (!trigger) return undefined
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
+		const scale = trigger.modifier?.scale ?? 1
+
+		const normalValue = resultingValue * scale
+
 		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
 				type: 'prompterSetSpeed',
-				payload: { speed: resultingValue },
+				payload: { speed: normalValue },
 			}
 		} else if (trigger.action.type === 'prompterAddSpeed') {
 			return {
 				type: 'prompterAddSpeed',
-				payload: { deltaSpeed: resultingValue },
+				payload: { deltaSpeed: normalValue },
 			}
 		}
 		return undefined

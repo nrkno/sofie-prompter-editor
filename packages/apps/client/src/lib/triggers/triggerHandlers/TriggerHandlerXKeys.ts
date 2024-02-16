@@ -2,7 +2,6 @@ import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { getOpenedXKeysPanels, requestXkeysPanels, setupXkeysPanel, XKeys } from 'xkeys-webhid'
 import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigXkeys } from '../triggerConfig'
-import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
 export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 	private neededPanelIds = new Set<{

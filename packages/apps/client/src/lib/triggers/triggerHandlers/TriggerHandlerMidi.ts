@@ -1,7 +1,6 @@
 import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigMidi, TriggerConfigType } from '../triggerConfig'
-import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 
 export class TriggerHandlerMidi extends TriggerHandler<TriggerConfigMidi> {
 	protected neededAnyDevice = false

@@ -2,7 +2,6 @@ import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { getStreamDecks, requestStreamDecks, DeviceModelId, StreamDeckWeb } from '@elgato-stream-deck/webhid'
 import { TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigStreamdeck, TriggerConfigType } from '../triggerConfig'
-import { AnyTriggerAction } from '../../triggerActions/triggerActions'
 import { Buffer as WebBuffer } from 'buffer'
 window.Buffer = WebBuffer // This is a polyfill to get the Streamdeck working in the browser
 
