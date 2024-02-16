@@ -15,7 +15,6 @@ import {
 	ServiceTypes,
 	Services,
 } from '@sofie-prompter-editor/shared-model'
-import { DEFAULT_DEV_API_HOST, DEFAULT_DEV_API_PORT } from '@sofie-prompter-editor/shared-lib'
 import { AddTypeToProperties, FeathersTypedService } from './lib.ts'
 
 interface APIConnectionEvents {
@@ -40,10 +39,10 @@ export class APIConnection extends EventEmitter<APIConnectionEvents> {
 
 	private app: Application<AddTypeToProperties<ServiceTypes, SocketService>, unknown>
 
-	constructor(public readonly host = DEFAULT_DEV_API_HOST, public readonly port = DEFAULT_DEV_API_PORT) {
+	constructor() {
 		super()
 
-		const socket = io(`${host}:${port}`)
+		const socket = io()
 		socket.on('connect', () => {
 			this.connected = true
 			this.emit('connected')

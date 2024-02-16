@@ -2898,14 +2898,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@sofie-prompter-editor/apps-app@workspace:packages/apps/app":
-  version: 0.0.0-use.local
-  resolution: "@sofie-prompter-editor/apps-app@workspace:packages/apps/app"
-  dependencies:
-    "@sofie-prompter-editor/shared-lib": "npm:0.0.0"
-  languageName: unknown
-  linkType: soft
-
 "@sofie-prompter-editor/apps-backend@workspace:packages/apps/backend":
   version: 0.0.0-use.local
   resolution: "@sofie-prompter-editor/apps-backend@workspace:packages/apps/backend"

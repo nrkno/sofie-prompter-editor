@@ -105,8 +105,8 @@ export const RootAppStore = new RootAppStoreClass()
 
 export interface APIConnection extends EventEmitter {
 	readonly connected: boolean
-	readonly host: string
-	readonly port: number
+	// readonly host: string
+	// readonly port: number
 
 	readonly systemStatus: FeathersTypedService<SystemStatusServiceDefinition.Service>
 	readonly controller: FeathersTypedService<ControllerServiceDefinition.Service>

@@ -1,5 +1,5 @@
 import { RealTimeConnection, feathers } from '@feathersjs/feathers'
-import { koa, rest, bodyParser, errorHandler, serveStatic, cors } from '@feathersjs/koa'
+import { koa, rest, bodyParser, errorHandler, serveStatic, cors, FeathersKoaContext } from '@feathersjs/koa'
 import socketio from '@feathersjs/socketio'
 import { EventEmitter } from 'eventemitter3'
 import { ServiceTypes, SystemStatus } from '@sofie-prompter-editor/shared-model'
@@ -16,6 +16,7 @@ import { ViewPortFeathersService, ViewPortService } from './services/ViewPortSer
 import { OutputSettingsFeathersService, OutputSettingsService } from './services/OutputSettingsService.js'
 import { ControllerFeathersService, ControllerService } from './services/ControllerService.js'
 import { SystemStatusFeathersService, SystemStatusService } from './services/SystemStatusService.js'
+import { fileURLToPath } from 'node:url'
 
 export type ApiServerEvents = {
 	connection: []
@@ -45,7 +46,8 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		super()
 		this.log = log.category('ApiServer')
 
-		this.app.use(serveStatic('src'))
+		const serveStaticMiddleware = serveStatic(fileURLToPath(new URL('../../../client/dist', import.meta.url)))
+		this.app.use(serveStaticMiddleware)
 
 		this.app.use(
 			cors({
@@ -53,7 +55,18 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 			})
 		)
 
-		this.app.use(errorHandler())
+		const errorHandlerMiddleware = errorHandler()
+		this.app.use((ctx: FeathersKoaContext, next) => {
+			if (ctx.path.startsWith('/api/') || ctx.path === '/api') {
+				return errorHandlerMiddleware(ctx, next)
+			} else if (ctx.status === 404) {
+				// Force serve the index as this is a SPA
+				ctx.path = '/index.html'
+				return serveStaticMiddleware(ctx, next)
+			} else {
+				next()
+			}
+		})
 		this.app.use(bodyParser())
 		this.app.configure(rest())
 		this.app.configure(socketio({ cors: { origin: '*' } })) // TODO: cors
