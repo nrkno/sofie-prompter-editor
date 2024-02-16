@@ -20,7 +20,8 @@ COPY --from=0 /opt/prompter/package.json /opt/prompter/package.json
 COPY --from=0 /opt/prompter/node_modules /opt/prompter/node_modules
 COPY --from=0 /opt/prompter/packages/apps /opt/prompter/packages/apps
 COPY --from=0 /opt/prompter/packages/shared /opt/prompter/packages/shared
+COPY docker-entrypoint.sh /
 
 WORKDIR /opt/prompter/packages/apps/backend
 EXPOSE 5600/TCP
-ENTRYPOINT ["node", "dist/index.js"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
