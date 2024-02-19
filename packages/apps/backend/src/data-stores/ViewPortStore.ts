@@ -5,7 +5,7 @@ import { getCurrentTime } from '../lib/getCurrentTime.js'
 import { PersistentStorageHandler } from '../lib/PersistentStorageHandler.js'
 
 export class ViewPortStore {
-	private storage = new PersistentStorageHandler<ViewPort>('viewPort')
+	private storage = new PersistentStorageHandler<ViewPort>('viewPort', ViewPortSchema)
 	public viewPort = observable.box<ViewPort>({
 		_id: '',
 

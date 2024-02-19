@@ -1,10 +1,10 @@
 import { action, makeAutoObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
-import { OutputSettings } from '@sofie-prompter-editor/shared-model'
+import { OutputSettings, OutputSettingsSchema } from '@sofie-prompter-editor/shared-model'
 import { PersistentStorageHandler } from '../lib/PersistentStorageHandler.js'
 
 export class OutputSettingsStore {
-	private storage = new PersistentStorageHandler<OutputSettings>('outputSettings')
+	private storage = new PersistentStorageHandler<OutputSettings>('outputSettings', OutputSettingsSchema)
 	public outputSettings = observable.box<OutputSettings>({
 		// _id: '',
 

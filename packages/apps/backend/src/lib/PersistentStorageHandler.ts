@@ -2,11 +2,12 @@ import fs from 'fs/promises'
 import path from 'path'
 import os from 'os'
 import { ensurePathExists } from './ensurePathExists.js'
+import { z } from 'zod'
 
 export class PersistentStorageHandler<T> {
 	private fileName: string
 	private storageReady: Promise<void>
-	constructor(private keyName: string) {
+	constructor(keyName: string, private schema: z.Schema<T>) {
 		let storageDir = process.env.STORAGE_DIR
 
 		if (!storageDir) {
@@ -34,7 +35,7 @@ export class PersistentStorageHandler<T> {
 			const text = await fs.readFile(this.fileName, {
 				encoding: 'utf-8',
 			})
-			return JSON.parse(text)
+			return this.schema.parse(JSON.parse(text))
 		} catch (e) {
 			return null
 		}
