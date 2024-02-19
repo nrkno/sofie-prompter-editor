@@ -35,6 +35,10 @@ yarn dev
 
 Now you should be good to go.
 
+### Storage
+
+Some application settings will be persisted by the Backend application. These will be stored in the path indicated by environment variable `STORAGE_DIR`, or inside user's home directory, inside a directory called `.sofie-prompter-editor`, if the environment variable isn't set.
+
 ### Before Committing Code
 
 Before any code is committed, run these:

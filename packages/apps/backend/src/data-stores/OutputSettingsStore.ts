@@ -1,8 +1,10 @@
 import { action, makeAutoObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { OutputSettings } from '@sofie-prompter-editor/shared-model'
+import { PersistentStorageHandler } from '../lib/PersistentStorageHandler.js'
 
 export class OutputSettingsStore {
+	private storage = new PersistentStorageHandler<OutputSettings>('outputSettings')
 	public outputSettings = observable.box<OutputSettings>({
 		// _id: '',
 
@@ -26,6 +28,18 @@ export class OutputSettingsStore {
 			create: action,
 			update: action,
 		})
+		this.loadPersisted()
+	}
+
+	loadPersisted() {
+		this.storage
+			.get()
+			.then((data) => {
+				if (!data) return
+
+				this.outputSettings.set(data)
+			})
+			.catch((e) => console.error(e))
 	}
 
 	create(data: OutputSettings) {
@@ -42,6 +56,7 @@ export class OutputSettingsStore {
 	private _updateIfChanged(outputSettings: OutputSettings) {
 		if (!isEqual(this.outputSettings.get(), outputSettings)) {
 			this.outputSettings.set(outputSettings)
+			this.storage.set(outputSettings)
 		}
 	}
 }

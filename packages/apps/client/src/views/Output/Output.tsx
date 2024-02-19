@@ -33,8 +33,6 @@ function createState(
 		offset: number
 	} | null
 ): ViewPortLastKnownState {
-	// TODO: Find an anchoring point closest to the "focus area",
-	// and use that as opposed to the "top of page" null value
 	let targetEl = null
 	let offset = 0
 

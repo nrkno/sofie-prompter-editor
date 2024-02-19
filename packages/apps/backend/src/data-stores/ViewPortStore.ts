@@ -2,12 +2,13 @@ import { action, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import { ViewPort, ViewPortSchema } from '@sofie-prompter-editor/shared-model'
 import { getCurrentTime } from '../lib/getCurrentTime.js'
+import { PersistentStorageHandler } from '../lib/PersistentStorageHandler.js'
 
 export class ViewPortStore {
+	private storage = new PersistentStorageHandler<ViewPort>('viewPort')
 	public viewPort = observable.box<ViewPort>({
 		_id: '',
 
-		// TODO: load these from persistent store upon startup?
 		lastKnownState: {
 			controllerMessage: {
 				offset: {
@@ -27,6 +28,18 @@ export class ViewPortStore {
 			create: action,
 			update: action,
 		})
+		this.loadPersisted()
+	}
+
+	loadPersisted() {
+		this.storage
+			.get()
+			.then((data) => {
+				if (!data) return
+
+				this.viewPort.set(data)
+			})
+			.catch((e) => console.error(e))
 	}
 
 	create(data: ViewPort) {
@@ -62,6 +75,7 @@ export class ViewPortStore {
 		if (!isEqual(this.viewPort, viewPort)) {
 			ViewPortSchema.parse(viewPort)
 			this.viewPort.set(viewPort)
+			this.storage.set(viewPort)
 		}
 	}
 }

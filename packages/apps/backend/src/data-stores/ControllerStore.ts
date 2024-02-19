@@ -1,7 +1,5 @@
 import { action, makeObservable, observable } from 'mobx'
-import isEqual from 'lodash.isequal'
-import { ControllerMessage, ViewPort, ViewPortSchema } from '@sofie-prompter-editor/shared-model'
-import { getCurrentTime } from '../lib/getCurrentTime.js'
+import { ControllerMessage } from '@sofie-prompter-editor/shared-model'
 import { literal } from '@sofie-automation/server-core-integration'
 
 export class ControllerStore {
