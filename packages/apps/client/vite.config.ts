@@ -14,7 +14,10 @@ export default defineConfig({
 	server: {
 		proxy: {
 			'/api': 'http://localhost:5600',
-			'/socket.io': 'http://localhost:5600',
+			'/socket.io': {
+				target: 'ws://localhost:5600',
+				ws: true,
+			},
 		},
 	},
 	optimizeDeps: {
