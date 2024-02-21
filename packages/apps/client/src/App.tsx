@@ -23,6 +23,11 @@ function App(): React.JSX.Element {
 							</Link>
 						</Nav.Item>
 						<Nav.Item>
+							<Link className="nav-link" to="/output?primary">
+								Output (primary)
+							</Link>
+						</Nav.Item>
+						<Nav.Item>
 							<Link className="nav-link" to="/test-controller">
 								Test Controller
 							</Link>
