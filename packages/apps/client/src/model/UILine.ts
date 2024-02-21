@@ -29,6 +29,8 @@ export class UILine {
 
 	ready: boolean = false
 
+	isEditable = false
+
 	constructor(private store: RundownStore, private owner: UISegment, public id: UILineId) {
 		makeAutoObservable(this, {
 			updateFromJson: action,
@@ -64,6 +66,8 @@ export class UILine {
 		}
 
 		this.ready = true
+
+		this.isEditable = json.scriptPackageInfo != null
 	}
 
 	remove() {

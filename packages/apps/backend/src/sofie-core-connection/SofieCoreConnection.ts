@@ -6,7 +6,7 @@ import {
 	JSONBlobStringify,
 	StatusCode,
 } from '@sofie-automation/server-core-integration'
-import { RundownPlaylistId } from '@sofie-prompter-editor/shared-model'
+import { PartId, RundownPlaylistId, ScriptContents } from '@sofie-prompter-editor/shared-model'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -27,8 +27,13 @@ import { PartHandler } from './dataHandlers/PartHandler.js'
 import { Transformers } from './dataTransformers/Transformers.js'
 import { PieceHandler } from './dataHandlers/PieceHandler.js'
 import { ShowStyleBaseHandler } from './dataHandlers/ShowStyleBaseHandler.js'
+import { ExpectedPackageHandler } from './dataHandlers/ExpectedPackageHandler.js'
 import * as fs from 'fs'
 import * as path from 'path'
+import { ExpectedPackageId } from './CoreDataTypes/Ids.js'
+import { stringifyError } from '@sofie-prompter-editor/shared-lib'
+import { PackageInfoHandler } from './dataHandlers/PackageInfoHandler.js'
+import { PROMPTER_PACKAGE_INFO_TYPE } from './CoreDataTypes/PackageInfo.js'
 
 interface SofieCoreConnectionEvents {
 	connected: []
@@ -185,6 +190,8 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		this.coreDataHandlers.push(new SegmentHandler(this.log, this.core, this.store, this.transformers))
 		this.coreDataHandlers.push(new PartHandler(this.log, this.core, this.store, this.transformers))
 		this.coreDataHandlers.push(new PieceHandler(this.log, this.core, this.store, this.transformers))
+		this.coreDataHandlers.push(new ExpectedPackageHandler(this.log, this.core, this.store, this.transformers))
+		this.coreDataHandlers.push(new PackageInfoHandler(this.log, this.core, this.store, this.transformers))
 
 		this.coreDataHandlers.push(new ShowStyleBaseHandler(this.log, this.core, this.store, this.transformers))
 
@@ -339,6 +346,26 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 						[[rundownId], null]
 					)
 				)
+				this.addSubscription(
+					subHash,
+					this.autoSubscribe(
+						'expectedPackages',
+						[
+							{
+								fromPieceType: 'piece',
+								rundownId: rundownId,
+							},
+						],
+						undefined,
+						[[rundownId], null] // TODO - this might not work
+					)
+				)
+				this.addSubscription(
+					subHash,
+					this.autoSubscribe('packageInfos', [this.core.deviceId], undefined, [
+						this.core.deviceId, // TODO - verify this works
+					])
+				)
 			} else if (change.type === 'delete') {
 				this.removeSubscription(`rundown_${change.oldValue}`)
 			}
@@ -370,4 +397,41 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 
 		this.log.info('Core: Subscriptions are set up!')
 	}
+
+	public saveEditedScript(partId: PartId, script: ScriptContents): void {
+		// TODO: debounce this
+
+		const storedPart = this.store.parts.parts.get(partId)
+		if (!storedPart) throw new Error(`Part "${partId}" does not exist`)
+
+		const storedPackageInfo = storedPart.scriptPackageInfo
+		if (!storedPackageInfo) throw new Error(`Part "${partId}" is not editable`)
+
+		const corePackageId = storedPackageInfo.packageId as any as ExpectedPackageId
+
+		const payload: ScriptPackageInfoPayload = {
+			originalScript: storedPart.scriptContents,
+			modifiedScript: script,
+			modified: Date.now(),
+		}
+
+		this.core.coreMethods
+			.updatePackageInfo(
+				PROMPTER_PACKAGE_INFO_TYPE,
+				corePackageId,
+				storedPackageInfo.contentVersionHash,
+				payload.modified + '',
+				payload
+			)
+			.catch((err) => {
+				this.log.error(`Failed to write PackageInfo back to Sofie: ${stringifyError(err)}`)
+			})
+	}
+}
+
+// PackageInfo type, as known in the nrk-blueprints
+export interface ScriptPackageInfoPayload {
+	originalScript: string
+	modifiedScript: string
+	modified: number
 }
