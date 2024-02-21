@@ -64,7 +64,7 @@ export class ExpectedPackageTransformer {
 			// This means that Core has an edited script stored and that it is recent. Use that:
 			const payload = corePackageInfo.payload as ScriptPackageInfoPayload
 
-			result.editedScriptContents = payload.modifiedScript
+			result.editedScriptContents = payload.modifiedScriptMarkdown
 		} else {
 			// can't use the info
 			// ignore any packageinfo, as the original script has changed

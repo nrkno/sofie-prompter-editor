@@ -31,7 +31,7 @@ import { ExpectedPackageHandler } from './dataHandlers/ExpectedPackageHandler.js
 import * as fs from 'fs'
 import * as path from 'path'
 import { ExpectedPackageId } from './CoreDataTypes/Ids.js'
-import { stringifyError } from '@sofie-prompter-editor/shared-lib'
+import { removeMarkdownish, stringifyError } from '@sofie-prompter-editor/shared-lib'
 import { PackageInfoHandler } from './dataHandlers/PackageInfoHandler.js'
 import { PROMPTER_PACKAGE_INFO_TYPE } from './CoreDataTypes/PackageInfo.js'
 
@@ -411,7 +411,8 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 
 		const payload: ScriptPackageInfoPayload = {
 			originalScript: storedPart.scriptContents,
-			modifiedScript: script,
+			modifiedScriptMarkdown: script,
+			modifiedScriptSimple: removeMarkdownish(script),
 			modified: Date.now(),
 		}
 
@@ -432,6 +433,7 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 // PackageInfo type, as known in the nrk-blueprints
 export interface ScriptPackageInfoPayload {
 	originalScript: string
-	modifiedScript: string
+	modifiedScriptMarkdown: string
+	modifiedScriptSimple: string
 	modified: number
 }

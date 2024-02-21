@@ -2,7 +2,7 @@ import { Part, PartDisplayType, PartId } from '@sofie-prompter-editor/shared-mod
 import { RundownStore } from '../stores/RundownStore'
 import { action, makeAutoObservable } from 'mobx'
 import { UISegment } from './UISegment'
-import { convertPlainTextScriptToMarkdown } from 'src/lib/markdownishUtils'
+import { convertPlainTextScriptToMarkdown } from '@sofie-prompter-editor/shared-lib'
 
 export type UILineId = PartId
 
