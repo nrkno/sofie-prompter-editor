@@ -100,18 +100,9 @@ export class ExpectedPackageTransformer {
 		if (packageInfo) {
 			if (!isEqual(this.corePackageInfos.get(id), packageInfo)) {
 				this.corePackageInfos.set(id, packageInfo)
-
-				// // create a new array so that the observable.map will pick up on the change
-				// upsertElementToReactiveArray(this.coreScriptPackageInfos, packageInfo.packageId, packageInfo)
 			}
 		} else {
-			const existingPackageInfo = this.corePackageInfos.get(id)
-			if (existingPackageInfo) {
-				this.corePackageInfos.delete(id)
-
-				// // create a new array so that the observable.map will pick up on the change
-				// popElementFromReactiveArray(this.coreScriptPackageInfos, existingPackageInfo.packageId, existingPackageInfo._id)
-			}
+			this.corePackageInfos.delete(id)
 		}
 	})
 
