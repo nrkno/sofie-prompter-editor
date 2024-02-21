@@ -24,4 +24,6 @@ export const OutputSettingsSchema = z.object({
 
 	/** If set, defines the rundown that is to be displayed in the Output */
 	activeRundownPlaylistId: ZodProtectedStringOrNull<RundownPlaylistId>(),
+
+	savedSpeed: z.number(),
 })

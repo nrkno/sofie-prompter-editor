@@ -3,6 +3,7 @@
 import { ControllerMessage } from '@sofie-prompter-editor/shared-model'
 
 export type AnyTriggerAction =
+	// "Set the prompter speed to the speed value"
 	| TriggerAction<
 			'prompterSetSpeed',
 			{
@@ -10,6 +11,7 @@ export type AnyTriggerAction =
 				speed: number
 			}
 	  >
+	// "Adjust the prompter speed, by adding the deltaSpeed to it"
 	| TriggerAction<
 			'prompterAddSpeed',
 			{
@@ -17,16 +19,33 @@ export type AnyTriggerAction =
 				deltaSpeed: number
 			}
 	  >
+	// "Jump the prompter by the offset"
 	| TriggerAction<
 			'prompterJump',
 			{
 				offset: ControllerMessage['offset']
 			}
 	  >
+	// "Make the prompter jump to the currently selected Part"
 	| TriggerAction<
 			'movePrompterToHere',
 			{
 				// nothing
+			}
+	  >
+	// "Adjust the prompter saved speed, by adding the deltaSpeed to it"
+	| TriggerAction<
+			'prompterAddSavedSpeed',
+			{
+				/** Change the speed by this amount */
+				deltaSpeed: number
+			}
+	  >
+	// "Set the prompter speed to the saved speed value (multiplied by factor)"
+	| TriggerAction<
+			'prompterUseSavedSpeed',
+			{
+				factor: number
 			}
 	  >
 

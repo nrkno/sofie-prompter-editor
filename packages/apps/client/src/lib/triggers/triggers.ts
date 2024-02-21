@@ -206,4 +206,119 @@ export const hardCodedTriggers: TriggerConfig[] = [
 			type: 'prompterSetSpeed',
 		},
 	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'shuttle',
+		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+		},
+		modifier: {
+			scale: 1 / 7,
+		},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'jog',
+		index: 0,
+		action: {
+			type: 'prompterAddSavedSpeed',
+		},
+		modifier: {
+			scale: 0.1,
+		},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'down',
+		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: -1.5,
+			},
+		},
+		modifier: {},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'up',
+		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+		modifier: {},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'down',
+		index: 1,
+		action: {
+			type: 'prompterUseSavedSpeed',
+			payload: {
+				factor: -1,
+			},
+		},
+		modifier: {},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'down',
+		index: 2,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+		modifier: {},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'down',
+		index: 3,
+		action: {
+			type: 'prompterUseSavedSpeed',
+			payload: {
+				factor: 1,
+			},
+		},
+		modifier: {},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'down',
+		index: 4,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 1.5,
+			},
+		},
+		modifier: {},
+	},
+	{
+		type: TriggerConfigType.SHUTTLE,
+		productId: null,
+		eventType: 'up',
+		index: 4,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+		modifier: {},
+	},
 ]

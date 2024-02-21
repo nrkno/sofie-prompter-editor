@@ -25,20 +25,6 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 		if (!trigger) return undefined
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
-		if (trigger.action.type === 'prompterSetSpeed') {
-			// not supported (yet?), ignore
-		} else if (trigger.action.type === 'prompterAddSpeed') {
-			// not supported (yet?), ignore
-		} else if (trigger.action.type === 'prompterJump') {
-			// not supported (yet?), ignore
-		} else if (trigger.action.type === 'movePrompterToHere') {
-			return {
-				type: 'movePrompterToHere',
-				payload: {},
-			}
-		} else {
-			assertNever(trigger.action.type)
-		}
 		return undefined
 	}
 	/** Generate an action from a "analog type" input */
@@ -65,14 +51,22 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 
 		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
-				type: 'prompterSetSpeed',
+				type: trigger.action.type,
 				payload: { speed: normalValue },
 			}
-		} else if (trigger.action.type === 'prompterAddSpeed') {
+		} else if (trigger.action.type === 'prompterAddSpeed' || trigger.action.type === 'prompterAddSavedSpeed') {
 			return {
-				type: 'prompterAddSpeed',
+				type: trigger.action.type,
 				payload: { deltaSpeed: normalValue },
 			}
+		} else if (
+			trigger.action.type === 'prompterJump' ||
+			trigger.action.type === 'prompterUseSavedSpeed' ||
+			trigger.action.type === 'movePrompterToHere'
+		) {
+			// not supported, ignore
+		} else {
+			assertNever(trigger.action.type)
 		}
 		return undefined
 	}
@@ -96,11 +90,19 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 				type: 'prompterSetSpeed',
 				payload: { speed: normalValue },
 			}
-		} else if (trigger.action.type === 'prompterAddSpeed') {
+		} else if (trigger.action.type === 'prompterAddSpeed' || trigger.action.type === 'prompterAddSavedSpeed') {
 			return {
 				type: 'prompterAddSpeed',
 				payload: { deltaSpeed: normalValue },
 			}
+		} else if (
+			trigger.action.type === 'prompterJump' ||
+			trigger.action.type === 'prompterUseSavedSpeed' ||
+			trigger.action.type === 'movePrompterToHere'
+		) {
+			// not supported, ignore
+		} else {
+			assertNever(trigger.action.type)
 		}
 		return undefined
 	}
