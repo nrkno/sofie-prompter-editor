@@ -5,8 +5,9 @@ import {
 	protectString,
 	JSONBlobStringify,
 	StatusCode,
+	ProtectedString,
 } from '@sofie-automation/server-core-integration'
-import { PartId, RundownPlaylistId, ScriptContents } from '@sofie-prompter-editor/shared-model'
+import { AnyProtectedString, PartId, RundownPlaylistId, ScriptContents } from '@sofie-prompter-editor/shared-model'
 import {
 	PeripheralDeviceCategory,
 	PeripheralDeviceType,
@@ -398,36 +399,97 @@ export class SofieCoreConnection extends EventEmitter<SofieCoreConnectionEvents>
 		this.log.info('Core: Subscriptions are set up!')
 	}
 
-	public saveEditedScript(partId: PartId, script: ScriptContents): void {
-		// TODO: debounce this
+	#runningAndPendingEditedScripts = new Map<ExpectedPackageId, { pending: ScriptSavingState | null }>()
 
+	/**
+	 * Save the edited script for a Part to a Sofie PackageInfo
+	 * @param partId Id of the part to write to
+	 * @param script New script contents (including markdown)
+	 */
+	public saveEditedScript(partId: PartId, script: ScriptContents): void {
 		const storedPart = this.store.parts.parts.get(partId)
 		if (!storedPart) throw new Error(`Part "${partId}" does not exist`)
 
 		const storedPackageInfo = storedPart.scriptPackageInfo
 		if (!storedPackageInfo) throw new Error(`Part "${partId}" is not editable`)
 
-		const corePackageId = storedPackageInfo.packageId as any as ExpectedPackageId
-
-		const payload: ScriptPackageInfoPayload = {
+		// Collect all the data needed for the save, the Rundown could become unloaded before the save begins
+		const packageId: ExpectedPackageId = this.convertId(storedPackageInfo.packageId)
+		const saveInfo: ScriptSavingState = {
 			originalScript: storedPart.scriptContents,
-			modifiedScriptMarkdown: script,
-			modifiedScriptSimple: removeMarkdownish(script),
+			pendingScript: script,
+			contentVersionHash: storedPackageInfo.contentVersionHash,
+		}
+
+		/**
+		 * This uses #runningAndPendingEditedScripts as a simple 'queue', to ensure that there is never more than
+		 * 1 write for a packageId in flight at a time. Subsequent calls to this method will be queued and batched
+		 * so that the latest script is written back once the current one has completed.
+		 *
+		 * It might be benficial to debounce these writes too, but the cost inside of Sofie is minimal as it already
+		 * debounces the updates before performing ingest, the most a debounce here would do is to avoid excessive
+		 * write to mongodb
+		 */
+
+		const runningState = this.#runningAndPendingEditedScripts.get(packageId)
+		if (runningState) {
+			// A save is already in progress or queued, store the new script to be written
+			runningState.pending = saveInfo
+
+			return
+		}
+
+		// Mark this package as being updated, with no pending value
+		this.#runningAndPendingEditedScripts.set(packageId, { pending: null })
+
+		this.#performSaveEditedScript(packageId, saveInfo)
+	}
+
+	#performSaveEditedScript(packageId: ExpectedPackageId, saveInfo: ScriptSavingState): void {
+		const payload: ScriptPackageInfoPayload = {
+			originalScript: saveInfo.originalScript,
+			modifiedScriptMarkdown: saveInfo.pendingScript,
+			modifiedScriptSimple: removeMarkdownish(saveInfo.pendingScript),
 			modified: Date.now(),
 		}
 
 		this.core.coreMethods
 			.updatePackageInfo(
 				PROMPTER_PACKAGE_INFO_TYPE,
-				corePackageId,
-				storedPackageInfo.contentVersionHash,
+				packageId,
+				saveInfo.contentVersionHash,
 				payload.modified + '',
 				payload
 			)
 			.catch((err) => {
 				this.log.error(`Failed to write PackageInfo back to Sofie: ${stringifyError(err)}`)
 			})
+			.finally(() => {
+				const runState = this.#runningAndPendingEditedScripts.get(packageId)
+				if (runState?.pending) {
+					// New info has been queued, execute the save
+					const newSaveInfo = runState.pending
+					runState.pending = null
+
+					this.#performSaveEditedScript(packageId, newSaveInfo)
+				} else {
+					// Nothing more to run
+					this.#runningAndPendingEditedScripts.delete(packageId)
+				}
+			})
 	}
+
+	private convertId<B extends AnyProtectedString, A extends ProtectedString<any>>(id: B): A
+	private convertId<A extends ProtectedString<any>, B extends AnyProtectedString>(id: A): B
+	private convertId<A, B>(id: A): B {
+		return id as any
+	}
+}
+
+interface ScriptSavingState {
+	originalScript: string
+	pendingScript: string
+	contentVersionHash: string
 }
 
 // PackageInfo type, as known in the nrk-blueprints
