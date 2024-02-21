@@ -11,6 +11,7 @@ import { TriggerHandlerStreamdeck } from '../lib/triggers/triggerHandlers/Trigge
 import { TriggerHandlerSpaceMouse } from '../lib/triggers/triggerHandlers/TriggerHandlerSpaceMouse'
 import { TriggerHandlerJoycon } from '../lib/triggers/triggerHandlers/TriggerHandlerJoycon.ts'
 import { TriggerHandlerMidi } from '../lib/triggers/triggerHandlers/TriggerHandlerMidi.ts'
+import { TriggerHandlerShuttle } from '../lib/triggers/triggerHandlers/TriggerHandlerShuttle.ts'
 
 export interface TriggerStoreEvents {
 	action: TriggerHandlerEvents['action']
@@ -40,6 +41,7 @@ export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
 		new TriggerHandlerSpaceMouse(),
 		new TriggerHandlerJoycon(),
 		new TriggerHandlerMidi(),
+		new TriggerHandlerShuttle(),
 	]
 
 	constructor(public appStore: typeof RootAppStore, public connection: APIConnection) {

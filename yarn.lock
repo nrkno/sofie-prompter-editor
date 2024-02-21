@@ -2737,6 +2737,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@shuttle-lib/core@npm:0.0.2":
+  version: 0.0.2
+  resolution: "@shuttle-lib/core@npm:0.0.2"
+  dependencies:
+    tslib: "npm:^2.4.0"
+  checksum: 10c0/0a1eece14b6bfe5ad225491abaa9956da741581faa332b09f81292226e7bc3269e4bd1fe61963954fd988d470ee81cb4d5c38d23369e13d055b996f98390f28d
+  languageName: node
+  linkType: hard
+
 "@sigstore/bundle@npm:^1.1.0":
   version: 1.1.0
   resolution: "@sigstore/bundle@npm:1.1.0"
@@ -2974,6 +2983,7 @@ __metadata:
     react-helmet-async: "npm:^1.3.0"
     react-router-dom: "npm:^6.22.0"
     sass: "npm:^1.70.0"
+    shuttle-webhid: "npm:^0.0.2"
     socket.io-client: "npm:^4.7.4"
     spacemouse-webhid: "npm:^0.0.2"
     typescript: "npm:^5.2.2"
@@ -11561,6 +11571,18 @@ __metadata:
   version: 1.8.1
   resolution: "shell-quote@npm:1.8.1"
   checksum: 10c0/8cec6fd827bad74d0a49347057d40dfea1e01f12a6123bf82c4649f3ef152fc2bc6d6176e6376bffcd205d9d0ccb4f1f9acae889384d20baff92186f01ea455a
+  languageName: node
+  linkType: hard
+
+"shuttle-webhid@npm:^0.0.2":
+  version: 0.0.2
+  resolution: "shuttle-webhid@npm:0.0.2"
+  dependencies:
+    "@shuttle-lib/core": "npm:0.0.2"
+    "@types/w3c-web-hid": "npm:^1.0.3"
+    buffer: "npm:^6.0.3"
+    p-queue: "npm:^6.6.2"
+  checksum: 10c0/bb78a012fecae14683f58d21b627121abf652d67b3b1fc6b7ce7427c1c2ba70001b727cc2867813d009985a6fc63e84f0f67023b286e6b7d7670e1cc6ed649c6
   languageName: node
   linkType: hard
 

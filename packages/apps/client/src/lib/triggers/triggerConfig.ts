@@ -10,6 +10,7 @@ export type TriggerConfig =
 	| TriggerConfigSpacemouse
 	| TriggerConfigJoycon
 	| TriggerConfigMidi
+	| TriggerConfigShuttle
 
 export enum TriggerConfigType {
 	KEYBOARD = 'keyboard',
@@ -18,6 +19,7 @@ export enum TriggerConfigType {
 	SPACEMOUSE = 'spacemouse',
 	JOYCON = 'joycon',
 	MIDI = 'midi',
+	SHUTTLE = 'shuttle',
 }
 export interface TriggerConfigBase {
 	type: TriggerConfigType
@@ -110,4 +112,14 @@ export interface TriggerConfigMidi extends TriggerConfigBase {
 	channel: number | null
 	/** Index of the key / control, or null to match any */
 	index: number | null
+}
+export interface TriggerConfigShuttle extends TriggerConfigBase {
+	type: TriggerConfigType.SHUTTLE
+
+	/** userId of the contour shuttle device, or null to match any */
+	productId: number | null
+
+	eventType: 'down' | 'up' | 'jog' | 'shuttle'
+	/** Index of the key, if needed, 0 otherwise */
+	index: number
 }
