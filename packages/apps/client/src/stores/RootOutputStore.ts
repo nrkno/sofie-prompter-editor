@@ -26,23 +26,4 @@ export class OutputStore {
 	onDisconnected = action('onDisconnected', () => {
 		this.connected = false
 	})
-
-	setupUIOutputSubscriptions = action(() => {
-		this.reactions.push(
-			reaction(
-				() => this.connected,
-				async (connected) => {
-					if (!connected) return
-
-					await this.connection.viewPort.subscribeToViewPort('')
-				},
-				{
-					fireImmediately: true,
-				}
-			)
-		)
-
-		// this.connection.playlist.on('created', this.onPlaylistCreated)
-		// Note: updated and removed events are handled by the UIRundownEntry's themselves
-	})
 }
