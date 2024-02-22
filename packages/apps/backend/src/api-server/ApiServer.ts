@@ -72,7 +72,7 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 		this.app.configure(socketio({ cors: { origin: '*' } })) // TODO: cors
 
 		this.playlist = PlaylistService.setupService(this.log, this.app, this.store)
-		this.rundown = RundownService.setupService(this.log, this.app, this.store, this.coreConnection)
+		this.rundown = RundownService.setupService(this.log, this.app, this.store, this.coreConnection, this)
 		this.segment = SegmentService.setupService(this.log, this.app, this.store)
 		this.part = PartService.setupService(this.log, this.app, this.store)
 

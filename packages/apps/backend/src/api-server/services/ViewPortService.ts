@@ -54,9 +54,6 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 		}
 	}
 
-	public async find(_params?: Params & { paginate?: PaginationParams }): Promise<Data[]> {
-		return [this.store.viewPort.viewPort.get()]
-	}
 	public async get(_id: null, _params?: Params): Promise<Data> {
 		const data = this.store.viewPort.viewPort.get()
 		return data
@@ -72,9 +69,10 @@ export class ViewPortService extends EventEmitter<Definition.Events> implements 
 		}
 	}
 
-	public async subscribeToViewPort(_: unknown, params: Params): Promise<void> {
+	public async subscribeToViewPort(_: unknown, params: Params): Promise<Data> {
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.ViewPort()).join(params.connection)
+		return this.get(null)
 	}
 }
 

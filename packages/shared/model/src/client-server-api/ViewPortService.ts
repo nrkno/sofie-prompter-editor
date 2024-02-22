@@ -10,7 +10,7 @@ import { ViewPort } from '../model/index.js'
 
 /** List of all method names */
 export const ALL_METHODS = [
-	'find',
+	// 'find',
 	'get',
 	// 'create',
 	'update',
@@ -21,14 +21,14 @@ export const ALL_METHODS = [
 ] as const
 /** The methods exposed by this class are exposed in the API */
 interface Methods {
-	find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
+	// find(params?: Params & { paginate?: PaginationParams }): Promise<Data[]>
 	get(id: null, params?: Params): Promise<Data>
 	// create(data: Data, params?: Params): Promise<Result>
 	update(id: null, data: Data, params?: Params): Promise<Result>
 	patch(_id: null, _data: Partial<Data>, _params?: Params): Promise<Result>
 
 	/** Subscribe to ViewPort data */
-	subscribeToViewPort(_?: unknown, params?: Params): Promise<void>
+	subscribeToViewPort(_?: unknown, params?: Params): Promise<Data>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

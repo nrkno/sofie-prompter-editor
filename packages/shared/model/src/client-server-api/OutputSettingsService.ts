@@ -28,8 +28,8 @@ interface Methods {
 	update(id: null, data: Data, params?: Params): Promise<Result>
 	patch(_id: null, _data: Partial<Data>, _params?: Params): Promise<Result>
 
-	/** Subscribe to Controller data */
-	subscribe(_?: unknown, params?: Params): Promise<void>
+	/** Subscribe to Controller data. Returns the initial data. */
+	subscribe(_?: unknown, params?: Params): Promise<Data>
 }
 export interface Service extends Methods, EventEmitter<Events> {}
 

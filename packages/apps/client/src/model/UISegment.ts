@@ -90,7 +90,7 @@ export class UISegment {
 		existing.updateFromJson(json)
 	})
 
-	private onSegmentRemoved = action('onSegmentRemoved', (json: Pick<Segment, '_id'>) => {
+	public onSegmentRemoved = action('onSegmentRemoved', (json: Pick<Segment, '_id'>) => {
 		if (this.id !== json._id) return
 
 		this.remove()

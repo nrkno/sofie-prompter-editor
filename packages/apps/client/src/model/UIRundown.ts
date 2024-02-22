@@ -1,4 +1,4 @@
-import { action, computed, makeAutoObservable, observable } from 'mobx'
+import { IReactionDisposer, action, computed, makeAutoObservable, observable } from 'mobx'
 import {
 	PartId,
 	Rundown,
@@ -27,85 +27,65 @@ export class UIRundown {
 
 	filter: UIRundownFilter = null
 
+	reactions: IReactionDisposer[] = []
+
 	constructor(private store: RundownStore, public id: UIRundownId) {
 		makeAutoObservable(this, {
 			segmentsInOrder: computed,
 		})
-		this.init().catch(console.error)
+		this.init()
 	}
-	private async init() {
-		await this.store.connection.rundown.subscribeToRundownsInPlaylist(this.id)
+	private init = action(() => {
+		this.reactions.push(
+			this.store.appStore.whenConnected(async () => {
+				// Setup subscription and load initial data:
+				const { rundowns, segments } = await this.store.connection.rundown.subscribeToRundownsInPlaylist(this.id)
 
-		const rundowns = await this.store.connection.rundown.find({
-			query: {
-				playlistId: this.id,
-			},
-		})
-		for (const rundown of rundowns) {
-			this.onRundownCreated(rundown)
-		}
+				// Remove old data:
+				for (const rundownId of this.rundowns.keys()) {
+					if (!rundowns.find((r) => r._id === rundownId)) {
+						this.onRundownRemoved({ _id: rundownId })
+					}
+				}
+				for (const [segmentId, segment] of this.segments.entries()) {
+					if (!segments.find((s) => s._id === segmentId)) segment.onSegmentRemoved({ _id: segmentId })
+				}
 
-		const segments = await this.store.connection.segment.find({
-			query: {
-				playlistId: this.id,
-			},
-		})
-		for (const segment of segments) {
-			this.onSegmentCreated(segment)
-		}
+				// Add new data:
+				for (const rundown of rundowns) {
+					this.onRundownCreated(rundown)
+				}
+				for (const segment of segments) {
+					this.onSegmentCreated(segment)
+				}
+			})
+		)
 
-		// get all segments
-
-		// register callbacks for events
+		// Register callbacks for events:
 
 		// we track playlist changed and removed
-		this.store.connection.playlist.on(
-			'updated',
-			action((json: RundownPlaylist) => {
-				if (json._id !== this.id) return
-
-				this.updateFromJson(json)
-			})
-		)
-
-		this.store.connection.playlist.on(
-			'removed',
-			action((id: RundownPlaylistId) => {
-				if (id !== this.id) return
-
-				this.close()
-			})
-		)
+		this.store.connection.playlist.on('updated', this.onPlaylistUpdated)
+		this.store.connection.playlist.on('removed', this.onPlaylistRemoved)
 
 		// we track rundown created, changed and removed, because we own Rundowns
-		this.store.connection.rundown.on(
-			'created',
-			action((json: Rundown) => {
-				this.rundowns.set(json._id, json)
-			})
-		)
-
-		this.store.connection.rundown.on(
-			'updated',
-			action((json: Rundown) => {
-				this.rundowns.set(json._id, json)
-			})
-		)
-
-		this.store.connection.rundown.on(
-			'removed',
-			action((json) => {
-				this.rundowns.delete(json._id)
-			})
-		)
+		this.store.connection.rundown.on('created', this.onRundownCreated)
+		this.store.connection.rundown.on('updated', this.onRundownCreated)
+		this.store.connection.rundown.on('removed', this.onRundownRemoved)
 
 		// we track segment created so that we can add new Segments when they are added
 		this.store.connection.segment.on('created', this.onSegmentCreated)
-	}
+	})
 
-	updateFromJson = action((json: RundownPlaylist) => {
+	onPlaylistUpdated = action('onPlaylistUpdated', (json: RundownPlaylist) => {
+		if (json._id !== this.id) return
+
 		this.name = json.label
 		this.ready = true
+	})
+	private onPlaylistRemoved = action('onPlaylistRemoved', (id: RundownPlaylistId) => {
+		if (id !== this.id) return
+
+		this.close()
 	})
 
 	get segmentsInOrder(): UISegment[] {
@@ -132,14 +112,17 @@ export class UIRundown {
 		this.dispose()
 	})
 
-	dispose(): void {
+	private dispose(): void {
 		// unregister event handlers from services
 		this.store.connection.segment.off('created', this.onSegmentCreated)
-
-		// TODO: Add more handlers
+		this.segments.forEach((segment) => segment.dispose())
+		this.reactions.forEach((dispose) => dispose())
 	}
 	private onRundownCreated = action('onRundownCreated', (json: Rundown) => {
 		this.rundowns.set(json._id, json)
+	})
+	private onRundownRemoved = action('onRundownRemoved', (json: Pick<Rundown, '_id'>) => {
+		this.rundowns.delete(json._id)
 	})
 	private onSegmentCreated = action('onSegmentCreated', (json: Segment) => {
 		if (json.playlistId !== this.id) return

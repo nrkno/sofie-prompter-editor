@@ -30,19 +30,22 @@ export class ViewPortStore {
 		this.initializing = true
 
 		this.setupSubscription()
-		this.loadInitialData()
 	}
 
 	private setupSubscription = action(() => {
-		this.reactions.push(this.appStore.whenConnected(() => this.connection.viewPort.subscribeToViewPort()))
+		this.reactions.push(
+			this.appStore.whenConnected(async () => {
+				// On connected / reconnected
+
+				// Setup subscription and load initial data:
+				const outputSettings = await this.connection.viewPort.subscribeToViewPort()
+				this.onUpdatedViewPort(outputSettings)
+
+				this.initialized = true
+			})
+		)
 
 		this.connection.viewPort.on('updated', this.onUpdatedViewPort)
-	})
-	private loadInitialData = flow(function* (this: ViewPortStore) {
-		const outputSettings = yield this.connection.viewPort.get(null)
-		this.onUpdatedViewPort(outputSettings)
-
-		this.initialized = true
 	})
 
 	private onUpdatedViewPort = action('onUpdatedViewPort', (newData: ViewPort) => {
