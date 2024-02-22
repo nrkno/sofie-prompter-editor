@@ -89,12 +89,12 @@ export const schema = new Schema({
 	marks: {
 		bold: {
 			toDOM() {
-				return ['b', 0]
+				return ['strong', 0]
 			},
 		},
 		italic: {
 			toDOM() {
-				return ['i', 0]
+				return ['em', 0]
 			},
 		},
 		underline: {
@@ -110,6 +110,16 @@ export const schema = new Schema({
 		reverse: {
 			toDOM() {
 				return ['rev', 0]
+			},
+		},
+		colour: {
+			attrs: {
+				colour: {},
+			},
+			toDOM(mark) {
+				const col = mark.attrs.colour
+
+				return ['span', { class: 'colour ' + col }]
 			},
 		},
 	},

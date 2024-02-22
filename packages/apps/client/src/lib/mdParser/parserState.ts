@@ -20,7 +20,7 @@ export interface ParserState {
 	/** Append a new child node to the root node and clear the stack */
 	replaceStack(node: ParentNodeBase): void
 	/** Get the character immediately after the current one */
-	peek(): string | undefined
+	peek(n?: number): string | undefined
 	/** Move the charCursor to the next character */
 	consume(): string | undefined
 }

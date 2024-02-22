@@ -10,6 +10,8 @@ export function fromMarkdown(text: string | null): ProsemirrorNode[] {
 	const astFromMarkdownish = createMdParser()
 	const ast = astFromMarkdownish(text)
 
+	// console.log(ast)
+
 	return traverseMdAstNodes(ast.children)
 }
 
@@ -24,6 +26,14 @@ function mdastToEditorSchemaNode(node: MdAstNode, children?: ProsemirrorNode[]):
 		return children.map((child) => child.mark([...child.marks, schema.mark(schema.marks.italic)]))
 	} else if (node.type === 'reverse' && children) {
 		return children.map((child) => child.mark([...child.marks, schema.mark(schema.marks.reverse)]))
+	} else if (node.type === 'underline' && children) {
+		return children.map((child) => child.mark([...child.marks, schema.mark(schema.marks.underline)]))
+	} else if (node.type === 'hidden' && children) {
+		return children.map((child) => child.mark([...child.marks, schema.mark(schema.marks.hidden)]))
+	} else if (node.type === 'colour' && children) {
+		return children.map((child) =>
+			child.mark([...child.marks, schema.mark(schema.marks.colour, { colour: node.colour })])
+		)
 	} else {
 		console.warn(node)
 		return [schema.text('[UNKNOWN]')]
@@ -65,8 +75,22 @@ function stringifyMarkdown(mdAst: MdAstNode): string {
 		return mdAst.children.map(stringifyMarkdown).join('')
 	} else if (mdAst.type === 'text') {
 		return escapeText(mdAst.value)
-	} else if (mdAst.type === 'emphasis' || mdAst.type === 'strong' || mdAst.type === 'reverse') {
+	} else if (
+		mdAst.type === 'emphasis' ||
+		mdAst.type === 'strong' ||
+		mdAst.type === 'reverse' ||
+		mdAst.type === 'underline' ||
+		mdAst.type === 'hidden'
+	) {
 		return `${mdAst.code}${mdAst.children.map(stringifyMarkdown).join('')}${mdAst.code}`
+	} else if (mdAst.type === 'colour') {
+		const colours = {
+			red: '#ff0000',
+			yellow: '#ffff00',
+		}
+		return `[colour=${colours[mdAst.colour] ?? colours['red']}]${mdAst.children
+			.map(stringifyMarkdown)
+			.join('')}[/colour]`
 	} else {
 		assertNever(mdAst)
 		console.warn(mdAst)
@@ -105,11 +129,34 @@ function prosemirrorNodeToMarkdown(node: ProsemirrorNode): MdAstNode {
 				code: '_',
 			}
 		}
+		if (node.marks.find((mark) => mark.type === schema.marks.underline)) {
+			textNode = {
+				type: 'underline',
+				children: [textNode],
+				code: '||',
+			}
+		}
+		if (node.marks.find((mark) => mark.type === schema.marks.hidden)) {
+			textNode = {
+				type: 'hidden',
+				children: [textNode],
+				code: '$',
+			}
+		}
 		if (node.marks.find((mark) => mark.type === schema.marks.reverse)) {
 			textNode = {
 				type: 'reverse',
 				children: [textNode],
 				code: '~',
+			}
+		}
+		const colourMark = node.marks.find((mark) => mark.type === schema.marks.colour)
+		if (colourMark) {
+			textNode = {
+				type: 'colour',
+				children: [textNode],
+				code: '', // eh?
+				colour: colourMark.attrs.colour ?? 'red',
 			}
 		}
 

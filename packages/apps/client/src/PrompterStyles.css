@@ -91,3 +91,10 @@
 .Prompter .ProseMirror {
 	outline: none;
 }
+
+.Prompter span.colour.red {
+	color: red
+}
+.Prompter span.colour.yellow {
+	color: yellow
+}
