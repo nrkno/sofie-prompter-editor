@@ -138,11 +138,15 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 			this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).leave(params.connection)
 		}
 
-		const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
-		this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
+		// Wait a little bit before checking, to avoid unsubscribing and resubscribing in quick succession:
+		setTimeout(() => {
+			const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
+			this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
+		}, UNSUBSCRIBE_DELAY)
 	}
 }
 type Result = Definition.Result
 type Id = Definition.Id
 type NullId = Definition.NullId
 type Data = Definition.Data
+type SubscribeInitialData = Definition.SubscribeInitialData

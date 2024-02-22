@@ -17,6 +17,7 @@ import { OutputSettingsFeathersService, OutputSettingsService } from './services
 import { ControllerFeathersService, ControllerService } from './services/ControllerService.js'
 import { SystemStatusFeathersService, SystemStatusService } from './services/SystemStatusService.js'
 import { fileURLToPath } from 'node:url'
+import { UNSUBSCRIBE_DELAY } from './services/lib.js'
 
 export type ApiServerEvents = {
 	connection: []
@@ -36,6 +37,7 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 	public readonly viewPort: ViewPortFeathersService
 	public readonly outputSettings: OutputSettingsFeathersService
 
+	private unsubscribeCheckTimeout: NodeJS.Timeout | null = null
 	private log: LoggerInstance
 	constructor(
 		log: LoggerInstance,
@@ -94,14 +96,18 @@ export class ApiServer extends EventEmitter<ApiServerEvents> {
 			// A client disconnected.
 			// Note: A disconnected client will leave all channels automatically.
 
-			if (this.coreConnection) {
-				for (const playlistId of this.coreConnection.getSubscribedPlaylists()) {
-					// Check if no one is subscribed to this playlist and unsubscribe from it if so:
+			// Debounce and wait a little bit before checking, to avoid unsubscribing and resubscribing in quick succession:
+			if (this.unsubscribeCheckTimeout) clearTimeout(this.unsubscribeCheckTimeout)
+			this.unsubscribeCheckTimeout = setTimeout(() => {
+				if (this.coreConnection) {
+					for (const playlistId of this.coreConnection.getSubscribedPlaylists()) {
+						// Check if no one is subscribed to this playlist and unsubscribe from it if so:
 
-					const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
-					this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
+						const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
+						this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
+					}
 				}
-			}
+			}, UNSUBSCRIBE_DELAY)
 		})
 
 		this.playlist.on('tmpPong', (payload: string) => {
