@@ -25,5 +25,6 @@ export const OutputSettingsSchema = z.object({
 	/** If set, defines the rundown that is to be displayed in the Output */
 	activeRundownPlaylistId: ZodProtectedStringOrNull<RundownPlaylistId>(),
 
+	/** Saved speed, used so that an operator can set and recall/use a speed for the prompter.*/
 	savedSpeed: z.number(),
 })

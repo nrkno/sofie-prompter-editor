@@ -21,6 +21,7 @@ export class OutputSettingsStore {
 		marginVertical: 1,
 
 		activeRundownPlaylistId: null,
+		savedSpeed: 0,
 	})
 
 	constructor() {

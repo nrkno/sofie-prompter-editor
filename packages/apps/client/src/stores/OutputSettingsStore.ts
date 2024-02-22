@@ -12,6 +12,7 @@ export class OutputSettingsStore {
 		marginHorizontal: 0,
 		marginVertical: 0,
 		activeRundownPlaylistId: null,
+		savedSpeed: 0,
 	})
 
 	initialized = false
