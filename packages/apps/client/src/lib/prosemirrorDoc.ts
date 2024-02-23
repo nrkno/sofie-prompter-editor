@@ -34,6 +34,8 @@ function mdastToEditorSchemaNode(node: MdAstNode, children?: ProsemirrorNode[]):
 		return children.map((child) =>
 			child.mark([...child.marks, schema.mark(schema.marks.colour, { colour: node.colour })])
 		)
+	} else if (node.type === 'screenMarker') {
+		return [schema.node(schema.nodes.backScreenMarker)]
 	} else {
 		console.warn(node)
 		return [schema.text('[UNKNOWN]')]
@@ -91,6 +93,8 @@ function stringifyMarkdown(mdAst: MdAstNode): string {
 		return `[colour=${colours[mdAst.colour] ?? colours['red']}]${mdAst.children
 			.map(stringifyMarkdown)
 			.join('')}[/colour]`
+	} else if (mdAst.type === 'screenMarker') {
+		return '(X)'
 	} else {
 		assertNever(mdAst)
 		console.warn(mdAst)
@@ -161,6 +165,10 @@ function prosemirrorNodeToMarkdown(node: ProsemirrorNode): MdAstNode {
 		}
 
 		return textNode
+	} else if (node.type === schema.nodes.backScreenMarker) {
+		return {
+			type: 'screenMarker',
+		}
 	} else {
 		console.warn(node)
 		return {

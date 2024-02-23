@@ -13,6 +13,8 @@ export interface ParserState {
 	readonly dataStore: Record<string, unknown>
 	/** Create a new text node and append as a child to the node under nodeCursor */
 	flushBuffer(): void
+	/** Create a new backscreen marker node and append as a child to the node under nodeCursor */
+	setMarker(): void
 	/** Append a new child node to the node at the top of the nodeStack, and push it onto the nodeStack */
 	pushNode(node: ParentNodeBase): void
 	/** Pop a ParentNode from the nodeStack */

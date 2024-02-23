@@ -85,6 +85,14 @@ export const schema = new Schema({
 		},
 
 		doc: { content: 'rundown*' },
+
+		backScreenMarker: {
+			group: 'inline',
+			inline: true,
+			toDOM() {
+				return ['span', {}, '🦕']
+			},
+		},
 	},
 	marks: {
 		bold: {

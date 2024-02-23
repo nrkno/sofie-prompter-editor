@@ -50,6 +50,10 @@ export interface ColourNode extends ParentNodeBase {
 	colour: 'red' | 'yellow'
 }
 
+export interface BackScreenMarkerNode extends NodeBase {
+	type: 'screenMarker'
+}
+
 export type Node =
 	| RootNode
 	| ParagraphNode
@@ -60,3 +64,4 @@ export type Node =
 	| UnderlineNode
 	| HiddenNode
 	| ColourNode
+	| BackScreenMarkerNode
