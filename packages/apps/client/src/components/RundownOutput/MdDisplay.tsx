@@ -32,6 +32,8 @@ function MdNode({ content }: { content: Node }): React.ReactNode {
 			return content.value
 		case 'hidden':
 			return null
+		case 'screenMarker':
+			return React.createElement('span', { className: 'screen-marker' }, '❤️')
 		default:
 			assertNever(content)
 			return null

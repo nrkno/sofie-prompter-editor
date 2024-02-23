@@ -90,7 +90,8 @@ export const schema = new Schema({
 			group: 'inline',
 			inline: true,
 			toDOM() {
-				return ['span', {}, '🦕']
+				// temporary icon, to be replaced with a better design after UX sessions:
+				return ['span', { class: 'screen-marker' }, '❤️'] // R.I.P Harry the Dino 🦕 :( (killed by the designers who wanted something more serious)
 			},
 		},
 	},
