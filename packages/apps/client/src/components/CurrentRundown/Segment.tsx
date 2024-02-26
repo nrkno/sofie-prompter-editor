@@ -21,14 +21,16 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 	}
 
 	function onRecall(e: SyntheticEvent) {
-		console.log('onRecall', e)
-
 		if (!(e.currentTarget instanceof HTMLElement)) return
 		const lineId = e.currentTarget.dataset['objId'] as UILineId
 
 		RootAppStore.uiStore.emit('scrollEditorToLine', {
 			lineId,
 		})
+
+		// An enter key at the wrong time can cause the contents of the script to be cleared in an unexpected way
+		// so we need to prevent it
+		if (e.type === 'keydown') e.preventDefault()
 	}
 
 	const filteredLines = segment.linesInOrderFiltered
