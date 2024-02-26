@@ -81,10 +81,11 @@ export class UIRundown {
 		this.updateFromJson(json)
 	}
 
-	private onPlaylistRemoved =  (id: RundownPlaylistId) => {
+	private onPlaylistRemoved = (id: RundownPlaylistId) => {
 		if (id !== this.id) return
 
-		this.close()
+		if (this.store.openRundown?.id === this.id) this.store.closeRundown()
+		this.dispose()
 	}
 	updateFromJson = action('updateFromJson', (json: RundownPlaylist) => {
 		this.name = json.label
@@ -108,19 +109,14 @@ export class UIRundown {
 		this.filter = filter
 	})
 
-	close = action(() => {
-		this.store.openRundown = null
-
-		this.store.connection.rundown.unSubscribeFromRundownsInPlaylist(this.id).catch(console.error)
-		this.dispose()
-	})
-
-	private dispose(): void {
+	dispose = action(() => {
 		// unregister event handlers from services
+		this.store.connection.rundown.unSubscribeFromRundownsInPlaylist(this.id).catch(console.error)
 		this.store.connection.segment.off('created', this.onSegmentCreated)
 		this.segments.forEach((segment) => segment.dispose())
 		this.reactions.forEach((dispose) => dispose())
-	}
+	})
+
 	private onRundownCreated = action('onRundownCreated', (json: Rundown) => {
 		this.rundowns.set(json._id, json)
 	})

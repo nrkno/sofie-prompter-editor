@@ -92,10 +92,17 @@ export class RundownStore {
 		if (this.openRundown?.id === id) return // Rundown already loaded
 
 		// Close and load a new Rundown:
-		this.openRundown?.close()
+		this.closeRundown()
 		const newRundown = new UIRundown(this, playlist._id)
-		newRundown.onPlaylistUpdated(playlist)
+		newRundown.updateFromJson(playlist)
 		this.openRundown = newRundown
+	})
+
+	closeRundown = action(() => {
+		if (this.openRundown === null) return
+
+		this.openRundown.dispose()
+		this.openRundown = null
 	})
 
 	sendRundownToOutput = (id: RundownPlaylistId) => {

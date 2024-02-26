@@ -8,3 +8,12 @@
 	right: 0;
 	bottom: 0;
 }
+
+:global(.Prompter .ProseMirror) {
+	outline: none;
+}
+
+.ScriptEditor:focus-within {
+	outline: 3px solid var(--bs-primary);
+	outline-offset: -3px;
+}

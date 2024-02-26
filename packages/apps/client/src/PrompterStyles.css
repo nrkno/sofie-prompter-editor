@@ -87,7 +87,3 @@
 .Prompter .spacer {
 	height: 100vh;
 }
-
-.Prompter .ProseMirror {
-	outline: none;
-}

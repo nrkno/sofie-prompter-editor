@@ -18,7 +18,7 @@ const CurrentRundown = observer((): React.JSX.Element => {
 	const navigate = useNavigate()
 
 	const onClose = action(() => {
-		openRundown?.close()
+		RootAppStore.rundownStore.closeRundown()
 		navigate('/')
 	})
 
