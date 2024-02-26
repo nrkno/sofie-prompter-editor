@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { PartId } from '@sofie-prompter-editor/shared-model'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
-import { EditorState, SelectionBookmark } from 'prosemirror-state'
+import { EditorState, Selection, SelectionBookmark, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { Fragment, Node, Slice } from 'prosemirror-model'
 import { baseKeymap } from 'prosemirror-commands'
@@ -18,6 +18,7 @@ import { RootAppStore } from 'src/stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
 import { findMatchingAncestor } from 'src/lib/findMatchingAncestor'
+import { UILineId } from 'src/model/UILine'
 
 export function Editor({
 	className,
@@ -82,6 +83,48 @@ export function Editor({
 		}
 	}, [])
 
+	useEffect(() => {
+		function onScrollEditorToLine(e: { lineId: UILineId }) {
+			console.log('onScrollEditorToLine', e)
+
+			if (!editorView.current) return
+
+			const lineId = e.lineId
+			let editorState = editorView.current.state
+
+			console.log(editorState.tr.selection, e.lineId)
+
+			const line = findNode(editorState.doc, (node) => node.attrs['lineId'] === lineId)
+			if (!line) return
+
+			editorView.current.dom.focus()
+
+			const { beginOffset, endOffset } = getNodeRange(line)
+
+			const selectionAllPart = TextSelection.create(editorState.doc, beginOffset, endOffset)
+			const trSelection0 = editorState.tr.setSelection(selectionAllPart).scrollIntoView()
+
+			editorView.current.dispatch(trSelection0)
+
+			editorState = editorView.current.state
+
+			setTimeout(() => {
+				if (!editorView.current) return
+
+				const selectionBegin = TextSelection.create(editorState.doc, beginOffset, beginOffset)
+				const trSelection1 = editorState.tr.setSelection(selectionBegin).scrollIntoView()
+
+				editorView.current.dispatch(trSelection1)
+			})
+		}
+
+		RootAppStore.uiStore.on('scrollEditorToLine', onScrollEditorToLine)
+
+		return () => {
+			RootAppStore.uiStore.removeListener('scrollEditorToLine', onScrollEditorToLine)
+		}
+	}, [])
+
 	const updateLineScript = useCallback((lineId: PartId, script: string | null) => {
 		if (!editorView.current) return
 
@@ -91,21 +134,7 @@ export function Editor({
 
 		if (!line) return
 
-		const ranges: { offset: number; size: number }[] = []
-
-		line.node.forEach((node, offset) => {
-			if (node.type !== schema.nodes.paragraph) return
-			ranges.push({ offset, size: node.nodeSize })
-		})
-		ranges.sort((a, b) => a.offset - b.offset)
-
-		let beginOffset: number = line.node.nodeSize - 1
-		let endOffset: number = beginOffset
-
-		if (ranges.length !== 0) {
-			beginOffset = line.pos + 1 + ranges[0].offset
-			endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
-		}
+		const { beginOffset, endOffset } = getNodeRange(line)
 
 		let selectionBookmark: SelectionBookmark | undefined
 
@@ -303,6 +332,29 @@ function findNode(
 	})
 
 	return found
+}
+
+function getNodeRange(line: NodeWithPosition) {
+	const ranges: { offset: number; size: number }[] = []
+
+	line.node.forEach((node, offset) => {
+		if (node.type !== schema.nodes.paragraph) return
+		ranges.push({ offset, size: node.nodeSize })
+	})
+	ranges.sort((a, b) => a.offset - b.offset)
+
+	let beginOffset: number = line.node.nodeSize - 1
+	let endOffset: number = beginOffset
+
+	if (ranges.length !== 0) {
+		beginOffset = line.pos + 1 + ranges[0].offset
+		endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
+	}
+
+	return {
+		beginOffset,
+		endOffset,
+	}
 }
 
 type NodeWithPosition = {

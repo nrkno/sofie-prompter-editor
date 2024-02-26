@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { SyntheticEvent } from 'react'
 import { observer } from 'mobx-react-lite'
 import { UISegment } from 'src/model/UISegment'
 import { Line } from './Line'
@@ -20,6 +20,17 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 		RootAppStore.uiStore.setSelectedLineId(lineId)
 	}
 
+	function onRecall(e: SyntheticEvent) {
+		console.log('onRecall', e)
+
+		if (!(e.currentTarget instanceof HTMLElement)) return
+		const lineId = e.currentTarget.dataset['objId'] as UILineId
+
+		RootAppStore.uiStore.emit('scrollEditorToLine', {
+			lineId,
+		})
+	}
+
 	const filteredLines = segment.linesInOrderFiltered
 
 	if (filteredLines.length === 0 && isRundownFilterEnabled) return null
@@ -31,7 +42,7 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 			</div>
 			<ul className={classes.LineContainer}>
 				{filteredLines.map((line) => (
-					<Line key={line.id} line={line} selected={isSelected(line.id)} onFocus={onFocus} />
+					<Line key={line.id} line={line} selected={isSelected(line.id)} onFocus={onFocus} onRecall={onRecall} />
 				))}
 			</ul>
 		</li>

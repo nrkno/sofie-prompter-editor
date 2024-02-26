@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { SyntheticEvent } from 'react'
 import { observer } from 'mobx-react-lite'
 import { UILine } from 'src/model/UILine'
 import classes from './CurrentRundown.module.scss'
@@ -11,16 +11,31 @@ const Line = observer(
 		line,
 		onFocus,
 		selected,
+		onRecall,
 	}: {
 		line: UILine | undefined
 		selected: boolean
-		onFocus: React.FocusEventHandler<HTMLElement>
+		onFocus?: React.FocusEventHandler<HTMLElement>
+		onRecall?: React.EventHandler<SyntheticEvent>
 	}): React.JSX.Element | null => {
 		if (!line) return null
+
+		function onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
+			if (e.key !== 'Enter') return
+
+			onRecall?.(e)
+		}
+
+		function onDoubleClick(e: React.MouseEvent<HTMLElement>) {
+			onRecall?.(e)
+		}
+
 		return (
 			<li
 				className={selected ? classes.LineSelected : classes.Line}
 				onFocus={onFocus}
+				onKeyDown={onKeyDown}
+				onDoubleClick={onDoubleClick}
 				data-obj-id={line.id}
 				tabIndex={0}
 				role="treeitem"
