@@ -91,3 +91,16 @@
 .Prompter .ProseMirror {
 	outline: none;
 }
+
+.Prompter span.colour.red {
+	color: red
+}
+.Prompter span.colour.yellow {
+	color: yellow
+}
+.Prompter rev span.colour.yellow, .Prompter span.colour.yellow rev {
+	color: rgb(113, 0, 237);
+}
+.Prompter span.screen-marker {
+	margin: 10px;
+}

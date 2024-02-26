@@ -1,8 +1,11 @@
 import { ParentNodeBase, RootNode, Node } from './astNodes'
+import { colour } from './constructs/colour'
 import { emphasisAndStrong } from './constructs/emphasisAndStrong'
 import { escape } from './constructs/escape'
 import { paragraph } from './constructs/paragraph'
 import { reverse } from './constructs/reverse'
+import { screenMarker } from './constructs/screenMarker'
+import { underlineOrHide } from './constructs/underlineOrHide'
 import { CharHandler, CharHandlerResult, NodeConstruct, ParserState } from './parserState'
 
 export class ParserStateImpl implements ParserState {
@@ -24,6 +27,13 @@ export class ParserStateImpl implements ParserState {
 		})
 		this.buffer = ''
 	}
+	setMarker = () => {
+		if (this.nodeCursor === null) throw new Error('No node available to flush buffer.')
+
+		this.nodeCursor.children.push({
+			type: 'screenMarker',
+		})
+	}
 	pushNode = (node: ParentNodeBase) => {
 		if (this.nodeCursor === null) {
 			this.nodeCursor = node
@@ -43,8 +53,8 @@ export class ParserStateImpl implements ParserState {
 		this.nodeStack.length = 0
 		this.nodeStack.push(this.nodeCursor)
 	}
-	peek = () => {
-		return this.text[this.charCursor + 1]
+	peek = (n = 1) => {
+		return this.text.slice(this.charCursor + 1, this.charCursor + n + 1)
 	}
 	consume = () => {
 		if (this.text[this.charCursor + 1] === undefined) throw new Error('No more text available to parse')
@@ -56,7 +66,15 @@ export class ParserStateImpl implements ParserState {
 export type Parser = (text: string) => RootNode
 
 export default function createParser(): Parser {
-	const nodeConstructs: NodeConstruct[] = [paragraph(), escape(), emphasisAndStrong(), reverse()]
+	const nodeConstructs: NodeConstruct[] = [
+		paragraph(),
+		escape(),
+		emphasisAndStrong(),
+		reverse(),
+		underlineOrHide(),
+		colour(),
+		screenMarker(),
+	]
 
 	const charHandlers: Record<string, CharHandler[]> = {}
 

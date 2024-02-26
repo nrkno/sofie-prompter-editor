@@ -24,8 +24,16 @@ function MdNode({ content }: { content: Node }): React.ReactNode {
 			return <b>{renderChildren(content)}</b>
 		case 'reverse':
 			return React.createElement('rev', {}, renderChildren(content))
+		case 'underline':
+			return React.createElement('u', {}, renderChildren(content))
+		case 'colour':
+			return React.createElement('span', { className: 'colour ' + content.colour }, renderChildren(content))
 		case 'text':
 			return content.value
+		case 'hidden':
+			return null
+		case 'screenMarker':
+			return React.createElement('span', { className: 'screen-marker' }, '❤️')
 		default:
 			assertNever(content)
 			return null
