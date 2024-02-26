@@ -48,7 +48,7 @@ export class UIRundown {
 					}
 				}
 				for (const [segmentId, segment] of this.segments.entries()) {
-					if (!segments.find((s) => s._id === segmentId)) segment.onSegmentRemoved({ _id: segmentId })
+					if (!segments.find((s) => s._id === segmentId)) segment.remove()
 				}
 
 				// Add new data:
@@ -76,16 +76,19 @@ export class UIRundown {
 		this.store.connection.segment.on('created', this.onSegmentCreated)
 	})
 
-	onPlaylistUpdated = action('onPlaylistUpdated', (json: RundownPlaylist) => {
+	private onPlaylistUpdated = (json: RundownPlaylist) => {
 		if (json._id !== this.id) return
+		this.updateFromJson(json)
+	}
 
-		this.name = json.label
-		this.ready = true
-	})
-	private onPlaylistRemoved = action('onPlaylistRemoved', (id: RundownPlaylistId) => {
+	private onPlaylistRemoved =  (id: RundownPlaylistId) => {
 		if (id !== this.id) return
 
 		this.close()
+	}
+	updateFromJson = action('updateFromJson', (json: RundownPlaylist) => {
+		this.name = json.label
+		this.ready = true
 	})
 
 	get segmentsInOrder(): UISegment[] {
