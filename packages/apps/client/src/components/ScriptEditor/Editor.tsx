@@ -19,6 +19,8 @@ import { IReactionDisposer, reaction } from 'mobx'
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
 import { findMatchingAncestor } from 'src/lib/findMatchingAncestor'
 import { UILineId } from 'src/model/UILine'
+import { reportCaretPosition } from './plugins/reportCaretPosition'
+import { findNode, getNodeRange, nearestElement } from './lib'
 
 export function Editor({
 	className,
@@ -270,14 +272,20 @@ function makeNewEditorState(doc: Node): EditorState {
 			keymap(formatingKeymap),
 			keymap(baseKeymap),
 			readOnlyNodeFilter(),
+			reportCaretPosition((lineId) => {
+				const openRundown = RootAppStore.rundownStore.openRundown
+				if (!openRundown) return
+
+				openRundown.updatePartWithCaret(lineId)
+			}),
 			updateModel((lineId, lineNodes) => {
 				// Future: debounce? locking? require manual triggering of the save?
 				const openRundown = RootAppStore.rundownStore.openRundown
-				if (openRundown) {
-					const compiledMarkdown = toMarkdown(lineNodes)
+				if (!openRundown) return
 
-					openRundown.updatePartScript(lineId, compiledMarkdown)
-				}
+				const compiledMarkdown = toMarkdown(lineNodes)
+
+				openRundown.updatePartScript(lineId, compiledMarkdown)
 			}),
 		],
 		doc,
@@ -314,52 +322,6 @@ function preserveSelection(state: EditorState): SelectionBookmark {
 function restoreSelection(state: EditorState, preservedSelection: SelectionBookmark): EditorState {
 	const restoreSelectionTr = state.tr.setSelection(preservedSelection.resolve(state.doc))
 	return state.apply(restoreSelectionTr)
-}
-
-function nearestElement(node: globalThis.Node | null): HTMLElement | null {
-	return node?.parentElement ?? null
-}
-
-function findNode(
-	node: Node,
-	predicate: (needle: Node, offset: number, index: number) => boolean
-): undefined | NodeWithPosition {
-	let found: NodeWithPosition | undefined = undefined
-	node.descendants((maybeNode, pos, _, index) => {
-		if (found) return
-		const isOK = predicate(maybeNode, pos, index)
-		if (isOK) found = { node: maybeNode, pos }
-	})
-
-	return found
-}
-
-function getNodeRange(line: NodeWithPosition) {
-	const ranges: { offset: number; size: number }[] = []
-
-	line.node.forEach((node, offset) => {
-		if (node.type !== schema.nodes.paragraph) return
-		ranges.push({ offset, size: node.nodeSize })
-	})
-	ranges.sort((a, b) => a.offset - b.offset)
-
-	let beginOffset: number = line.node.nodeSize - 1
-	let endOffset: number = beginOffset
-
-	if (ranges.length !== 0) {
-		beginOffset = line.pos + 1 + ranges[0].offset
-		endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
-	}
-
-	return {
-		beginOffset,
-		endOffset,
-	}
-}
-
-type NodeWithPosition = {
-	node: Node
-	pos: number
 }
 
 type OnChangeEvent = {

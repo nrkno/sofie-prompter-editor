@@ -11,6 +11,7 @@ import {
 } from '@sofie-prompter-editor/shared-model'
 import { UISegment } from './UISegment'
 import { RundownStore } from '../stores/RundownStore'
+import { UILineId } from './UILine'
 
 export type UIRundownId = RundownPlaylistId
 
@@ -26,6 +27,8 @@ export class UIRundown {
 	private rundowns = observable.map<RundownId, Rundown>()
 
 	filter: UIRundownFilter = null
+
+	editorCaretPositionLineId: UILineId | null = null
 
 	reactions: IReactionDisposer[] = []
 
@@ -138,6 +141,10 @@ export class UIRundown {
 
 		// update existing segment
 		existing.updateFromJson(json)
+	})
+
+	updatePartWithCaret = action('updatePartWithCaret', (partId: PartId | null) => {
+		this.editorCaretPositionLineId = partId
 	})
 
 	async updatePartScript(partId: PartId, script: ScriptContents): Promise<void> {

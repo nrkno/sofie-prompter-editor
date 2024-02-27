@@ -9,12 +9,14 @@ import { removeMarkdownish } from 'src/lib/markdownishUtils'
 const Line = observer(
 	({
 		line,
+		edited,
 		onFocus,
 		selected,
 		onRecall,
 	}: {
 		line: UILine | undefined
 		selected: boolean
+		edited: boolean
 		onFocus?: React.FocusEventHandler<HTMLElement>
 		onRecall?: React.EventHandler<SyntheticEvent>
 	}): React.JSX.Element | null => {
@@ -32,7 +34,9 @@ const Line = observer(
 
 		return (
 			<li
-				className={selected ? classes.LineSelected : classes.Line}
+				className={[selected ? classes.LineSelected : classes.Line, edited ? classes.LineEdited : null]
+					.filter(Boolean)
+					.join(' ')}
 				onFocus={onFocus}
 				onKeyDown={onKeyDown}
 				onDoubleClick={onDoubleClick}

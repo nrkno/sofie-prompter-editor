@@ -15,6 +15,10 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 		return lineId === RootAppStore.uiStore.selectedLineId
 	}
 
+	function isEdited(lineId: UILineId) {
+		return lineId === RootAppStore.rundownStore.openRundown?.editorCaretPositionLineId
+	}
+
 	function onFocus(e: React.FocusEvent<HTMLLIElement>) {
 		const lineId = e.currentTarget.dataset['objId'] as UILineId
 		RootAppStore.uiStore.setSelectedLineId(lineId)
@@ -24,6 +28,8 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 		if (!(e.currentTarget instanceof HTMLElement)) return
 		const lineId = e.currentTarget.dataset['objId'] as UILineId
 
+		// TODO: Emitting this event should be moved so that it's part of the business logic
+		RootAppStore.control.jumpToObject(lineId)
 		RootAppStore.uiStore.emit('scrollEditorToLine', {
 			lineId,
 		})
@@ -44,7 +50,14 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 			</div>
 			<ul className={classes.LineContainer}>
 				{filteredLines.map((line) => (
-					<Line key={line.id} line={line} selected={isSelected(line.id)} onFocus={onFocus} onRecall={onRecall} />
+					<Line
+						key={line.id}
+						line={line}
+						selected={isSelected(line.id)}
+						edited={isEdited(line.id)}
+						onFocus={onFocus}
+						onRecall={onRecall}
+					/>
 				))}
 			</ul>
 		</li>
