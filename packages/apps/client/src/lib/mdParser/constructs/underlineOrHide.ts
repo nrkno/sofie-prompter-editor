@@ -60,9 +60,8 @@ function hide(char: string, state: ParserState): CharHandlerResult | void {
 function underline(char: string, state: ParserState): CharHandlerResult | void {
 	if (state.nodeCursor === null) throw new Error('cursor === null assertion')
 
-	// consume twice
+	// consume once more to rid of the second character
 	char += state.consume()
-	// char += state.consume()
 
 	if (state.nodeCursor.type === 'underline' && 'code' in state.nodeCursor && state.nodeCursor.code === char) {
 		state.flushBuffer()

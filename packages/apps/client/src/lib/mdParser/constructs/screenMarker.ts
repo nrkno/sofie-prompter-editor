@@ -5,6 +5,7 @@ export function screenMarker(): NodeConstruct {
 		if (state.nodeCursor === null) throw new Error('cursor === null assertion')
 		if (state.peek(2) !== 'X)') return
 
+		// consume twice to rid of "X)"
 		state.consume()
 		state.consume()
 
