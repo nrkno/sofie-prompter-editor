@@ -20,8 +20,6 @@ const Line = observer(
 		onFocus?: React.FocusEventHandler<HTMLElement>
 		onRecall?: React.EventHandler<SyntheticEvent>
 	}): React.JSX.Element | null => {
-		if (!line) return null
-
 		function onKeyDown(e: React.KeyboardEvent<HTMLElement>) {
 			if (e.key !== 'Enter') return
 
@@ -31,6 +29,8 @@ const Line = observer(
 		function onDoubleClick(e: React.MouseEvent<HTMLElement>) {
 			onRecall?.(e)
 		}
+
+		if (!line) return null
 
 		return (
 			<li
