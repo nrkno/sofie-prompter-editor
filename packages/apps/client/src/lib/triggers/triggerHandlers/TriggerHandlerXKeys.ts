@@ -208,7 +208,10 @@ export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 				t.eventType === eventType &&
 				t.index === index,
 			xyz,
-			xyz.y
+			xyz.y,
+			{
+				scaleMaxValue: 127
+			}
 		)
 
 		if (action) this.emit('action', action)

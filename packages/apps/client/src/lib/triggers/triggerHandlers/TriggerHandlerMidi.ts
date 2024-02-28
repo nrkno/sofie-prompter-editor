@@ -188,7 +188,6 @@ export class TriggerHandlerMidi extends TriggerHandler<TriggerConfigMidi> {
 				zeroValue,
 			}
 		)
-		console.log(this.triggerAnalog)
 		if (action) this.emit('action', action)
 		else console.log('MIDI', 'analog', midiInfo.fullName, channel, index)
 	}
