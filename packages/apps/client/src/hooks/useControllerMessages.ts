@@ -129,6 +129,29 @@ export function useControllerMessages(
 			if (message.jumpBy !== undefined) {
 				animatedOffset.current += message.jumpBy * fontSizePx
 			}
+			if (message.jumpTarget) {
+				const allAnchors = getAllAnchorElementsByType(container, message.jumpTarget.type)
+				const eventualPosition = pointOfFocus + 10 + animatedOffset.current
+				const aboveAnchorIndex = getAnchorAbovePositionIndex(eventualPosition, Array.from(allAnchors))
+
+				const aboveAnchorEl = allAnchors[aboveAnchorIndex]
+				let aboveAnchorPosition = 0
+				if (aboveAnchorEl) {
+					const aboveAnchorElRect = aboveAnchorEl.getBoundingClientRect()
+					aboveAnchorPosition = aboveAnchorElRect.top
+				}
+
+				let jumpIndex = message.jumpTarget.index
+				if (jumpIndex === -1 && aboveAnchorPosition < -50) {
+					jumpIndex = 0
+				}
+
+				const jumpToAnchorIndex = Math.min(allAnchors.length - 1, Math.max(0, aboveAnchorIndex + jumpIndex))
+				const anchorEl = allAnchors[jumpToAnchorIndex]
+				const targetRect = anchorEl.getBoundingClientRect()
+
+				animatedOffset.current = scrolledPosition.current + targetRect.top - position.current
+			}
 		},
 		[ref, fontSizePx]
 	)

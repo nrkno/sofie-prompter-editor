@@ -35,6 +35,13 @@ export class TriggerActionHandler {
 			this.store.connection.controller.sendMessage({
 				jumpBy: action.payload.offset,
 			})
+		} else if (action.type === 'jumpByEntity') {
+			this.store.connection.controller.sendMessage({
+				jumpTarget: {
+					type: action.payload.type,
+					index: action.payload.deltaIndex,
+				},
+			})
 		} else if (action.type === 'movePrompterToHere') {
 			// Not handled here
 		} else if (action.type === 'prompterAddSavedSpeed') {

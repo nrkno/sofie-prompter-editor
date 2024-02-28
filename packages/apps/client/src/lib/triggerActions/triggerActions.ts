@@ -33,6 +33,14 @@ export type AnyTriggerAction =
 				offset: number
 			}
 	  >
+	// "Jump the prompter by the offset"
+	| TriggerAction<
+			'jumpByEntity',
+			{
+				type: 'rundown' | 'segment' | 'line' | null
+				deltaIndex: number
+			}
+	  >
 	// "Make the prompter jump to the currently selected Part"
 	| TriggerAction<
 			'movePrompterToHere',

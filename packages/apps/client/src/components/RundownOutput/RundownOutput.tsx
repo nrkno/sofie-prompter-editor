@@ -7,7 +7,9 @@ import { Segment } from './Segment'
 export const RundownOutput = observer(function RundownOutput({ rundown }: { rundown: UIRundown }): React.ReactNode {
 	return (
 		<div className={classes.RundownOutput}>
-			<h1 data-obj-id={rundown.id}>{rundown.name}</h1>
+			<h1 data-obj-id={rundown.id} data-anchor="rundown">
+				{rundown.name}
+			</h1>
 			{rundown.segmentsInOrder.map((segment) => (
 				<Segment key={segment.id} segment={segment} />
 			))}

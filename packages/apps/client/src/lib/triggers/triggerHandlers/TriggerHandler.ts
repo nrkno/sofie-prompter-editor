@@ -65,6 +65,7 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 				payload: { offset: normalValue },
 			}
 		} else if (
+			trigger.action.type === 'jumpByEntity' ||
 			trigger.action.type === 'prompterJump' ||
 			trigger.action.type === 'prompterUseSavedSpeed' ||
 			trigger.action.type === 'movePrompterToHere'
@@ -110,6 +111,7 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 				payload: { deltaSpeed: normalValue },
 			}
 		} else if (
+			trigger.action.type === 'jumpByEntity' ||
 			trigger.action.type === 'prompterJumpBy' ||
 			trigger.action.type === 'prompterJump' ||
 			trigger.action.type === 'prompterUseSavedSpeed' ||

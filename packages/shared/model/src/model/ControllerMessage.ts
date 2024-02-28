@@ -28,6 +28,13 @@ export const ControllerMessageSchema = z.object({
 	/** When set, make the prompter jump by a distance */
 	jumpBy: z.number().optional(),
 
+	/** When set, make the prompter jump to the next (or previous, depending of index) anchor point */
+	jumpTarget: z
+		.object({
+			type: z.enum(['rundown', 'segment', 'line']).nullable(),
+			index: z.number(),
+		})
+		.optional(),
 })
 
 /** TBD, something used to mark places in ScriptContents */
