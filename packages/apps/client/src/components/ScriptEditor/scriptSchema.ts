@@ -10,14 +10,32 @@ export const schema = new Schema({
 		lineTitle: {
 			group: 'title',
 			content: 'text*',
+			attrs: {
+				isOnAir: {
+					default: false,
+				},
+				isNext: {
+					default: false,
+				},
+			},
 			atom: true,
 			marks: '',
 			isolating: true,
 			draggable: false,
 			selectable: false,
 			locked: true,
-			toDOM() {
-				return ['h3', { class: 'LineSlug', contenteditable: 'false' }, 0]
+			toDOM(node) {
+				return [
+					'h3',
+					{
+						class: ['LineSlug', node.attrs.isOnAir ? 'isOnAir' : node.attrs.isNext ? 'isNext' : null]
+							.filter(Boolean)
+							.join(' '),
+
+						contenteditable: 'false',
+					},
+					0,
+				]
 			},
 		},
 		line: {

@@ -35,6 +35,12 @@ export const ControllerMessageSchema = z.object({
 			index: z.number(),
 		})
 		.optional(),
+	/** When set, make the prompter jump to the onAir or Next line */
+	jumpTo: z
+		.object({
+			type: z.enum(['onAir', 'next']),
+		})
+		.optional(),
 })
 
 /** TBD, something used to mark places in ScriptContents */

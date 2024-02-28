@@ -34,7 +34,11 @@ const Line = observer(
 
 		return (
 			<li
-				className={[selected ? classes.LineSelected : classes.Line, edited ? classes.LineEdited : null]
+				className={[
+					selected ? classes.LineSelected : classes.Line,
+					edited ? classes.LineEdited : null,
+					line.isOnAir ? classes.LineIsOnAir : line.isNext ? classes.LineIsNext : null,
+				]
 					.filter(Boolean)
 					.join(' ')}
 				onFocus={onFocus}
@@ -44,6 +48,7 @@ const Line = observer(
 				tabIndex={0}
 				role="treeitem"
 			>
+				<div className={classes.LineOnAirIndicator}></div>
 				<div className={classes.LineIdentifier}>{line.identifier}</div>
 				<div className={classes.LineType}>
 					<LineTypeIcon type={line.lineType?.style}>{line.lineType?.label}</LineTypeIcon>

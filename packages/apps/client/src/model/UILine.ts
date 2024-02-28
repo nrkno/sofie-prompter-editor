@@ -25,6 +25,9 @@ export class UILine {
 
 	readTime: number | null = null
 
+	isOnAir: boolean = false
+	isNext: boolean = false
+
 	isNew: boolean = false
 
 	ready: boolean = false
@@ -57,6 +60,8 @@ export class UILine {
 		this.rank = json.rank
 		this.script = json.editedScriptContents ?? this.convertScriptContentsToMarkdown(json.scriptContents) ?? null
 		this.isNew = json.isNew ?? false
+		this.isOnAir = json.isOnAir ?? false
+		this.isNext = json.isNext ?? false
 		this.expectedDuration = json.expectedDuration ?? null
 		this.lineType = {
 			label: json.display.label,

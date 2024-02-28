@@ -41,6 +41,13 @@ export type AnyTriggerAction =
 				deltaIndex: number
 			}
 	  >
+	// "Jump the prompter by the offset"
+	| TriggerAction<
+			'jumpTo',
+			{
+				type: 'onAir' | 'next'
+			}
+	  >
 	// "Make the prompter jump to the currently selected Part"
 	| TriggerAction<
 			'movePrompterToHere',

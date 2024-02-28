@@ -194,6 +194,8 @@ export function Editor({
 						linesInOrder: segment.linesInOrder.map((line) => ({
 							id: line.id,
 							slug: line.slug,
+							isOnAir: line.isOnAir,
+							isNext: line.isNext,
 							reactiveObj: line,
 						})),
 					})),
@@ -231,7 +233,14 @@ export function Editor({
 										lineId: lines.id,
 									},
 									[
-										schema.node(schema.nodes.lineTitle, undefined, [schema.text(lines.slug || '\xa0')]),
+										schema.node(
+											schema.nodes.lineTitle,
+											{
+												isOnAir: lines.isOnAir,
+												isNext: lines.isNext,
+											},
+											[schema.text(lines.slug || '\xa0')]
+										),
 										...fromMarkdown(lines.reactiveObj.script),
 									]
 								)

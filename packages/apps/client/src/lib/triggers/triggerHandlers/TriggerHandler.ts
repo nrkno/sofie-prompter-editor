@@ -66,6 +66,7 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 			}
 		} else if (
 			trigger.action.type === 'jumpByEntity' ||
+			trigger.action.type === 'jumpTo' ||
 			trigger.action.type === 'prompterJump' ||
 			trigger.action.type === 'prompterUseSavedSpeed' ||
 			trigger.action.type === 'movePrompterToHere'
@@ -112,6 +113,7 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 			}
 		} else if (
 			trigger.action.type === 'jumpByEntity' ||
+			trigger.action.type === 'jumpTo' ||
 			trigger.action.type === 'prompterJumpBy' ||
 			trigger.action.type === 'prompterJump' ||
 			trigger.action.type === 'prompterUseSavedSpeed' ||
@@ -123,4 +125,9 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 		}
 		return undefined
 	}
+}
+export interface PrompterState {
+	isPrompterMoving: boolean
+	// isPrompterAtTop: boolean // TODO
+	// isPrompterAtBottom: boolean // TODO
 }

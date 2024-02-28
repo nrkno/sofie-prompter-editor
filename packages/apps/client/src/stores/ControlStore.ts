@@ -17,7 +17,6 @@ export class ControlStore extends EventEmitter<ControlStoreEvents> {
 	}
 
 	jumpToObject(objectId: SegmentId | PartId | TextMarkerId, offset: number = 0): void {
-		console.log('jumpToObject', objectId)
 		this.connection.controller
 			.sendMessage({
 				offset: {
@@ -25,7 +24,6 @@ export class ControlStore extends EventEmitter<ControlStoreEvents> {
 					offset,
 				},
 			})
-			.then(() => console.log('sent!'))
 			.catch(console.error)
 	}
 	public initialize() {
@@ -46,7 +44,6 @@ export class ControlStore extends EventEmitter<ControlStoreEvents> {
 		)
 
 		RootAppStore.connection.controller.on('message', (message) => {
-			console.log('MESSAGEYO', message)
 			this.emit('message', message)
 		})
 	})

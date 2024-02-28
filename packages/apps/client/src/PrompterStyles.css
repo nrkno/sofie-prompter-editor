@@ -87,3 +87,12 @@
 .Prompter .spacer {
 	height: 100vh;
 }
+
+.Prompter .LineSlug.isOnAir,
+.Prompter h3[data-on-air='onAir'] {
+	background-color: rgb(234, 73, 73);
+}
+.Prompter .LineSlug.isNext,
+.Prompter h3[data-on-air='next'] {
+	background-color: rgb(69, 216, 69);
+}

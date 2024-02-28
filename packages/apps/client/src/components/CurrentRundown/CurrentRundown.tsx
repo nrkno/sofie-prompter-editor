@@ -104,7 +104,17 @@ const CurrentRundown = observer((): React.JSX.Element => {
 
 	return (
 		<>
-			<h1>{openRundown.name}</h1>
+			<h1
+				className={
+					openRundown.isActive
+						? openRundown.isRehearsal
+							? classes.HeaderRehearsal
+							: classes.HeaderActive
+						: classes.HeaderIdle
+				}
+			>
+				{openRundown.name}
+			</h1>
 			<div>
 				<Button variant="secondary" onClick={onClose}>
 					Close

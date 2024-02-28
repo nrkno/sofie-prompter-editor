@@ -11,7 +11,7 @@ import {
 	SegmentId,
 } from '@sofie-prompter-editor/shared-model'
 import * as Core from '../CoreDataTypes/index.js'
-import { literal } from '@sofie-automation/server-core-integration'
+import { literal, unprotectString } from '@sofie-automation/server-core-integration'
 import { computedFn } from 'mobx-utils'
 import { Transformers } from './Transformers.js'
 import { IBlueprintPieceType, ScriptContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
@@ -28,6 +28,8 @@ export class PartTransformer {
 	private readonly coreShowStyleVariants = observable.map<Core.ShowStyleVariantId, Core.DBShowStyleVariant>()
 
 	private readonly corePartPieces = observable.map<Core.PartId, Core.Piece[]>()
+
+	private readonly corePlaylistPartInfo = observable.map<Core.RundownPlaylistId, CorePlaylistPartInfo>()
 
 	constructor(private transformers: Transformers) {
 		makeObservable(this, {
@@ -72,6 +74,7 @@ export class PartTransformer {
 		const playlistId = this.convertId<Core.RundownPlaylistId, RundownPlaylistId>(corePlaylistId)
 
 		const coreShowStyleBase = this.coreShowStyleBases.get(showStyle.showStyleBaseId)
+		const corePlaylistPartInfo = this.corePlaylistPartInfo.get(corePlaylistId)
 
 		const pieces = this.corePartPieces.get(corePartId) || []
 
@@ -159,6 +162,13 @@ export class PartTransformer {
 			}
 		}
 
+		const onAirPartInstanceId = corePlaylistPartInfo?.currentPartInfo?.partInstanceId
+		const nextPartInstanceId = corePlaylistPartInfo?.nextPartInfo?.partInstanceId
+
+		// This is a hack! We assume that the partId is a part of the partInstanceId...
+		const isOnAir = onAirPartInstanceId && unprotectString(onAirPartInstanceId).includes(unprotectString(corePartId))
+		const isNext = nextPartInstanceId && unprotectString(nextPartInstanceId).includes(unprotectString(corePartId))
+
 		return literal<Part>({
 			_id: partId,
 			playlistId,
@@ -166,8 +176,8 @@ export class PartTransformer {
 			segmentId,
 			rank: corePart._rank,
 
-			isOnAir: false,
-			isNext: false,
+			isOnAir: isOnAir ?? false,
+			isNext: isNext ?? false,
 
 			label: corePart.title,
 			// prompterLabel?: string
@@ -249,10 +259,30 @@ export class PartTransformer {
 			}
 		}
 	}
+	/** This is called whenever the data from Core changes */
+	updateCorePlaylist(id: Core.RundownPlaylistId, playlist: Core.DBRundownPlaylist | undefined) {
+		if (playlist) {
+			const info: CorePlaylistPartInfo = {
+				currentPartInfo: playlist.currentPartInfo,
+				nextPartInfo: playlist.nextPartInfo,
+			}
+
+			if (!isEqual(this.corePlaylistPartInfo.get(id), info)) {
+				this.corePlaylistPartInfo.set(id, info)
+			}
+		} else {
+			this.corePlaylistPartInfo.delete(id)
+		}
+	}
 
 	private convertId<B extends AnyProtectedString, A extends Core.ProtectedString<any>>(id: B): A
 	private convertId<A extends Core.ProtectedString<any>, B extends AnyProtectedString>(id: A): B
 	private convertId<A, B>(id: A): B {
 		return id as any
 	}
+}
+
+interface CorePlaylistPartInfo {
+	currentPartInfo: Core.SelectedPartInstance | null
+	nextPartInfo: Core.SelectedPartInstance | null
 }

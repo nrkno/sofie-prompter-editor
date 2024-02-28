@@ -19,6 +19,9 @@ export function getAllAnchorElementsByType(
 	if (type === null) return container.querySelectorAll(`[data-anchor]`)
 	else return container.querySelectorAll(`[data-anchor="${type}"]`)
 }
+export function getAnchorElementByOnAir(container: HTMLElement | Document, type: 'onAir' | 'next'): HTMLElement | null {
+	return container.querySelector(`[data-on-air="${type}"]`)
+}
 
 /**
  * Returns the index of the closest anchor above the topPosition. -1 if no anchor is above the topPosition.

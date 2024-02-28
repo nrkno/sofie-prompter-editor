@@ -7,14 +7,19 @@ import {
 } from '@sofie-prompter-editor/shared-model'
 import { toJS } from 'mobx'
 import { useCallback, useEffect, useRef } from 'react'
-import { getAllAnchorElementsByType, getAnchorElementById, getAnchorAbovePositionIndex } from 'src/lib/anchorElements'
+import {
+	getAllAnchorElementsByType,
+	getAnchorElementById,
+	getAnchorAbovePositionIndex,
+	getAnchorElementByOnAir,
+} from 'src/lib/anchorElements'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { RootAppStore } from 'src/stores/RootAppStore'
 
 export const SPEED_CONSTANT = 300 // this is an arbitrary number to scale a reasonable speed number * font size to pixels/frame
 
 export const pointOfFocus = 0 // TODO
-const animateOffsetFactor = 0.1
+const animateOffsetFactor = 0.3
 
 type SetBaseViewPortState = (state: ViewPortLastKnownState) => void
 
@@ -129,6 +134,7 @@ export function useControllerMessages(
 			if (message.jumpBy !== undefined) {
 				animatedOffset.current += message.jumpBy * fontSizePx
 			}
+
 			if (message.jumpTarget) {
 				const allAnchors = getAllAnchorElementsByType(container, message.jumpTarget.type)
 				const eventualPosition = pointOfFocus + 10 + animatedOffset.current
@@ -151,6 +157,13 @@ export function useControllerMessages(
 				const targetRect = anchorEl.getBoundingClientRect()
 
 				animatedOffset.current = scrolledPosition.current + targetRect.top - position.current
+			}
+			if (message.jumpTo !== undefined) {
+				const anchorEl = getAnchorElementByOnAir(container, message.jumpTo.type)
+				if (anchorEl) {
+					const targetRect = anchorEl.getBoundingClientRect()
+					animatedOffset.current = scrolledPosition.current + targetRect.top - position.current
+				}
 			}
 		},
 		[ref, fontSizePx]

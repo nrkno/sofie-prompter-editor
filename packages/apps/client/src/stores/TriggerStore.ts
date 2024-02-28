@@ -4,7 +4,7 @@ import { EventEmitter } from 'eventemitter3'
 import { APIConnection, RootAppStore } from './RootAppStore'
 import { hardCodedTriggers } from '../lib/triggers/triggers'
 
-import { TriggerHandlerEvents } from '../lib/triggers/triggerHandlers/TriggerHandler'
+import { PrompterState, TriggerHandlerEvents } from '../lib/triggers/triggerHandlers/TriggerHandler'
 import { TriggerHandlerXKeys } from '../lib/triggers/triggerHandlers/TriggerHandlerXKeys'
 import { TriggerHandlerKeyboard } from '../lib/triggers/triggerHandlers/TriggerHandlerKeyboard'
 import { TriggerHandlerStreamdeck } from '../lib/triggers/triggerHandlers/TriggerHandlerStreamdeck'
