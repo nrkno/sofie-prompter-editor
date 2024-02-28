@@ -93,6 +93,9 @@ export class TriggerHandlerMidi extends TriggerHandler<TriggerConfigMidi> {
 			entry.onmidimessage = null
 		}
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 
 	private onMidiMessage(midiInfo: MIDIInputInfo, data: number[]) {
 		if (data.length === 3) {

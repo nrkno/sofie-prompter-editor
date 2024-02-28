@@ -84,4 +84,7 @@ export class TriggerStore extends EventEmitter<TriggerStoreEvents> {
 			await triggerHandler.destroy()
 		}
 	}
+	onPrompterState(state: PrompterState): void {
+		this.triggerHandlers.forEach((handler) => handler.onPrompterState(state))
+	}
 }

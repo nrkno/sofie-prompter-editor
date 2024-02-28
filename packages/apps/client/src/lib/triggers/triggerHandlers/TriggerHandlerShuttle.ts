@@ -107,6 +107,9 @@ export class TriggerHandlerShuttle extends TriggerHandler<TriggerConfigShuttle> 
 	async destroy(): Promise<void> {
 		await Promise.all(this.connectedPanels.map((panel) => panel.close()))
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 
 	private async connectToHIDDevice(device: HIDDevice) {
 		const panel = await setupShuttle(device)

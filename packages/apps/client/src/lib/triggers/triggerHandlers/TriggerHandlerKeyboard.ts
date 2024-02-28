@@ -43,4 +43,7 @@ export class TriggerHandlerKeyboard extends TriggerHandler<TriggerConfigKeyboard
 	async destroy(): Promise<void> {
 		Sorensen.destroy().catch((e: Error) => console.error('Sorensen.destroy', e))
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 }

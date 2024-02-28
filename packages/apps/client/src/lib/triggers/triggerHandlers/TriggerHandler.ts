@@ -14,6 +14,7 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 	protected triggers: TriggerConfig[] = []
 	abstract initialize(triggers?: TriggerConfig[]): Promise<void>
 	abstract destroy(): Promise<void>
+	abstract onPrompterState(state: PrompterState): void
 
 	protected triggerKeys: Trigger[] = []
 	protected triggerAnalog: Trigger[] = []
