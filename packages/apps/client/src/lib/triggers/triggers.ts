@@ -64,7 +64,48 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
-				speed: 3,
+				speed: 0.5,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'up',
+		index: 2,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 4,
+		action: {
+			type: 'jumpByEntity',
+			payload: {
+				type: null,
+				deltaIndex: -1,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 5,
+		action: {
+			type: 'jumpByEntity',
+			payload: {
+				type: null,
+				deltaIndex: 1,
 			},
 		},
 	},
@@ -86,6 +127,9 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		index: 0,
 		action: {
 			type: 'prompterAddSpeed',
+		},
+		modifier: {
+			scale: 3.5,
 		},
 	},
 	{
@@ -118,7 +162,23 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		eventType: 'rotate',
 		index: 0,
 		action: {
-			type: 'prompterSetSpeed',
+			type: 'prompterAddSpeed',
+		},
+		modifier: {
+			scale: 0.1,
+		},
+	},
+	{
+		type: TriggerConfigType.STREAMDECK,
+		modelId: null,
+		serialNumber: null,
+		eventType: 'rotate',
+		index: 1,
+		action: {
+			type: 'prompterJumpBy',
+		},
+		modifier: {
+			scale: 5,
 		},
 	},
 	{
@@ -129,6 +189,9 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 		},
+		modifier: {
+			scale: 0.25,
+		},
 	},
 	{
 		type: TriggerConfigType.JOYCON,
@@ -137,9 +200,9 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 		},
-		// modifier: {
-		// 	scale: 1,
-		// },
+		modifier: {
+			scale: -1,
+		},
 	},
 	{
 		type: TriggerConfigType.JOYCON,
@@ -238,7 +301,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
-				speed: -1.5,
+				speed: -10,
 			},
 		},
 		modifier: {},
@@ -303,7 +366,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
-				speed: 1.5,
+				speed: 10,
 			},
 		},
 		modifier: {},
