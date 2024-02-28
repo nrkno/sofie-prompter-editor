@@ -35,6 +35,13 @@ $theme-colors: (
 	--color-dark-1: #{$dark-1};
 	--color-dark-2: #{$dark-2};
 	--color-primary-dark: #{$primary-dark};
+
+	--color-on-air: #f00;
+	--color-next: #0f0;
+	--color-on-air-dark: #ff00007d;
+	--color-next-dark: #6bc6417d;
+	--color-on-air-output: #ff00007d;
+	--color-next-output: #6bc6417d;
 }
 
 /* Remove outline for non-keyboard :focus */

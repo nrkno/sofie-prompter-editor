@@ -48,7 +48,6 @@ const Line = observer(
 				tabIndex={0}
 				role="treeitem"
 			>
-				<div className={classes.LineOnAirIndicator}></div>
 				<div className={classes.LineIdentifier}>{line.identifier}</div>
 				<div className={classes.LineType}>
 					<LineTypeIcon type={line.lineType?.style}>{line.lineType?.label}</LineTypeIcon>

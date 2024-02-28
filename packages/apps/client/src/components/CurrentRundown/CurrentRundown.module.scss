@@ -69,6 +69,16 @@
 	--cell-background: var(--color-dark-2);
 }
 
+.LineIsOnAir {
+	--cell-background: none;
+	background: var(--color-on-air-dark);
+}
+
+.LineIsNext {
+	--cell-background: none;
+	background: var(--color-next-dark);
+}
+
 .LineSelected {
 	composes: Line;
 	border: 1px solid var(--bs-primary);
@@ -101,16 +111,6 @@
 	composes: LineItem;
 }
 
-.LineIsOnAir {
-	.LineOnAirIndicator {
-		background-color: #f00;
-	}
-}
-.LineIsNext {
-	.LineOnAirIndicator {
-		background-color: #0f0;
-	}
-}
 .LineScript {
 	composes: LineItem;
 }
@@ -118,9 +118,6 @@
 .LineDuration {
 	composes: LineItem;
 	text-align: right;
-}
-.LineOnAirIndicator {
-	width: 1em;
 }
 
 .ReadTime {
