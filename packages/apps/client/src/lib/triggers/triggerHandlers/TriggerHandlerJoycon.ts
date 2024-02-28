@@ -279,6 +279,9 @@ export class TriggerHandlerJoycon extends TriggerHandler<TriggerConfigJoycon> {
 		this.destroyed = true
 		if (this.updateJoyConsHandle !== undefined) window.cancelAnimationFrame(this.updateJoyConsHandle)
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 
 	/** Generate an action from a key input */
 	private _doKeyAction(eventType: TriggerConfigJoycon['eventType'], button: TriggerConfigJoycon['button']): void {

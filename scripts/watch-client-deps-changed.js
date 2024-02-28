@@ -18,8 +18,6 @@ const clientPackage = require(path.join(basePath, 'packages/apps/client/package.
 
 const viteConfigFile = path.join(basePath, 'packages/apps/client/vite.config.ts')
 
-console.log('basePath', basePath)
-
 
 async function main() {
 
@@ -56,7 +54,7 @@ async function main() {
 
     let timeout = null
     const watcher = chokidar.watch(watchGlobs)
-    watcher.on('all', () => {
+    watcher.on('all', (event, path) => {
 
         if (timeout) clearTimeout(timeout)
         timeout = setTimeout(() => {
@@ -78,10 +76,14 @@ async function triggerViteReload() {
 
 
 }
+// Wait before starting to watch, to let the initial build finish:
+setTimeout(() => {
+    console.log('Starting to watch for changes...')
+    main().catch((err) => {
+        console.error(err)
+        process.exit(1)
+    })
 
-main().catch((err) => {
-    console.error(err)
-    process.exit(1)
-})
+}, 30 * 1000)
 
 

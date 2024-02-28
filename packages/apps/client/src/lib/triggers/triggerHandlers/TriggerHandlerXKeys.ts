@@ -1,6 +1,6 @@
 import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { getOpenedXKeysPanels, requestXkeysPanels, setupXkeysPanel, XKeys } from 'xkeys-webhid'
-import { TriggerHandler } from './TriggerHandler'
+import { PrompterState, TriggerHandler } from './TriggerHandler'
 import { TriggerConfig, TriggerConfigType, TriggerConfigXkeys } from '../triggerConfig'
 
 export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
@@ -10,6 +10,9 @@ export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 	}>()
 
 	private connectedPanels: XKeys[] = []
+	private prompterState: PrompterState = {
+		isPrompterMoving: false,
+	}
 
 	async initialize(triggers?: TriggerConfig[]): Promise<void> {
 		if (triggers) this.triggers = triggers
@@ -77,6 +80,7 @@ export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 			xkeys.removeAllListeners('joystick')
 
 			xkeys.setAllBacklights(false)
+			xkeys.setIndicatorLED(1, true)
 
 			xkeys.on('error', (e) => {
 				console.error('xkeys error', e)
@@ -125,6 +129,14 @@ export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 	}
 	async destroy(): Promise<void> {
 		await Promise.all(this.connectedPanels.map((xkeys) => xkeys.close()))
+	}
+	onPrompterState(state: PrompterState): void {
+		if (state.isPrompterMoving !== this.prompterState.isPrompterMoving) {
+			this.prompterState.isPrompterMoving = state.isPrompterMoving
+			this.connectedPanels.forEach((xkeys) => {
+				xkeys.setIndicatorLED(2, state.isPrompterMoving)
+			})
+		}
 	}
 
 	private async connectToHIDDevice(device: HIDDevice) {
@@ -208,7 +220,10 @@ export class TriggerHandlerXKeys extends TriggerHandler<TriggerConfigXkeys> {
 				t.eventType === eventType &&
 				t.index === index,
 			xyz,
-			xyz.y
+			xyz.y,
+			{
+				scaleMaxValue: 127,
+			}
 		)
 
 		if (action) this.emit('action', action)

@@ -116,6 +116,9 @@ export class TriggerHandlerStreamdeck extends TriggerHandler<TriggerConfigStream
 	async destroy(): Promise<void> {
 		await Promise.all(this.connectedPanels.map((panel) => panel.close()))
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 
 	private async connectToHIDDevice(panel: StreamDeckWeb) {
 		const serialNumber = await panel.getSerialNumber()

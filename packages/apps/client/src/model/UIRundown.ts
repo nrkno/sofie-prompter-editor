@@ -19,6 +19,8 @@ type UIRundownFilter = 'onlyScript' | null
 
 export class UIRundown {
 	name: string = ''
+	isActive: boolean = false
+	isRehearsal: boolean = false
 
 	ready: boolean = false
 
@@ -92,6 +94,8 @@ export class UIRundown {
 	}
 	updateFromJson = action('updateFromJson', (json: RundownPlaylist) => {
 		this.name = json.label
+		this.isActive = json.isActive
+		this.isRehearsal = json.rehearsal
 		this.ready = true
 	})
 

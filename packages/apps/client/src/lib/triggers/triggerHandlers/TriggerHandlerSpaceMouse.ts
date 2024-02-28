@@ -107,6 +107,9 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler<TriggerConfigSpacem
 	async destroy(): Promise<void> {
 		await Promise.all(this.connectedPanels.map((panel) => panel.close()))
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 
 	private async connectToHIDDevice(device: HIDDevice) {
 		const panel = await setupSpaceMouse(device)
@@ -154,8 +157,12 @@ export class TriggerHandlerSpaceMouse extends TriggerHandler<TriggerConfigSpacem
 			(t) =>
 				(t.productId === null || t.productId === panel.info.productId) && t.eventType === eventType && t.index === 0,
 			xyz,
-			xyz.x + xyz.y + xyz.z
+			xyz.x + xyz.y + xyz.z,
+			{
+				scaleMaxValue: 127,
+			}
 		)
+
 		if (action) this.emit('action', action)
 		else console.log('SpaceMouse', eventType, panel.info.productId, xyz)
 	}

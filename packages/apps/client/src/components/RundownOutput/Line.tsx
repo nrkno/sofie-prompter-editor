@@ -10,7 +10,9 @@ export const Line = observer(function Line({ line }: { line: UILine }): React.Re
 
 	return (
 		<>
-			<h3 data-obj-id={line.id}>{line.slug}</h3>
+			<h3 data-obj-id={line.id} data-anchor="line" data-on-air={line.isOnAir ? 'onAir' : line.isNext ? 'next' : ''}>
+				{line.slug}
+			</h3>
 			{!script ? <p>&nbsp;</p> : isMdIsh ? <MdDisplay source={script} /> : <TextDisplay source={script} />}
 		</>
 	)

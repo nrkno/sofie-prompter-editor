@@ -12,3 +12,35 @@ export function getAnchorElementById(
 ): HTMLElement | null {
 	return container.querySelector(`[data-obj-id="${id}"]`)
 }
+export function getAllAnchorElementsByType(
+	container: HTMLElement | Document,
+	type: 'rundown' | 'segment' | 'line' | null
+): NodeListOf<HTMLElement> {
+	if (type === null) return container.querySelectorAll(`[data-anchor]`)
+	else return container.querySelectorAll(`[data-anchor="${type}"]`)
+}
+export function getAnchorElementByOnAir(container: HTMLElement | Document, type: 'onAir' | 'next'): HTMLElement | null {
+	return container.querySelector(`[data-on-air="${type}"]`)
+}
+
+/**
+ * Returns the index of the closest anchor above the topPosition. -1 if no anchor is above the topPosition.
+ */
+export function getAnchorAbovePositionIndex(topPosition: number, anchors: HTMLElement[]): number {
+	// Binary search
+	let leftIndex = 0
+	let rightIndex = anchors.length - 1
+	while (leftIndex <= rightIndex) {
+		const midIndex = Math.floor((leftIndex + rightIndex) / 2)
+		const midPosition = anchors[midIndex].getBoundingClientRect().top
+
+		if (midPosition > topPosition) {
+			rightIndex = midIndex - 1
+		} else if (midPosition < topPosition) {
+			leftIndex = midIndex + 1
+		} else {
+			return midIndex
+		}
+	}
+	return rightIndex
+}

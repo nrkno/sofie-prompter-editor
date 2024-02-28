@@ -2,6 +2,8 @@ import { assertNever } from '@sofie-prompter-editor/shared-lib'
 import { RootAppStore } from '../../stores/RootAppStore.ts'
 import { AnyTriggerAction } from './triggerActions.ts'
 
+const MINIMUM_SPEED = 0.1
+
 /**
  * The TriggerActionHandler is responsible for listening to some action events and executing the actions accordingly.
  */
@@ -19,24 +21,42 @@ export class TriggerActionHandler {
 		console.log('action', JSON.stringify(action))
 
 		if (action.type === 'prompterSetSpeed') {
-			this.prompterSpeed = action.payload.speed
+			this.prompterSpeed = this.attackCurve(action.payload.speed, 2, 0.7)
 			this.prompterSpeedUseSaved = false
 			this.sendPrompterSpeed()
 		} else if (action.type === 'prompterAddSpeed') {
 			this.prompterSpeed += action.payload.deltaSpeed
-			this.prompterSpeedUseSaved = false
+
 			this.sendPrompterSpeed()
 		} else if (action.type === 'prompterJump') {
-			// TODO
-			// this.store.connection.controller.sendMessage({
-			// 	speed: 0,
-			// 	offset: action.payload.offset,
-			// })
+			this.store.connection.controller.sendMessage({
+				speed: 0,
+				offset: action.payload.offset,
+			})
+		} else if (action.type === 'prompterJumpBy') {
+			this.store.connection.controller.sendMessage({
+				jumpBy: action.payload.offset,
+			})
+		} else if (action.type === 'jumpByEntity') {
+			this.store.connection.controller.sendMessage({
+				jumpTarget: {
+					type: action.payload.type,
+					index: action.payload.deltaIndex,
+				},
+			})
+		} else if (action.type === 'jumpTo') {
+			this.store.connection.controller.sendMessage({
+				jumpTo: {
+					type: action.payload.type,
+				},
+			})
 		} else if (action.type === 'movePrompterToHere') {
 			// Not handled here
 		} else if (action.type === 'prompterAddSavedSpeed') {
 			const prevSpeed = this.store.outputSettingsStore.outputSettings.savedSpeed ?? 0
-			const newSpeed = prevSpeed + action.payload.deltaSpeed
+			let newSpeed = prevSpeed + action.payload.deltaSpeed
+			if (Math.abs(newSpeed) < MINIMUM_SPEED) newSpeed = 0
+
 			this.store.connection.outputSettings.patch(null, {
 				savedSpeed: newSpeed,
 			})
@@ -52,16 +72,19 @@ export class TriggerActionHandler {
 	private sendPrompterSpeed() {
 		// Send message with speed:
 
+		if (Math.abs(this.prompterSpeed) < MINIMUM_SPEED) this.prompterSpeed = 0
+
 		const savedSpeed = this.store.outputSettingsStore.outputSettings.savedSpeed ?? 0
 		// Modify the value according to an attack curve:
-		const speed =
-			this.prompterSpeedUseSaved === false
-				? this.attackCurve(this.prompterSpeed, 5, 0.7)
-				: savedSpeed * this.prompterSpeedUseSaved
+		const speed = this.prompterSpeedUseSaved === false ? this.prompterSpeed : savedSpeed * this.prompterSpeedUseSaved
 
 		this.store.connection.controller.sendMessage({
 			speed: speed,
-			offset: null,
+		})
+
+		// TODO: This is a hacky way to do it. Later, we should use the feedback from the prompter instead.
+		this.store.triggerStore.onPrompterState({
+			isPrompterMoving: speed !== 0,
 		})
 	}
 	destroy(): void {}

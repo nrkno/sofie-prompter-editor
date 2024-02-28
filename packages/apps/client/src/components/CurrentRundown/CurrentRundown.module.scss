@@ -101,6 +101,16 @@
 	composes: LineItem;
 }
 
+.LineIsOnAir {
+	.LineOnAirIndicator {
+		background-color: #f00;
+	}
+}
+.LineIsNext {
+	.LineOnAirIndicator {
+		background-color: #0f0;
+	}
+}
 .LineScript {
 	composes: LineItem;
 }
@@ -109,8 +119,20 @@
 	composes: LineItem;
 	text-align: right;
 }
+.LineOnAirIndicator {
+	width: 1em;
+}
 
 .ReadTime {
 	composes: LineItem;
 	text-align: right;
+}
+.HeaderIdle {
+	background-color: #2689ba;
+}
+.HeaderActive {
+	background-color: #000;
+}
+.HeaderRehearsal {
+	background-color: #660;
 }

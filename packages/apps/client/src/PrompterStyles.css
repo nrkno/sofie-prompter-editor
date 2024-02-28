@@ -108,14 +108,24 @@
 }
 
 .Prompter span.colour.red {
-	color: red
+	color: red;
 }
 .Prompter span.colour.yellow {
-	color: yellow
+	color: yellow;
 }
-.Prompter rev span.colour.yellow, .Prompter span.colour.yellow rev {
+.Prompter rev span.colour.yellow,
+.Prompter span.colour.yellow rev {
 	color: rgb(113, 0, 237);
 }
 .Prompter span.screen-marker {
 	margin: 10px;
+}
+
+.Prompter .LineSlug.isOnAir,
+.Prompter h3[data-on-air='onAir'] {
+	background-color: rgb(234, 73, 73);
+}
+.Prompter .LineSlug.isNext,
+.Prompter h3[data-on-air='next'] {
+	background-color: rgb(69, 216, 69);
 }

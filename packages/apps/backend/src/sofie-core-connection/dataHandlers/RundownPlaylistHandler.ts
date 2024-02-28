@@ -26,9 +26,11 @@ export class RundownPlaylistHandler extends DataHandler {
 		if (!playlist) {
 			this.store.playlists.remove(this.convertId(id))
 			this.transformers.rundowns.updateCorePlaylist(id, undefined)
+			this.transformers.parts.updateCorePlaylist(id, undefined)
 		} else {
 			this.store.playlists.create(this.convert(playlist))
 			this.transformers.rundowns.updateCorePlaylist(id, playlist)
+			this.transformers.parts.updateCorePlaylist(id, playlist)
 		}
 	}
 	private onChanged(id: Core.RundownPlaylistId): void {
@@ -38,14 +40,18 @@ export class RundownPlaylistHandler extends DataHandler {
 		if (!playlist) {
 			this.store.playlists.remove(this.convertId(id))
 			this.transformers.rundowns.updateCorePlaylist(id, undefined)
+			this.transformers.parts.updateCorePlaylist(id, undefined)
 		} else {
 			this.store.playlists.update(this.convert(playlist))
 			this.transformers.rundowns.updateCorePlaylist(id, playlist)
+			this.transformers.parts.updateCorePlaylist(id, playlist)
 		}
 	}
 	private onRemoved(id: Core.RundownPlaylistId): void {
 		this.log.debug('onRemoved ' + id)
 		this.store.playlists.remove(this.convertId(id))
+		this.transformers.rundowns.updateCorePlaylist(id, undefined)
+		this.transformers.parts.updateCorePlaylist(id, undefined)
 	}
 
 	private convert(corePlaylist: Core.DBRundownPlaylist): RundownPlaylist {

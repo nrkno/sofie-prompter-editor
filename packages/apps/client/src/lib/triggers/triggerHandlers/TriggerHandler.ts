@@ -14,6 +14,7 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 	protected triggers: TriggerConfig[] = []
 	abstract initialize(triggers?: TriggerConfig[]): Promise<void>
 	abstract destroy(): Promise<void>
+	abstract onPrompterState(state: PrompterState): void
 
 	protected triggerKeys: Trigger[] = []
 	protected triggerAnalog: Trigger[] = []
@@ -59,7 +60,14 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 				type: trigger.action.type,
 				payload: { deltaSpeed: normalValue },
 			}
+		} else if (trigger.action.type === 'prompterJumpBy') {
+			return {
+				type: trigger.action.type,
+				payload: { offset: normalValue },
+			}
 		} else if (
+			trigger.action.type === 'jumpByEntity' ||
+			trigger.action.type === 'jumpTo' ||
 			trigger.action.type === 'prompterJump' ||
 			trigger.action.type === 'prompterUseSavedSpeed' ||
 			trigger.action.type === 'movePrompterToHere'
@@ -75,15 +83,24 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 		filterTrigger: (trigger: Trigger) => boolean,
 		_xyz: { x: number; y: number; z?: number },
 		/** calculated from xyz */
-		resultingValue: number
+		resultingValue: number,
+		options: {
+			scaleMaxValue?: number
+			zeroValue?: number
+			invert?: boolean
+		}
 	): AnyTriggerAction | undefined {
 		const trigger: Trigger | undefined = this.triggerXYZ.find(filterTrigger)
 		if (!trigger) return undefined
 		if ('payload' in trigger.action) return trigger.action // Already defined, just pass through
 
+		const scaleMaxValue = options?.scaleMaxValue ?? 1
+		const zeroValue = options?.zeroValue ?? 0
+		const invert = options?.invert ?? 0
+
 		const scale = trigger.modifier?.scale ?? 1
 
-		const normalValue = resultingValue * scale
+		const normalValue = ((resultingValue - zeroValue) / scaleMaxValue) * (invert ? -1 : 1) * scale
 
 		if (trigger.action.type === 'prompterSetSpeed') {
 			return {
@@ -96,6 +113,9 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 				payload: { deltaSpeed: normalValue },
 			}
 		} else if (
+			trigger.action.type === 'jumpByEntity' ||
+			trigger.action.type === 'jumpTo' ||
+			trigger.action.type === 'prompterJumpBy' ||
 			trigger.action.type === 'prompterJump' ||
 			trigger.action.type === 'prompterUseSavedSpeed' ||
 			trigger.action.type === 'movePrompterToHere'
@@ -106,4 +126,9 @@ export abstract class TriggerHandler<Trigger extends TriggerConfigBase> extends 
 		}
 		return undefined
 	}
+}
+export interface PrompterState {
+	isPrompterMoving: boolean
+	// isPrompterAtTop: boolean // TODO
+	// isPrompterAtBottom: boolean // TODO
 }

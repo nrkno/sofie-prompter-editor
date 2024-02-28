@@ -41,7 +41,107 @@ export const hardCodedTriggers: TriggerConfig[] = [
 			payload: {},
 		},
 	},
+	// XKeys XK24 Jog/Shuttle
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'jog',
+		index: 0,
+		action: {
+			type: 'prompterAddSpeed',
+		},
+		modifier: {
+			scale: 3.5,
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'shuttle',
+		index: 0,
+		action: {
+			type: 'prompterSetSpeed',
+		},
+		modifier: {
+			scale: 2,
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'down',
+		index: 1,
+		action: {
+			// Go to top
+			type: 'prompterJump',
+			payload: {
+				offset: {
+					target: null,
+					offset: 0,
+				},
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'down',
+		index: 7,
+		action: {
+			type: 'jumpTo',
+			payload: {
+				type: 'next',
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'down',
+		index: 10,
+		action: {
+			type: 'jumpTo',
+			payload: {
+				type: 'onAir',
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'down',
+		index: 5,
+		action: {
+			type: 'jumpByEntity',
+			payload: {
+				type: null,
+				deltaIndex: -1,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: 1062,
+		unitId: null,
+		eventType: 'down',
+		index: 8,
+		action: {
+			type: 'jumpByEntity',
+			payload: {
+				type: null,
+				deltaIndex: 1,
+			},
+		},
+	},
 
+	/*
+	// XKeys XK60 T-bar+Jog/Shuttle
 	{
 		type: TriggerConfigType.XKEYS,
 		productId: null,
@@ -64,7 +164,74 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
-				speed: 3,
+				speed: 0.5,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'up',
+		index: 2,
+		action: {
+			type: 'prompterSetSpeed',
+			payload: {
+				speed: 0,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 4,
+		action: {
+			type: 'jumpByEntity',
+			payload: {
+				type: null,
+				deltaIndex: -1,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 5,
+		action: {
+			type: 'jumpByEntity',
+			payload: {
+				type: null,
+				deltaIndex: 1,
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 12,
+		action: {
+			type: 'jumpTo',
+			payload: {
+				type: 'onAir',
+			},
+		},
+	},
+	{
+		type: TriggerConfigType.XKEYS,
+		productId: null,
+		unitId: null,
+		eventType: 'down',
+		index: 13,
+		action: {
+			type: 'jumpTo',
+			payload: {
+				type: 'next',
 			},
 		},
 	},
@@ -87,6 +254,9 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterAddSpeed',
 		},
+		modifier: {
+			scale: 3.5,
+		},
 	},
 	{
 		type: TriggerConfigType.XKEYS,
@@ -97,7 +267,11 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 		},
+		modifier: {
+			scale: 2,
+		},
 	},
+	*/
 	{
 		type: TriggerConfigType.STREAMDECK,
 		modelId: null,
@@ -118,7 +292,23 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		eventType: 'rotate',
 		index: 0,
 		action: {
-			type: 'prompterSetSpeed',
+			type: 'prompterAddSpeed',
+		},
+		modifier: {
+			scale: 0.1,
+		},
+	},
+	{
+		type: TriggerConfigType.STREAMDECK,
+		modelId: null,
+		serialNumber: null,
+		eventType: 'rotate',
+		index: 1,
+		action: {
+			type: 'prompterJumpBy',
+		},
+		modifier: {
+			scale: 5,
 		},
 	},
 	{
@@ -129,6 +319,9 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 		},
+		modifier: {
+			scale: 0.25,
+		},
 	},
 	{
 		type: TriggerConfigType.JOYCON,
@@ -137,9 +330,9 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 		},
-		// modifier: {
-		// 	scale: 1,
-		// },
+		modifier: {
+			scale: -1,
+		},
 	},
 	{
 		type: TriggerConfigType.JOYCON,
@@ -238,7 +431,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
-				speed: -1.5,
+				speed: -5,
 			},
 		},
 		modifier: {},
@@ -303,7 +496,7 @@ export const hardCodedTriggers: TriggerConfig[] = [
 		action: {
 			type: 'prompterSetSpeed',
 			payload: {
-				speed: 1.5,
+				speed: 5,
 			},
 		},
 		modifier: {},

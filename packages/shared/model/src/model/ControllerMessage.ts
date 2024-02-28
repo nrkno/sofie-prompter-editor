@@ -20,10 +20,27 @@ export const ControllerMessageSchema = z.object({
 			/** The offset from the `target` (unit: viewportUnits) */
 			offset: z.number(),
 		})
-		.nullable(),
+		.optional(),
 
 	/** When set, change the speed of scrolling */
-	speed: z.number().nullable(),
+	speed: z.number().optional(),
+
+	/** When set, make the prompter jump by a distance */
+	jumpBy: z.number().optional(),
+
+	/** When set, make the prompter jump to the next (or previous, depending of index) anchor point */
+	jumpTarget: z
+		.object({
+			type: z.enum(['rundown', 'segment', 'line']).nullable(),
+			index: z.number(),
+		})
+		.optional(),
+	/** When set, make the prompter jump to the onAir or Next line */
+	jumpTo: z
+		.object({
+			type: z.enum(['onAir', 'next']),
+		})
+		.optional(),
 })
 
 /** TBD, something used to mark places in ScriptContents */

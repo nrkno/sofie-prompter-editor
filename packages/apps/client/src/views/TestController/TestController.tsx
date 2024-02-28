@@ -75,7 +75,6 @@ const TestController: React.FC = observer(() => {
 	const sendSpeed = useCallback((speed: number) => {
 		RootAppStore.connection.controller
 			.sendMessage({
-				offset: null,
 				speed: speed,
 			})
 			.catch(console.error)

@@ -93,6 +93,9 @@ export class TriggerHandlerMidi extends TriggerHandler<TriggerConfigMidi> {
 			entry.onmidimessage = null
 		}
 	}
+	onPrompterState(): void {
+		// Nothing
+	}
 
 	private onMidiMessage(midiInfo: MIDIInputInfo, data: number[]) {
 		if (data.length === 3) {
@@ -188,7 +191,6 @@ export class TriggerHandlerMidi extends TriggerHandler<TriggerConfigMidi> {
 				zeroValue,
 			}
 		)
-		console.log(this.triggerAnalog)
 		if (action) this.emit('action', action)
 		else console.log('MIDI', 'analog', midiInfo.fullName, channel, index)
 	}
