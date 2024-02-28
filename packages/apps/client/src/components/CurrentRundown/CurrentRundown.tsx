@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useState } from 'react'
-import { action } from 'mobx'
+import { action, autorun } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { Segment } from './Segment'
@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { SystemStatusAlertBars } from 'src/components/SystemStatusAlertBars/SystemStatusAlertBars'
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
 import { getNextFocus } from '@bbc/tv-lrud-spatial'
+import { getAnchorElementById } from 'src/lib/anchorElements'
 
 const CurrentRundown = observer((): React.JSX.Element => {
 	const [segmentLineListEl, setSegmentLineListEl] = useState<HTMLUListElement | null>(null)
@@ -70,6 +71,23 @@ const CurrentRundown = observer((): React.JSX.Element => {
 			RootAppStore.triggerStore.removeListener('action', onAction)
 		}
 	}, [onMovePrompterToHere])
+
+	useEffect(
+		() =>
+			autorun(() => {
+				const editedCaretPositionLineId = RootAppStore.rundownStore.openRundown?.editorCaretPositionLineId
+				if (!editedCaretPositionLineId || !segmentLineListEl) return
+
+				const anchor = getAnchorElementById(segmentLineListEl, editedCaretPositionLineId)
+				if (!anchor) return
+
+				anchor.scrollIntoView({
+					behavior: 'smooth',
+					block: 'nearest',
+				})
+			}),
+		[segmentLineListEl]
+	)
 
 	const onKeyDown = useCallback(
 		(e: React.KeyboardEvent<HTMLUListElement>) => {

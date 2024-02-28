@@ -9,7 +9,7 @@ export class OutputSettingsStore {
 		// _id: '',
 
 		// TODO: load these from persistent store upon startup?
-		fontSize: 4,
+		fontSize: 9,
 
 		mirrorHorizontally: false,
 		mirrorVertically: false,

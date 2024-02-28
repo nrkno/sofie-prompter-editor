@@ -275,6 +275,7 @@ const Output = observer(function Output(): React.ReactElement {
 			<div className={className} style={styleVariables} ref={rootEl}>
 				{rundown && <RundownOutput rundown={rundown} />}
 			</div>
+			<div className="PrompterMarker" style={styleVariables} />
 		</>
 	)
 })
