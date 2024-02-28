@@ -7,7 +7,7 @@ import { CustomFeathersService } from './lib.js'
 import { Store } from '../../data-stores/Store.js'
 import { Lambda, observe } from 'mobx'
 import { LoggerInstance } from '../../lib/logger.js'
-import { BadRequest, NotFound, NotImplemented } from '@feathersjs/errors'
+import isEqual from 'lodash.isequal'
 
 export type ControllerFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
@@ -54,8 +54,25 @@ export class ControllerService extends EventEmitter<Definition.Events> implement
 			obs()
 		}
 	}
-
+	private _hackyDebouncer: {
+		timestamp: number
+		message: Data | null
+	} = {
+		timestamp: 0,
+		message: null,
+	}
 	public async sendMessage(message: Data, _params?: Params): Promise<void> {
+		const timeSinceLast = Date.now() - this._hackyDebouncer.timestamp
+
+		if (timeSinceLast < 100 && isEqual(this._hackyDebouncer.message, message)) {
+			// The same message was sent twice in rapid succession, ignore
+			return
+		}
+		this._hackyDebouncer = {
+			timestamp: Date.now(),
+			message,
+		}
+
 		this.store.controller.updateMessage(message)
 	}
 
