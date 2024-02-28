@@ -29,9 +29,39 @@ export interface EmphasisNode extends ParentNodeBase {
 	code: string
 }
 
+export interface UnderlineNode extends ParentNodeBase {
+	type: 'underline'
+	code: string
+}
+
+export interface HiddenNode extends ParentNodeBase {
+	type: 'hidden'
+	code: string
+}
+
 export interface ReverseNode extends ParentNodeBase {
 	type: 'reverse'
 	code: string
 }
 
-export type Node = RootNode | ParagraphNode | TextNode | StrongNode | EmphasisNode | ReverseNode
+export interface ColourNode extends ParentNodeBase {
+	type: 'colour'
+	code: string
+	colour: 'red' | 'yellow'
+}
+
+export interface BackScreenMarkerNode extends NodeBase {
+	type: 'screenMarker'
+}
+
+export type Node =
+	| RootNode
+	| ParagraphNode
+	| TextNode
+	| StrongNode
+	| EmphasisNode
+	| ReverseNode
+	| UnderlineNode
+	| HiddenNode
+	| ColourNode
+	| BackScreenMarkerNode

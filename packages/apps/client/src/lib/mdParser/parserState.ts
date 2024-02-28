@@ -13,6 +13,8 @@ export interface ParserState {
 	readonly dataStore: Record<string, unknown>
 	/** Create a new text node and append as a child to the node under nodeCursor */
 	flushBuffer(): void
+	/** Create a new backscreen marker node and append as a child to the node under nodeCursor */
+	setMarker(): void
 	/** Append a new child node to the node at the top of the nodeStack, and push it onto the nodeStack */
 	pushNode(node: ParentNodeBase): void
 	/** Pop a ParentNode from the nodeStack */
@@ -20,7 +22,7 @@ export interface ParserState {
 	/** Append a new child node to the root node and clear the stack */
 	replaceStack(node: ParentNodeBase): void
 	/** Get the character immediately after the current one */
-	peek(): string | undefined
+	peek(n?: number): string | undefined
 	/** Move the charCursor to the next character */
 	consume(): string | undefined
 }

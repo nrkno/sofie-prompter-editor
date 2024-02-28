@@ -85,16 +85,25 @@ export const schema = new Schema({
 		},
 
 		doc: { content: 'rundown*' },
+
+		backScreenMarker: {
+			group: 'inline',
+			inline: true,
+			toDOM() {
+				// temporary icon, to be replaced with a better design after UX sessions:
+				return ['span', { class: 'screen-marker' }, '❤️'] // R.I.P Harry the Dino 🦕 :( (killed by the designers who wanted something more serious)
+			},
+		},
 	},
 	marks: {
 		bold: {
 			toDOM() {
-				return ['b', 0]
+				return ['strong', 0]
 			},
 		},
 		italic: {
 			toDOM() {
-				return ['i', 0]
+				return ['em', 0]
 			},
 		},
 		underline: {
@@ -110,6 +119,16 @@ export const schema = new Schema({
 		reverse: {
 			toDOM() {
 				return ['rev', 0]
+			},
+		},
+		colour: {
+			attrs: {
+				colour: {},
+			},
+			toDOM(mark) {
+				const col = mark.attrs.colour
+
+				return ['span', { class: 'colour ' + col }]
 			},
 		},
 	},
