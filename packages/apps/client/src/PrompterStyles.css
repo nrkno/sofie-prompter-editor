@@ -4,7 +4,8 @@
 	--header-color: #999;
 
 	--prompter-font-size-base: 16px;
-	--prompter-line-height: calc(var(--prompter-font-size-base) * 1.4);
+	--prompter-line-height: calc(var(--prompter-font-size-base) * 1.1);
+	--prompter-horiz-padding: calc(var(--prompter-font-size-base) * 0.5);
 
 	color: var(--foreground-color);
 	background: var(--background-color);
@@ -13,7 +14,7 @@
 	white-space: pre-wrap;
 	white-space: break-spaces;
 
-	padding: 0 2em;
+	padding: 0 0;
 	overflow: auto;
 	box-sizing: border-box;
 
@@ -35,7 +36,8 @@
 
 .Prompter p {
 	margin: 0;
-	padding: 0;
+	padding: 0 var(--prompter-horiz-padding);
+	letter-spacing: -0.2px;
 }
 
 .Prompter b {
@@ -66,24 +68,41 @@
 	background-color: var(--header-color);
 	color: var(--background-color);
 	user-select: none;
-	margin: 1em 0;
+	padding: 0 var(--prompter-horiz-padding);
+	line-height: 1.2em;
+	margin: 1em 0 0.1em;
 }
 
 .Prompter h1 {
-	font-size: calc(var(--prompter-font-size-base) * 2);
-	line-height: 1.4;
+	font-size: calc(var(--prompter-font-size-base) * 0.75);
 }
 
 .Prompter h2 {
-	font-size: calc(var(--prompter-font-size-base) * 1);
-	line-height: 1.4;
+	font-size: calc(var(--prompter-font-size-base) * 0.5);
+	margin-bottom: -1em;
 }
 
 .Prompter h3 {
-	font-size: calc(var(--prompter-font-size-base) * 1);
-	line-height: 1.4;
+	font-size: calc(var(--prompter-font-size-base) * 0.5);
+	padding: 0 calc(var(--prompter-horiz-padding) * 0.25);
+	margin: 1em 0 0 calc(var(--prompter-horiz-padding) * 0.75);
 }
 
 .Prompter .spacer {
 	height: 100vh;
+}
+
+.PrompterMarker {
+	font-size: var(--prompter-font-size-base);
+	position: absolute;
+	/* TODO: this needs to be configurable properly */
+	top: clamp(0.5em, calc(var(--prompter-font-size-base) * 2), calc(50% - var(--prompter-font-size-base) / 3));
+	left: 0;
+
+	width: 0px;
+	height: 0px;
+	border-style: solid;
+	border-width: 0.25em 0 0.25em 0.35em;
+	border-color: transparent transparent transparent #ff4532;
+	transform: rotate(0deg);
 }

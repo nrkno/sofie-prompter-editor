@@ -63,10 +63,21 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 		[fontSize, previewWidth, viewPortAspectRatio]
 	)
 
+	const markerStyle = useMemo(
+		() =>
+			({
+				'--prompter-font-size-base': `${(previewWidth * fontSize) / 100}px`,
+			} as React.CSSProperties),
+		[fontSize, previewWidth]
+	)
+
 	return (
-		<div className={`Prompter ${classes.PreviewPanel} bg-black`} ref={rootEl} style={style}>
-			{rundown && <RundownOutput rundown={rundown} />}
-		</div>
+		<>
+			<div className={`Prompter ${classes.PreviewPanel} bg-black`} ref={rootEl} style={style}>
+				{rundown && <RundownOutput rundown={rundown} />}
+			</div>
+			<div className="PrompterMarker" style={markerStyle} />
+		</>
 	)
 })
 PreviewPanel.displayName = 'PreviewPanel'
