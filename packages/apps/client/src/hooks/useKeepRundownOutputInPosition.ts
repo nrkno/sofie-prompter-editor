@@ -3,9 +3,8 @@ import { UIRundown } from 'src/model/UIRundown'
 import { Lambda, observe } from 'mobx'
 import { UISegment, UISegmentId } from 'src/model/UISegment'
 import { UILine, UILineId } from 'src/model/UILine'
-import { SPEED_CONSTANT } from './useControllerMessages'
 import { findClosestElement } from 'src/lib/findClosestElement'
-import { getAllAnchorElements } from 'src/lib/anchorElements'
+import { getAllAnchorElementsByType } from 'src/lib/anchorElements'
 
 export type UpdateProps = {
 	element: HTMLElement
@@ -30,6 +29,7 @@ export function useKeepRundownOutputInPosition(
 	rundown: UIRundown | null,
 	fontSizePx: number,
 	speedRef: React.RefObject<number>,
+	scrollPositionRef: React.MutableRefObject<number>,
 	positionRef: React.MutableRefObject<number>,
 	focusPosition: number,
 	opts?: {
@@ -49,42 +49,40 @@ export function useKeepRundownOutputInPosition(
 				const speed = speedRef.current
 				if (speed === null) return
 
-				const els = getAllAnchorElements()
-				const [anchorOffset, anchorEl] = findClosestElement(els, focusPosition, positionRef.current)
+				// Get the position of the closest element before the change:
+				const els = getAllAnchorElementsByType(ref.current, null)
+				const closestEl = findClosestElement(els, focusPosition, scrollPositionRef.current)
+				if (!closestEl) return
+				const oldPosition = closestEl.offset
 
-				// console.log('Chosen anchor is: ', anchorOffset, anchorEl, 'position is: ', positionRef.current)
-
-				const beforeTime = Number(document.timeline.currentTime)
-
-				const onNextFrame = (now: number) => {
+				const onNextFrame = (_now: number) => {
 					frameRequest.current = null
 
-					const frameTime = now - beforeTime
-					const scrollBy = ((speed * fontSizePx) / SPEED_CONSTANT) * frameTime
+					// Get the position of that element after the change:
+					const newBox = closestEl.anchorEl.getBoundingClientRect()
+					const diff = newBox.y - oldPosition
 
-					const newBox = anchorEl.getBoundingClientRect()
-					const diff = newBox.y - anchorOffset
 					if (diff === 0) return
 					if (!ref.current) return
 					const boxEl = ref.current
 
-					positionRef.current = positionRef.current + diff + scrollBy
+					positionRef.current += diff
+
 					boxEl.scrollTo({
 						top: positionRef.current,
 						behavior: 'instant',
 					})
-
-					// console.log('Position now is: ', positionRef.current, diff)
+					scrollPositionRef.current = positionRef.current
 
 					onUpdate?.({
-						element: anchorEl,
-						offset: anchorOffset,
+						element: closestEl.anchorEl,
+						offset: closestEl.offset,
 					})
 				}
 
 				frameRequest.current = window.requestAnimationFrame(onNextFrame)
 			}),
-		[ref, positionRef, focusPosition, rundown, fontSizePx, speedRef, onUpdate]
+		[ref, positionRef, focusPosition, rundown, fontSizePx, speedRef, onUpdate, scrollPositionRef]
 	)
 }
 

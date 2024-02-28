@@ -6,7 +6,6 @@ export class ControllerStore {
 	public message = observable(
 		{
 			message: literal<ControllerMessage>({
-				offset: null,
 				speed: 0,
 			}),
 		},

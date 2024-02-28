@@ -109,12 +109,13 @@ export class RundownStore {
 		if (!this.outputSettings) return
 		this.connection.viewPort.patch(null, {
 			lastKnownState: {
-				controllerMessage: {
+				state: {
 					offset: {
 						target: null,
 						offset: 0,
 					},
 					speed: 0,
+					animatedOffset: 0,
 				},
 				timestamp: getCurrentTime(),
 			},

@@ -20,6 +20,12 @@ export const ViewPortStateSchema = z.object({
 
 	/** When set, change the speed of scrolling */
 	speed: z.number(),
+
+	/**
+	 * The offset to be applied over time (smoothly).
+	 * Can be added to offset.offset for the eventual position.
+	 */
+	animatedOffset: z.number(),
 })
 
 export type ViewPortState = z.infer<typeof ViewPortStateSchema>
@@ -28,7 +34,7 @@ export type ViewPortState = z.infer<typeof ViewPortStateSchema>
 export type ViewPortLastKnownState = z.infer<typeof ViewPortLastKnownStateSchema>
 
 export const ViewPortLastKnownStateSchema = z.object({
-	controllerMessage: ViewPortStateSchema,
+	state: ViewPortStateSchema,
 
 	timestamp: z.number(),
 })

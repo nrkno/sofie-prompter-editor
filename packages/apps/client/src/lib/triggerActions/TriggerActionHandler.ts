@@ -19,7 +19,7 @@ export class TriggerActionHandler {
 		console.log('action', JSON.stringify(action))
 
 		if (action.type === 'prompterSetSpeed') {
-			this.prompterSpeed = action.payload.speed
+			this.prompterSpeed = this.attackCurve(action.payload.speed, 2, 0.7)
 			this.prompterSpeedUseSaved = false
 			this.sendPrompterSpeed()
 		} else if (action.type === 'prompterAddSpeed') {
@@ -27,11 +27,14 @@ export class TriggerActionHandler {
 			this.prompterSpeedUseSaved = false
 			this.sendPrompterSpeed()
 		} else if (action.type === 'prompterJump') {
-			// TODO
-			// this.store.connection.controller.sendMessage({
-			// 	speed: 0,
-			// 	offset: action.payload.offset,
-			// })
+			this.store.connection.controller.sendMessage({
+				speed: 0,
+				offset: action.payload.offset,
+			})
+		} else if (action.type === 'prompterJumpBy') {
+			this.store.connection.controller.sendMessage({
+				jumpBy: action.payload.offset,
+			})
 		} else if (action.type === 'movePrompterToHere') {
 			// Not handled here
 		} else if (action.type === 'prompterAddSavedSpeed') {
@@ -54,14 +57,10 @@ export class TriggerActionHandler {
 
 		const savedSpeed = this.store.outputSettingsStore.outputSettings.savedSpeed ?? 0
 		// Modify the value according to an attack curve:
-		const speed =
-			this.prompterSpeedUseSaved === false
-				? this.attackCurve(this.prompterSpeed, 5, 0.7)
-				: savedSpeed * this.prompterSpeedUseSaved
+		const speed = this.prompterSpeedUseSaved === false ? this.prompterSpeed : savedSpeed * this.prompterSpeedUseSaved
 
 		this.store.connection.controller.sendMessage({
 			speed: speed,
-			offset: null,
 		})
 	}
 	destroy(): void {}

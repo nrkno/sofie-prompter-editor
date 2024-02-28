@@ -10,12 +10,13 @@ export class ViewPortStore {
 		_id: '',
 
 		lastKnownState: {
-			controllerMessage: {
+			state: {
 				offset: {
 					offset: 0,
 					target: null,
 				},
 				speed: 0,
+				animatedOffset: 0,
 			},
 			timestamp: getCurrentTime(),
 		},

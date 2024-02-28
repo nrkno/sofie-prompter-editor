@@ -1,11 +1,20 @@
-import { ControllerMessage, ViewPortLastKnownState, ViewPortState } from '@sofie-prompter-editor/shared-model'
+import { offset } from '@popperjs/core'
+import {
+	ControllerMessage,
+	ViewPortLastKnownState,
+	ViewPortState,
+	protectString,
+} from '@sofie-prompter-editor/shared-model'
 import { toJS } from 'mobx'
 import { useCallback, useEffect, useRef } from 'react'
-import { getAnchorElementById } from 'src/lib/anchorElements'
+import { getAllAnchorElementsByType, getAnchorElementById, getAnchorAbovePositionIndex } from 'src/lib/anchorElements'
 import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { RootAppStore } from 'src/stores/RootAppStore'
 
 export const SPEED_CONSTANT = 300 // this is an arbitrary number to scale a reasonable speed number * font size to pixels/frame
+
+export const pointOfFocus = 0 // TODO
+const animateOffsetFactor = 0.1
 
 type SetBaseViewPortState = (state: ViewPortLastKnownState) => void
 
@@ -31,12 +40,14 @@ export function useControllerMessages(
 	fontSizePx: number,
 	opts?: {
 		enableControl?: boolean
-		onStateChange?: (message: ViewPortState) => void
+		onStateChange?: (timestamp: number, position: number, speed: number, animatedOffset: number) => void
 	}
 ): {
 	lastKnownState: React.RefObject<ViewPortLastKnownState | null>
 	position: React.MutableRefObject<number>
+	scrolledPosition: React.MutableRefObject<number>
 	speed: React.MutableRefObject<number>
+	animatedOffset: React.MutableRefObject<number>
 	setBaseViewPortState: SetBaseViewPortState
 } {
 	const enableControl = opts?.enableControl ?? true
@@ -44,22 +55,60 @@ export function useControllerMessages(
 
 	const speed = useRef(0)
 	const position = useRef(0)
-	const lastRequest = useRef<number | null>(null)
+	const scrolledPosition = useRef(0)
+	const lastResultingSpeed = useRef(0)
+
+	const animatedOffset = useRef(0)
+
+	const lastRequestAnimationFrame = useRef<number | null>(null)
 	const lastFrameTime = useRef<number>(Number(document.timeline.currentTime))
 
 	const lastKnownState = useRef<ViewPortLastKnownState | null>(null)
 
+	const onFrame = useCallback(
+		(now: number) => {
+			lastRequestAnimationFrame.current = null
+
+			const el = ref.current
+			if (!el) return
+
+			const frameTime = now - lastFrameTime.current
+
+			const controlSpeed = ((speed.current * fontSizePx) / SPEED_CONSTANT) * frameTime
+			const positioningSpeed0 = animatedOffset.current * animateOffsetFactor
+			const positioningSpeed = ((positioningSpeed0 * fontSizePx) / SPEED_CONSTANT) * frameTime
+			const resultingSpeed = controlSpeed + positioningSpeed
+
+			lastResultingSpeed.current = resultingSpeed
+			position.current = Math.min(Math.max(0, position.current + resultingSpeed), el.scrollHeight - el.offsetHeight)
+
+			animatedOffset.current = animatedOffset.current - positioningSpeed
+
+			if (Math.abs(animatedOffset.current) < 0.1) {
+				animatedOffset.current = 0
+			}
+
+			if (scrolledPosition.current !== position.current) {
+				el.scrollTo({
+					top: position.current,
+					behavior: 'instant',
+				})
+				scrolledPosition.current = position.current
+			}
+
+			lastFrameTime.current = now
+			lastRequestAnimationFrame.current = window.requestAnimationFrame(onFrame)
+		},
+		[fontSizePx, ref]
+	)
+
 	const applyControllerMessage = useCallback(
-		(message: ControllerMessage, timestamp = getCurrentTime()) => {
+		(message: ControllerMessage, _timestamp = getCurrentTime()) => {
 			if (!ref.current) return
-			speed.current = message.speed ?? speed.current
+
 			const container = ref.current
 
-			let targetTop = position.current
-
 			if (message.offset) {
-				targetTop = 0
-
 				if (message.offset.target !== null) {
 					const targetEl = getAnchorElementById(container, message.offset.target)
 					if (!targetEl) {
@@ -68,33 +117,70 @@ export function useControllerMessages(
 					}
 
 					const targetRect = targetEl.getBoundingClientRect()
-					targetTop = position.current + targetRect.top - message.offset.offset * fontSizePx
+					position.current = scrolledPosition.current + targetRect.top - message.offset.offset * fontSizePx
 				} else {
-					targetTop = message.offset.offset * fontSizePx
+					position.current = message.offset.offset * fontSizePx
 				}
+				animatedOffset.current = 0
 			}
-
-			const timeDifference = getCurrentTime() - timestamp
-			targetTop = targetTop + ((speed.current * fontSizePx) / SPEED_CONSTANT) * timeDifference
-
-			position.current = targetTop
-
-			container.scrollTo({
-				top: targetTop,
-				behavior: 'instant',
-			})
+			if (message.speed !== undefined) {
+				speed.current = message.speed
+			}
+			if (message.jumpBy !== undefined) {
+				animatedOffset.current += message.jumpBy * fontSizePx
+			}
 		},
 		[ref, fontSizePx]
 	)
 
 	const setBaseViewPortState = useCallback(
 		(state: ViewPortLastKnownState) => {
-			console.log(`Received a new lastKnownState`, toJS(state))
+			console.log(`Received a new lastKnownState`, toJS(state.state.offset), toJS(state.state.animatedOffset))
+			if (!ref.current) return
 
-			applyControllerMessage(state.controllerMessage, state.timestamp)
+			const container = ref.current
+
+			let newPosition = scrolledPosition.current
+
+			if (state.state.offset.target !== null) {
+				const targetEl = getAnchorElementById(container, state.state.offset.target)
+				if (!targetEl) {
+					console.error(`Could not find target "${state.state.offset.target}"`)
+					return
+				}
+
+				const targetRect = targetEl.getBoundingClientRect()
+				newPosition = scrolledPosition.current + targetRect.top - state.state.offset.offset * fontSizePx
+			} else {
+				newPosition = state.state.offset.offset * fontSizePx
+			}
+			speed.current = state.state.speed
+			animatedOffset.current = state.state.animatedOffset * fontSizePx
+
+			// Determine if we're going to jump or animate:
+			if (Math.abs(newPosition - scrolledPosition.current) < fontSizePx * 0.5 && speed.current === 0) {
+				animatedOffset.current += newPosition - scrolledPosition.current
+			} else {
+				position.current = newPosition
+			}
+
+			const timeDifference = getCurrentTime() - state.timestamp
+			// Advance position from speed:
+			position.current += ((speed.current * fontSizePx) / SPEED_CONSTANT) * timeDifference
+
+			// Advance position from animatedOffset:
+			if (timeDifference > 1000) {
+				// Just set it to the end position if enough time has passed:
+				position.current += animatedOffset.current
+				animatedOffset.current = 0
+			}
 		},
-		[applyControllerMessage]
+		[fontSizePx, ref]
 	)
+
+	const reportState = useCallback(() => {
+		onStateChange?.(getCurrentTime(), position.current, speed.current, animatedOffset.current)
+	}, [onStateChange])
 
 	useEffect(() => {
 		if (!enableControl) return
@@ -104,65 +190,33 @@ export function useControllerMessages(
 
 			applyControllerMessage(message)
 
-			const combinedMessage = {
-				offset: message.offset ??
-					lastKnownState.current?.controllerMessage.offset ?? {
-						target: null,
-						offset: 0,
-					},
-				speed: speed.current,
-			}
-
-			lastKnownState.current = {
-				timestamp: getCurrentTime(),
-				controllerMessage: combinedMessage,
-			}
-
-			onStateChange?.(combinedMessage)
+			// wait for OnFrame to trigger first:
+			window.requestAnimationFrame(reportState)
 		}
 
-		RootAppStore.connection.controller.on('message', onMessage)
-		RootAppStore.connection.controller.subscribeToMessages().catch(console.error)
-
-		const onFrame = (now: number) => {
-			const el = ref.current
-			if (!el) return
-
-			const frameTime = now - lastFrameTime.current
-			const scrollBy = ((speed.current * fontSizePx) / SPEED_CONSTANT) * frameTime
-
-			if (scrollBy === 0) {
-				lastFrameTime.current = now
-				lastRequest.current = window.requestAnimationFrame(onFrame)
-				return
-			}
-
-			position.current = Math.min(Math.max(0, position.current + scrollBy), el.scrollHeight - el.offsetHeight)
-
-			// console.log(position.current)
-
-			el.scrollTo({
-				top: position.current,
-				behavior: 'instant',
-			})
-
-			lastFrameTime.current = now
-			lastRequest.current = window.requestAnimationFrame(onFrame)
-		}
-
-		lastRequest.current = window.requestAnimationFrame(onFrame)
+		RootAppStore.control.on('message', onMessage)
+		RootAppStore.control.initialize()
 
 		return () => {
-			RootAppStore.connection.controller.off('message', onMessage)
-
-			if (lastRequest.current !== null) window.cancelAnimationFrame(lastRequest.current)
+			RootAppStore.control.off('message', onMessage)
 		}
-	}, [enableControl, ref, fontSizePx, onStateChange, applyControllerMessage])
+	}, [enableControl, applyControllerMessage, reportState])
+
+	useEffect(() => {
+		if (!enableControl) return
+
+		onFrame(Date.now())
+		return () => {
+			if (lastRequestAnimationFrame.current !== null) window.cancelAnimationFrame(lastRequestAnimationFrame.current)
+		}
+	}, [enableControl, ref, onFrame])
 
 	return {
 		lastKnownState,
 		setBaseViewPortState,
+		scrolledPosition,
 		position,
 		speed,
+		animatedOffset,
 	}
 }

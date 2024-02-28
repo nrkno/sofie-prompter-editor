@@ -40,12 +40,13 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 
 	const {
 		setBaseViewPortState: setBaseState,
+		scrolledPosition,
 		position,
 		speed,
 	} = useControllerMessages(rootEl, fontSizePx, {
 		enableControl: rundownIsInOutput,
 	})
-	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, position, 0)
+	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, scrolledPosition, position, 0)
 
 	useEffect(() => {
 		if (!lastKnownState) return

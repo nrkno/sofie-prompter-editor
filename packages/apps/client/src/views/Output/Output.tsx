@@ -9,51 +9,53 @@ import { getCurrentTime } from 'src/lib/getCurrentTime'
 import { useQueryParam } from 'src/lib/useQueryParam'
 
 import classes from './Output.module.scss'
-import { useControllerMessages } from 'src/hooks/useControllerMessages'
+import { pointOfFocus, useControllerMessages } from 'src/hooks/useControllerMessages'
 import { reaction, toJS } from 'mobx'
 import {
 	PartId,
 	SegmentId,
 	TextMarkerId,
 	ViewPortLastKnownState,
-	ViewPortState,
 	protectString,
 } from '@sofie-prompter-editor/shared-model'
 import { UpdateProps, useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
 import { combineDisposers } from 'src/lib/lib'
+import { getAllAnchorElementsByType } from '../../lib/anchorElements'
+import { findClosestElement } from '../../lib/findClosestElement'
 
 type AnyElementId = SegmentId | PartId | TextMarkerId
 
 function createState(
 	rootEl: HTMLElement,
 	fontSizePx: number,
+	positionPx: number,
 	speed: number,
-	target: {
-		element: HTMLElement
-		offset: number
-	} | null
+	animatedOffsetPx: number
 ): ViewPortLastKnownState {
+	if (!fontSizePx) throw new Error('fontSizePx is not set')
 	let targetEl = null
 	let offset = 0
 
-	if (target !== null) {
-		targetEl = protectString<AnyElementId>(target.element.dataset['objId']) ?? null
-		offset = target.offset / fontSizePx
-	}
+	const allAnchors = getAllAnchorElementsByType(rootEl, null)
+	const closestEl = findClosestElement(allAnchors, pointOfFocus, positionPx)
 
-	if (targetEl === null) {
-		offset = rootEl.scrollTop / fontSizePx
-		if (!Number.isFinite(offset)) offset = 0
+	if (closestEl?.anchorEl) {
+		targetEl = protectString<AnyElementId>(closestEl.anchorEl.dataset['objId']) ?? null
+		offset = closestEl.offset / fontSizePx
+	} else {
+		targetEl = null
+		offset = positionPx / fontSizePx
 	}
 
 	return {
 		timestamp: getCurrentTime(),
-		controllerMessage: {
+		state: {
 			speed,
 			offset: {
 				target: targetEl,
 				offset,
 			},
+			animatedOffset: animatedOffsetPx / fontSizePx,
 		},
 	}
 }
@@ -84,13 +86,12 @@ const Output = observer(function Output(): React.ReactElement {
 	const fontSizePx = (fontSize * size.width) / 100
 
 	const onStateChange = useCallback(
-		(viewPortState: ViewPortState) => {
+		(timestamp: number, position: number, speed: number, animatedOffset: number) => {
 			if (!isPrimary) return
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, fontSizePx, viewPortState.speed, null)
-
+			const state = createState(rootEl.current, fontSizePx, position, speed, animatedOffset)
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
 		[rootEl, size, fontSizePx, isPrimary]
@@ -99,31 +100,29 @@ const Output = observer(function Output(): React.ReactElement {
 	const rundown = RootAppStore.rundownStore.openRundown
 
 	const {
-		lastKnownState: viewportState,
 		setBaseViewPortState: setLastKnownState,
+		scrolledPosition,
 		position,
 		speed,
+		animatedOffset,
 	} = useControllerMessages(rootEl, fontSizePx, {
 		onStateChange,
 	})
 
 	const onUpdate = useCallback(
-		(change: UpdateProps) => {
+		(_change: UpdateProps) => {
 			if (!isPrimary) return
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, fontSizePx, viewportState.current?.controllerMessage.speed ?? 0, {
-				element: change.element,
-				offset: change.offset,
-			})
+			const state = createState(rootEl.current, fontSizePx, position.current, speed.current, animatedOffset.current)
 
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
-		[rootEl, size, fontSizePx, isPrimary, viewportState]
+		[rootEl, size, fontSizePx, isPrimary, animatedOffset, position, speed]
 	)
 
-	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, position, 0, {
+	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, scrolledPosition, position, 0, {
 		onUpdate,
 	})
 
@@ -136,12 +135,13 @@ const Output = observer(function Output(): React.ReactElement {
 				() => {
 					if (!isPrimary) return
 					setLastKnownState({
-						controllerMessage: {
+						state: {
 							offset: {
 								target: null,
 								offset: 0,
 							},
 							speed: 0,
+							animatedOffset: 0,
 						},
 						timestamp: getCurrentTime(),
 					})
@@ -169,11 +169,12 @@ const Output = observer(function Output(): React.ReactElement {
 		const aspectRatio = width / height
 
 		if (!isPrimary) return
+		if (!fontSizePx) return
 
-		const state = createState(rootEl.current, fontSizePx, viewportState.current?.controllerMessage.speed ?? 0, null)
+		const state = createState(rootEl.current, fontSizePx, position.current, speed.current, animatedOffset.current)
 
 		RootAppStore.viewportStore.update(aspectRatio, state)
-	}, [rootEl, fontSizePx, viewportState, isPrimary])
+	}, [rootEl, fontSizePx, isPrimary, position, speed, animatedOffset])
 
 	useLayoutEffect(() => {
 		window.addEventListener('resize', onViewPortSizeChanged)

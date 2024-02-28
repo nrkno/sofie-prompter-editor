@@ -19,11 +19,18 @@ export type AnyTriggerAction =
 				deltaSpeed: number
 			}
 	  >
-	// "Jump the prompter by the offset"
+	// "Jump the prompter to the offset"
 	| TriggerAction<
 			'prompterJump',
 			{
 				offset: ControllerMessage['offset']
+			}
+	  >
+	// "Jump the prompter by the offset"
+	| TriggerAction<
+			'prompterJumpBy',
+			{
+				offset: number
 			}
 	  >
 	// "Make the prompter jump to the currently selected Part"
