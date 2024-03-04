@@ -119,6 +119,20 @@ function prosemirrorNodeToMarkdown(node: ProsemirrorNode): MdAstNode {
 			value: node.text ?? '',
 		}
 
+		if (node.marks.find((mark) => mark.type === schema.marks.hidden)) {
+			textNode = {
+				type: 'hidden',
+				children: [textNode],
+				code: '$',
+			}
+		}
+		if (node.marks.find((mark) => mark.type === schema.marks.underline)) {
+			textNode = {
+				type: 'underline',
+				children: [textNode],
+				code: '||',
+			}
+		}
 		if (node.marks.find((mark) => mark.type === schema.marks.bold)) {
 			textNode = {
 				type: 'strong',
@@ -131,20 +145,6 @@ function prosemirrorNodeToMarkdown(node: ProsemirrorNode): MdAstNode {
 				type: 'emphasis',
 				children: [textNode],
 				code: '_',
-			}
-		}
-		if (node.marks.find((mark) => mark.type === schema.marks.underline)) {
-			textNode = {
-				type: 'underline',
-				children: [textNode],
-				code: '||',
-			}
-		}
-		if (node.marks.find((mark) => mark.type === schema.marks.hidden)) {
-			textNode = {
-				type: 'hidden',
-				children: [textNode],
-				code: '$',
 			}
 		}
 		if (node.marks.find((mark) => mark.type === schema.marks.reverse)) {
