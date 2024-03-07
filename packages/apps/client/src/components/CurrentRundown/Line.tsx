@@ -4,7 +4,7 @@ import { UILine } from 'src/model/UILine'
 import classes from './CurrentRundown.module.scss'
 import { LineTypeIcon } from './LineTypeIcon'
 import { TimeSpan } from '../TimeSpan/TimeSpan'
-import { removeMarkdownish } from 'src/lib/markdownishUtils'
+import { removeMarkdownish } from '@sofie-prompter-editor/shared-lib'
 
 const Line = observer(
 	({
@@ -49,7 +49,10 @@ const Line = observer(
 					<LineTypeIcon type={line.lineType?.style}>{line.lineType?.label}</LineTypeIcon>
 				</div>
 				<div className={classes.LineSlug}>{line.slug}</div>
-				<div className={classes.LineScript}>{line.script ? removeMarkdownish(line.script) : null}</div>
+				<div className={classes.LineScript}>
+					{line.isEditable ? '' : 'READ ONLY '}
+					{line.script ? removeMarkdownish(line.script) : null}
+				</div>
 				<div className={classes.LineDuration}>
 					<TimeSpan>{line.expectedDuration}</TimeSpan>
 				</div>

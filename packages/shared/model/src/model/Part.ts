@@ -5,6 +5,8 @@ import { SegmentId } from './Segment.js'
 import { DataObject } from './lib.js'
 
 export type PartId = ProtectedString<'PartId', string>
+export type ExpectedPackageId = ProtectedString<'ExpectedPackageId', string>
+
 /**
  * A Part is a part of a Segment. When a user does a "Take" in Sofie, the next Part is being put on air.
  * The Part is fetched from Core
@@ -46,10 +48,18 @@ export interface Part extends DataObject {
 		label: string // ie sourceLayer.name in Sofie
 	}
 
+	/** Whether the script can be edited (null if it isn't editable) */
+	scriptPackageInfo: PartScriptPackageInfo | null
+
 	/** scriptContents from Core */
-	scriptContents?: ScriptContents
+	scriptContents: ScriptContents
 	/** edited scriptContents. While this is set, display this in favor of scriptContents */
 	editedScriptContents?: ScriptContents
+}
+
+export interface PartScriptPackageInfo {
+	packageId: ExpectedPackageId
+	contentVersionHash: string
 }
 
 export enum PartDisplayType {

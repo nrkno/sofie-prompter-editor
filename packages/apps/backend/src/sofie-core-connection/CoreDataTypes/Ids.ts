@@ -93,4 +93,4 @@ export type WorkerId = ProtectedString<'WorkerId'>
 /** A string, identifying a WorkerThread */
 export type WorkerThreadId = ProtectedString<'WorkerThreadId'>
 
-export * from '@sofie-automation/shared-lib/dist/core/model/Ids'
+export * from '@sofie-automation/shared-lib/dist/core/model/Ids.js'

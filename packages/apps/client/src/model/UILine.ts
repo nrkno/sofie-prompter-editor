@@ -2,7 +2,7 @@ import { Part, PartDisplayType, PartId } from '@sofie-prompter-editor/shared-mod
 import { RundownStore } from '../stores/RundownStore'
 import { action, makeAutoObservable } from 'mobx'
 import { UISegment } from './UISegment'
-import { convertPlainTextScriptToMarkdown } from 'src/lib/markdownishUtils'
+import { convertPlainTextScriptToMarkdown } from '@sofie-prompter-editor/shared-lib'
 
 export type UILineId = PartId
 
@@ -28,6 +28,8 @@ export class UILine {
 	isNew: boolean = false
 
 	ready: boolean = false
+
+	isEditable = false
 
 	constructor(private store: RundownStore, private owner: UISegment, public id: UILineId) {
 		makeAutoObservable(this, {
@@ -64,6 +66,8 @@ export class UILine {
 		}
 
 		this.ready = true
+
+		this.isEditable = json.scriptPackageInfo != null
 	}
 
 	remove() {
