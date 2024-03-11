@@ -26,6 +26,7 @@ import { findClosestElement } from '../../lib/findClosestElement'
 type AnyElementId = SegmentId | PartId | TextMarkerId
 
 function createState(
+	timestamp: number,
 	rootEl: HTMLElement,
 	fontSizePx: number,
 	positionPx: number,
@@ -48,7 +49,7 @@ function createState(
 	}
 
 	return {
-		timestamp: getCurrentTime(),
+		timestamp,
 		state: {
 			speed,
 			offset: {
@@ -91,7 +92,7 @@ const Output = observer(function Output(): React.ReactElement {
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, fontSizePx, position, speed, animatedOffset)
+			const state = createState(timestamp, rootEl.current, fontSizePx, position, speed, animatedOffset)
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
 		[rootEl, size, fontSizePx, isPrimary]
@@ -115,7 +116,14 @@ const Output = observer(function Output(): React.ReactElement {
 			if (!rootEl.current) return
 			const aspectRatio = size.width / size.height
 
-			const state = createState(rootEl.current, fontSizePx, position.current, speed.current, animatedOffset.current)
+			const state = createState(
+				getCurrentTime(),
+				rootEl.current,
+				fontSizePx,
+				position.current,
+				speed.current,
+				animatedOffset.current
+			)
 
 			RootAppStore.viewportStore.update(aspectRatio, state)
 		},
@@ -171,7 +179,14 @@ const Output = observer(function Output(): React.ReactElement {
 		if (!isPrimary) return
 		if (!fontSizePx) return
 
-		const state = createState(rootEl.current, fontSizePx, position.current, speed.current, animatedOffset.current)
+		const state = createState(
+			getCurrentTime(),
+			rootEl.current,
+			fontSizePx,
+			position.current,
+			speed.current,
+			animatedOffset.current
+		)
 
 		RootAppStore.viewportStore.update(aspectRatio, state)
 	}, [rootEl, fontSizePx, isPrimary, position, speed, animatedOffset])
