@@ -1,5 +1,6 @@
 import { Transformers } from '../sofie-core-connection/dataTransformers/Transformers.js'
 import { PartStore } from './PartStore.js'
+import { PartScriptStore } from './PartScriptStore.js'
 import { PlaylistStore } from './PlaylistStore.js'
 import { OutputSettingsStore } from './OutputSettingsStore.js'
 import { RundownStore } from './RundownStore.js'
@@ -11,6 +12,7 @@ import { SystemStatusStore } from './SystemStatusStore.js'
 export class Store {
 	public systemStatus: SystemStatusStore
 
+	public partScripts: PartScriptStore
 	public playlists: PlaylistStore
 	public rundowns: RundownStore
 	public segments: SegmentStore
@@ -22,10 +24,12 @@ export class Store {
 
 	constructor() {
 		this.systemStatus = new SystemStatusStore()
+
+		this.partScripts = new PartScriptStore()
 		this.playlists = new PlaylistStore()
 		this.rundowns = new RundownStore()
 		this.segments = new SegmentStore()
-		this.parts = new PartStore()
+		this.parts = new PartStore(this.partScripts)
 
 		this.controller = new ControllerStore()
 		this.viewPort = new ViewPortStore()
@@ -35,5 +39,6 @@ export class Store {
 	connectTransformers(transformers: Transformers) {
 		this.rundowns.connectTransformers(transformers)
 		this.parts.connectTransformers(transformers)
+		this.partScripts.connectTransformers(transformers)
 	}
 }

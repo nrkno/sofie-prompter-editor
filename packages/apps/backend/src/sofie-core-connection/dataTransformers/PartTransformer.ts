@@ -2,6 +2,7 @@ import { action, computed, makeObservable, observable } from 'mobx'
 import isEqual from 'lodash.isequal'
 import {
 	AnyProtectedString,
+	ExpectedPackageId,
 	Part,
 	PartDisplayType,
 	PartId,
@@ -17,6 +18,7 @@ import { Transformers } from './Transformers.js'
 import { IBlueprintPieceType, ScriptContent, SourceLayerType } from '@sofie-automation/blueprints-integration'
 import { applyAndValidateOverrides } from '../CoreDataTypes/objectWithOverrides.js'
 import { assertNever } from '@sofie-prompter-editor/shared-lib'
+import { popElementFromReactiveArray, upsertElementToReactiveArray } from './util.js'
 
 /** Transforms Core Parts, Pieces & ShowStyles into Prompter Parts */
 export class PartTransformer {
@@ -190,6 +192,8 @@ export class PartTransformer {
 				label: derived.displayLabel,
 			},
 			scriptContents: derived.scriptContents,
+			// Script edits get layered on by the PartStore
+			scriptPackageInfo: null,
 			editedScriptContents: undefined,
 		})
 	})
@@ -211,14 +215,7 @@ export class PartTransformer {
 				this.corePieces.set(piece._id, piece)
 
 				// create a new array so that the observable.map will pick up on the change
-				const existingPartPieces = this.corePartPieces.get(piece.startPartId)?.slice() || []
-				const i = existingPartPieces.findIndex((p) => p._id === piece._id)
-				if (i === -1) {
-					existingPartPieces.push(piece)
-				} else {
-					existingPartPieces.splice(i, 1, piece)
-				}
-				this.corePartPieces.set(piece.startPartId, existingPartPieces)
+				upsertElementToReactiveArray(this.corePartPieces, piece.startPartId, piece)
 			}
 		} else {
 			const existingPiece = this.corePieces.get(pieceId)
@@ -226,12 +223,7 @@ export class PartTransformer {
 				this.corePieces.delete(pieceId)
 
 				// create a new array so that the observable.map will pick up on the change
-				const existingPartPieces = this.corePartPieces.get(existingPiece.startPartId)?.slice() || []
-				const i = existingPartPieces.findIndex((p) => p._id !== existingPiece._id)
-				if (i !== -1) {
-					existingPartPieces.splice(i, 1)
-					this.corePartPieces.set(existingPiece.startPartId, existingPartPieces)
-				}
+				popElementFromReactiveArray(this.corePartPieces, existingPiece.startPartId, existingPiece._id)
 			}
 		}
 	}

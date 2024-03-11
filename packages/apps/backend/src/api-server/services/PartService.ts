@@ -13,13 +13,20 @@ import { Store } from '../../data-stores/Store.js'
 import { Lambda, observe } from 'mobx'
 import { LoggerInstance } from '../../lib/logger.js'
 import { NotFound, NotImplemented } from '@feathersjs/errors'
+import { SofieCoreConnection } from '../../sofie-core-connection/SofieCoreConnection.js'
+import { stringifyError } from '@sofie-prompter-editor/shared-lib'
 
 export type PartFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
 /** The methods exposed by this class are exposed in the API */
 export class PartService extends EventEmitter<Definition.Events> implements Definition.Service {
-	static setupService(log: LoggerInstance, app: Application<ServiceTypes, any>, store: Store): PartFeathersService {
-		app.use(Services.Part, new PartService(log.category('PartService'), store), {
+	static setupService(
+		log: LoggerInstance,
+		app: Application<ServiceTypes, any>,
+		store: Store,
+		coreConnection: SofieCoreConnection | undefined
+	): PartFeathersService {
+		app.use(Services.Part, new PartService(log.category('PartService'), store, coreConnection), {
 			methods: Definition.ALL_METHODS,
 			serviceEvents: Definition.ALL_EVENTS,
 		})
@@ -45,8 +52,8 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 	private observers: Lambda[] = []
 	constructor(
 		private log: LoggerInstance,
-
-		private store: Store
+		private store: Store,
+		private coreConnection: SofieCoreConnection | undefined
 	) {
 		super()
 
@@ -116,6 +123,9 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 		throw new NotImplemented(`Not supported`)
 	}
 
+	/**
+	 * Update the in-memory script, and write the script back to sofie (if enabled)
+	 */
 	public async updateScript(
 		data: {
 			partId: Id
@@ -123,7 +133,13 @@ export class PartService extends EventEmitter<Definition.Events> implements Defi
 		},
 		_params?: Params
 	): Promise<void> {
-		this.store.parts.updateScript(data.partId, data.script)
+		this.store.partScripts.updateScript(data.partId, data.script)
+
+		try {
+			this.coreConnection?.saveEditedScript(data.partId, data.script)
+		} catch (e) {
+			this.log.error(`Failed to update script: ${stringifyError(e)}`)
+		}
 	}
 }
 type Result = Definition.Result

@@ -127,7 +127,7 @@ export function Editor({
 		}
 	}, [])
 
-	const updateLineScript = useCallback((lineId: PartId, script: string | null) => {
+	const updateLineScript = useCallback((lineId: PartId, script: string | null, _isEditable: boolean) => {
 		if (!editorView.current) return
 
 		const editorState = editorView.current.state
@@ -217,9 +217,9 @@ export function Editor({
 							...segment.linesInOrder.map((lines) => {
 								lineReactionDisposers.push(
 									reaction(
-										() => lines.reactiveObj.script,
-										(script) => {
-											updateLineScript(lines.id, script)
+										() => ({ script: lines.reactiveObj.script, isEditable: lines.reactiveObj.isEditable }),
+										({ script, isEditable }) => {
+											updateLineScript(lines.id, script, isEditable)
 										},
 										{
 											fireImmediately: false,
@@ -293,6 +293,8 @@ function makeNewEditorState(doc: Node): EditorState {
 				if (!openRundown) return
 
 				const compiledMarkdown = toMarkdown(lineNodes)
+
+				// TODO - discard if readonly
 
 				openRundown.updatePartScript(lineId, compiledMarkdown)
 			}),
