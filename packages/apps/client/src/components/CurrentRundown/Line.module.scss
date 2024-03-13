@@ -38,6 +38,7 @@
 
 .LineFlagNew {
 	composes: LineFlag;
+	color: #ffff00;
 }
 
 .LineFlagCaret {
@@ -46,6 +47,7 @@
 
 .LineFlagOutput {
 	composes: LineFlag;
+	color: #ff0000;
 }
 
 .LineIdentifier {

@@ -8,12 +8,14 @@ import { removeMarkdownish } from '@sofie-prompter-editor/shared-lib'
 import classes from './Line.module.scss'
 import ENPS from '../icons/ENPS'
 import LetterWithPencil from '../icons/LetterWithPencil'
+import { FocusTriangle } from '../icons/FocusTriangle'
 
 const Line = observer(
 	({
 		segmentName,
 		line,
 		edited,
+		output,
 		onFocus,
 		selected,
 		onRecall,
@@ -22,6 +24,7 @@ const Line = observer(
 		line: UILine | undefined
 		selected: boolean
 		edited: boolean
+		output: boolean
 		onFocus?: React.FocusEventHandler<HTMLElement>
 		onRecall?: React.EventHandler<SyntheticEvent>
 	}): React.JSX.Element | null => {
@@ -54,7 +57,7 @@ const Line = observer(
 			>
 				<div className={classes.LineFlagNew}>{line.isNew ? <ENPS /> : null}</div>
 				<div className={classes.LineFlagCaret}>{edited ? <LetterWithPencil /> : null}</div>
-				<div className={classes.LineFlagOutput}></div>
+				<div className={classes.LineFlagOutput}>{output ? <FocusTriangle /> : null}</div>
 				<div className={classes.LineSegmentName}>{segmentName}</div>
 				<div className={classes.LineFlagOnAir}></div>
 				<div className={classes.LineIdentifier}>{line.identifier}</div>

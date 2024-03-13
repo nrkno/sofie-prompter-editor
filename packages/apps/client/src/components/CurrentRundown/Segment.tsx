@@ -18,6 +18,10 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 		return lineId === RootAppStore.rundownStore.openRundown?.editorCaretPositionLineId
 	}
 
+	function isOutput(lineId: UILineId) {
+		return lineId === RootAppStore.rundownStore.openRundown?.outputPositionLineId
+	}
+
 	function onFocus(e: React.FocusEvent<HTMLLIElement>) {
 		const lineId = e.currentTarget.dataset['objId'] as UILineId
 		RootAppStore.uiStore.setSelectedLineId(lineId)
@@ -51,6 +55,7 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 					line={line}
 					selected={isSelected(line.id)}
 					edited={isEdited(line.id)}
+					output={isOutput(line.id)}
 					onFocus={onFocus}
 					onRecall={onRecall}
 				/>

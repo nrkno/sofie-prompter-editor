@@ -32,6 +32,8 @@ export class UIRundown {
 
 	editorCaretPositionLineId: UILineId | null = null
 
+	outputPositionLineId: UILineId | null = null
+
 	reactions: IReactionDisposer[] = []
 
 	constructor(private store: RundownStore, public id: UIRundownId) {
@@ -149,6 +151,10 @@ export class UIRundown {
 
 	updatePartWithCaret = action('updatePartWithCaret', (partId: PartId | null) => {
 		this.editorCaretPositionLineId = partId
+	})
+
+	updatePartInOutput = action('updatePartInOutput', (partId: PartId | null) => {
+		this.outputPositionLineId = partId
 	})
 
 	async updatePartScript(partId: PartId, script: ScriptContents): Promise<void> {

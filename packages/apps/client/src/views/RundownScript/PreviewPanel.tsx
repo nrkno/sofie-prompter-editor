@@ -8,6 +8,10 @@ import { useSize } from 'src/lib/useSize'
 import { useControllerMessages } from 'src/hooks/useControllerMessages'
 import { useKeepRundownOutputInPosition } from 'src/hooks/useKeepRundownOutputInPosition'
 import { combineDisposers } from 'src/lib/lib'
+import { getAllAnchorElementsByType, getAnchorAbovePositionIndex } from 'src/lib/anchorElements'
+import { PartId, protectString } from '@sofie-prompter-editor/shared-model'
+
+const PREVIEW_SAMPLE_RATE = 250
 
 export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	const rootEl = useRef<HTMLDivElement>(null)
@@ -38,6 +42,8 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 
 	const fontSizePx = (previewWidth * fontSize) / 100
 
+	const focusPosition = 0
+
 	const {
 		setBaseViewPortState: setBaseState,
 		scrolledPosition,
@@ -46,7 +52,7 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 	} = useControllerMessages(rootEl, fontSizePx, {
 		enableControl: rundownIsInOutput,
 	})
-	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, scrolledPosition, position, 0)
+	useKeepRundownOutputInPosition(rootEl, rundown, fontSizePx, speed, scrolledPosition, position, focusPosition)
 
 	useEffect(() => {
 		if (!lastKnownState) return
@@ -71,6 +77,27 @@ export const PreviewPanel = observer(function PreviewPanel(): React.ReactNode {
 			} as React.CSSProperties),
 		[fontSize, previewWidth]
 	)
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (!rundown) return
+			if (!rootEl.current) return
+			const els = Array.from(getAllAnchorElementsByType(rootEl.current, 'line'))
+			const anchorAbovePositionIndex = getAnchorAbovePositionIndex(focusPosition, els)
+
+			const selectedEl = els[anchorAbovePositionIndex]
+			if (!selectedEl || !(selectedEl instanceof HTMLElement)) {
+				rundown.updatePartInOutput(null)
+				return
+			}
+			const uiLineId = protectString<PartId>(selectedEl.dataset['objId']) ?? null
+			rundown.updatePartInOutput(uiLineId)
+		}, PREVIEW_SAMPLE_RATE)
+
+		return () => {
+			clearInterval(interval)
+		}
+	}, [rundown])
 
 	return (
 		<>
