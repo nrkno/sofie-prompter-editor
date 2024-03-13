@@ -15,6 +15,7 @@
 	composes: Line;
 	border: 1px solid var(--bs-primary);
 	background: var(--color-list-background-selected);
+	z-index: 1;
 }
 .LineSelected:nth-child(2n + 1) {
 	background: var(--color-list-background-selected);
@@ -29,6 +30,22 @@
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
+}
+
+.LineFlag {
+	text-align: center;
+}
+
+.LineFlagNew {
+	composes: LineFlag;
+}
+
+.LineFlagCaret {
+	composes: LineFlag;
+}
+
+.LineFlagOutput {
+	composes: LineFlag;
 }
 
 .LineIdentifier {

@@ -6,6 +6,8 @@ import { TimeSpan } from '../TimeSpan/TimeSpan'
 import { removeMarkdownish } from '@sofie-prompter-editor/shared-lib'
 
 import classes from './Line.module.scss'
+import ENPS from '../icons/ENPS'
+import LetterWithPencil from '../icons/LetterWithPencil'
 
 const Line = observer(
 	({
@@ -39,7 +41,6 @@ const Line = observer(
 			<li
 				className={[
 					selected ? classes.LineSelected : classes.Line,
-					edited ? classes.LineEdited : null,
 					line.isOnAir ? classes.LineIsOnAir : line.isNext ? classes.LineIsNext : null,
 				]
 					.filter(Boolean)
@@ -51,8 +52,8 @@ const Line = observer(
 				tabIndex={0}
 				role="treeitem"
 			>
-				<div className={classes.LineFlagNew}></div>
-				<div className={classes.LineFlagCaret}></div>
+				<div className={classes.LineFlagNew}>{line.isNew ? <ENPS /> : null}</div>
+				<div className={classes.LineFlagCaret}>{edited ? <LetterWithPencil /> : null}</div>
 				<div className={classes.LineFlagOutput}></div>
 				<div className={classes.LineSegmentName}>{segmentName}</div>
 				<div className={classes.LineFlagOnAir}></div>
