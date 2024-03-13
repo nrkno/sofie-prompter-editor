@@ -1,0 +1,31 @@
+.SegmentLineListHeader {
+	display: grid;
+	grid-column: 1 / -1;
+	grid-template-columns: subgrid;
+}
+
+.ColumnHeader {
+	text-transform: uppercase;
+	color: #d4d4d4;
+	font-size: 0.9em;
+	letter-spacing: 1px;
+	font-weight: 300;
+}
+
+.HeaderScripts {
+	composes: ColumnHeader;
+	grid-column: line-script;
+	padding-left: 0.6em;
+}
+
+.HeaderReadTime {
+	composes: ColumnHeader;
+	grid-column: line-read-time;
+	text-align: right;
+}
+
+.HeaderExpectedDuration {
+	composes: ColumnHeader;
+	grid-column: line-expected-duration;
+	text-align: right;
+}

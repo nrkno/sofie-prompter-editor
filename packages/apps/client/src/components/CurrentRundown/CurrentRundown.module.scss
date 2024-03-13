@@ -1,129 +1,20 @@
 .SegmentLineList {
 	display: grid;
-	grid-template-columns: 1fr 3em 4em 2fr 5fr 1fr 1fr;
+	--width-flag-column: 2em;
+	grid-template-columns:
+		[flag-new] var(--width-flag-column) [flag-caret] var(--width-flag-column) [flag-output] var(--width-flag-column)
+		[segment-name] minmax(10em, 1fr) [flag-on-air] var(--width-flag-column) [line-identifier] 3em [line-type] 4em [line-slug] minmax(
+			10em,
+			2fr
+		)
+		[line-script] auto [line-read-time] minmax(6em, 1fr) [line-expected-duration] minmax(6em, 1fr) [end];
 	padding: 0;
 	margin: 0;
-	--table-gap-size: 1px;
-	--cell-padding: 2px;
-	gap: var(--table-gap-size);
+	--cell-padding: 2px 0.5em;
 	user-select: none;
+	margin: 1em;
 }
 
-.SegmentContainer {
-	padding: 0;
-	margin: 0;
-	display: grid;
-	grid-template-rows: subgrid;
-	grid-template-columns: subgrid;
-	grid-row: auto;
-	grid-column: 1 / 8;
-
-	border-bottom: 2px solid var(--bs-gray);
-}
-
-.SegmentIdentifier {
-	padding: var(--cell-padding);
-	margin: 0;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	color: var(--bs-gray);
-}
-
-.LineContainer {
-	padding: 0;
-	margin: 0;
-	grid-column: 2 / 8;
-	display: grid;
-	grid-template-columns: subgrid;
-	grid-template-rows: auto;
-	gap: var(--table-gap-size);
-}
-
-.LineEdited {
-	grid-column: 2 / 3;
-	position: relative;
-}
-
-.LineEdited::after {
-	content: ' ';
-	display: block;
-	position: absolute;
-	top: 0.55em;
-	left: 1px;
-	width: 0px;
-	height: 0px;
-	border-style: solid;
-	border-width: 5px 0 5px 8px;
-	border-color: transparent transparent transparent #fff;
-	transform: rotate(0deg);
-}
-
-.Line {
-	grid-column: 1 / 7;
-	display: grid;
-	grid-template-columns: subgrid;
-	gap: var(--table-gap-size);
-	padding: 0;
-	margin: 0;
-	border: 1px solid transparent;
-	--cell-background: var(--color-dark-2);
-}
-
-.LineIsOnAir {
-	--cell-background: none;
-	background: var(--color-on-air-dark);
-}
-
-.LineIsNext {
-	--cell-background: none;
-	background: var(--color-next-dark);
-}
-
-.LineSelected {
-	composes: Line;
-	border: 1px solid var(--bs-primary);
-}
-
-.Line:focus {
-	--cell-background: var(--color-primary-dark);
-}
-
-.LineItem {
-	padding: var(--cell-padding);
-	background: var(--cell-background);
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-}
-
-.LineIdentifier {
-	padding: var(--cell-padding);
-	text-align: center;
-}
-
-.LineType {
-	padding: var(--cell-padding);
-	text-transform: uppercase;
-	text-align: center;
-}
-
-.LineSlug {
-	composes: LineItem;
-}
-
-.LineScript {
-	composes: LineItem;
-}
-
-.LineDuration {
-	composes: LineItem;
-	text-align: right;
-}
-
-.ReadTime {
-	composes: LineItem;
-	text-align: right;
-}
 .HeaderIdle {
 	background-color: #2689ba;
 }

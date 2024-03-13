@@ -10,6 +10,7 @@ import { SystemStatusAlertBars } from 'src/components/SystemStatusAlertBars/Syst
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
 import { getNextFocus } from '@bbc/tv-lrud-spatial'
 import { getAnchorElementById } from 'src/lib/anchorElements'
+import { SegmentLineListHeader } from './SegmentLineListHeader'
 
 const CurrentRundown = observer((): React.JSX.Element => {
 	const [segmentLineListEl, setSegmentLineListEl] = useState<HTMLUListElement | null>(null)
@@ -155,6 +156,7 @@ const CurrentRundown = observer((): React.JSX.Element => {
 			</div>
 			<SystemStatusAlertBars />
 			<ul className={classes.SegmentLineList} role="tree" ref={setSegmentLineListEl} onKeyDown={onKeyDown}>
+				<SegmentLineListHeader />
 				{openRundown.segmentsInOrderFiltered.map((segment) => (
 					<Segment segment={segment} key={segment.id} />
 				))}

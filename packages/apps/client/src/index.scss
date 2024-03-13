@@ -2,8 +2,8 @@
 $primary: #1769ff;
 $primary-dark: #132039;
 //$dark: #252627; // this is Origo's original dark color
-$dark-1: #1d1d1d;
-$dark-2: #2a2a2a;
+$dark-1: #535353;
+$dark-2: #1d1d1d;
 $dark: $dark-1;
 $body-bg-dark: $dark;
 
@@ -18,6 +18,10 @@ $border-radius: 3px;
 $btn-padding-x: 0.8em;
 $btn-padding-y: 0.4em;
 $btn-font-weight: 700;
+
+$list-background-odd: #202427;
+$list-background-even: #292e32;
+$list-background-selected: #1b4193;
 
 $theme-colors: (
 	'primary': $primary,
@@ -42,6 +46,10 @@ $theme-colors: (
 	--color-next-dark: #6bc6417d;
 	--color-on-air-output: #ff00007d;
 	--color-next-output: #6bc6417d;
+
+	--color-list-background-odd: #{$list-background-odd};
+	--color-list-background-even: #{$list-background-even};
+	--color-list-background-selected: #{$list-background-selected};
 }
 
 /* Remove outline for non-keyboard :focus */

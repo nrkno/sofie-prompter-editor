@@ -2,7 +2,6 @@ import React, { SyntheticEvent } from 'react'
 import { observer } from 'mobx-react-lite'
 import { UISegment } from 'src/model/UISegment'
 import { Line } from './Line'
-import classes from './CurrentRundown.module.scss'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { UILineId } from 'src/model/UILine'
 
@@ -44,23 +43,19 @@ const Segment = observer(({ segment }: { segment: UISegment }): React.JSX.Elemen
 	if (filteredLines.length === 0 && isRundownFilterEnabled) return null
 
 	return (
-		<li data-segment-id={segment.id} className={classes.SegmentContainer} role="tree">
-			<div className={classes.SegmentIdentifier} role="heading">
-				{segment.name}
-			</div>
-			<ul className={classes.LineContainer}>
-				{filteredLines.map((line) => (
-					<Line
-						key={line.id}
-						line={line}
-						selected={isSelected(line.id)}
-						edited={isEdited(line.id)}
-						onFocus={onFocus}
-						onRecall={onRecall}
-					/>
-				))}
-			</ul>
-		</li>
+		<>
+			{filteredLines.map((line, index) => (
+				<Line
+					segmentName={index === 0 ? segment.name : undefined}
+					key={line.id}
+					line={line}
+					selected={isSelected(line.id)}
+					edited={isEdited(line.id)}
+					onFocus={onFocus}
+					onRecall={onRecall}
+				/>
+			))}
+		</>
 	)
 })
 Segment.displayName = 'Segment'

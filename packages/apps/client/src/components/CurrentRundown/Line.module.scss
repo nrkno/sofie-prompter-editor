@@ -1,0 +1,65 @@
+.Line {
+	grid-column: 1 / -1;
+	display: grid;
+	grid-template-columns: subgrid;
+	padding: 0;
+	margin: 0;
+	border: 1px solid transparent;
+	background: var(--color-list-background-odd);
+}
+.Line:nth-child(2n + 1) {
+	background: var(--color-list-background-even);
+}
+
+.LineSelected {
+	composes: Line;
+	border: 1px solid var(--bs-primary);
+	background: var(--color-list-background-selected);
+}
+.LineSelected:nth-child(2n + 1) {
+	background: var(--color-list-background-selected);
+}
+
+.Line:focus {
+}
+
+.LineItem {
+	padding: var(--cell-padding);
+	background: var(--cell-background);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.LineIdentifier {
+	padding: var(--cell-padding);
+	text-align: center;
+}
+
+.LineType {
+	padding: var(--cell-padding);
+	text-transform: uppercase;
+	text-align: center;
+}
+
+.LineSlug {
+	composes: LineItem;
+}
+
+.LineScript {
+	composes: LineItem;
+}
+
+.LineDuration {
+	composes: LineItem;
+	text-align: right;
+}
+
+.LineSegmentName {
+	composes: LineItem;
+}
+
+.ReadTime {
+	composes: LineItem;
+	text-align: right;
+}

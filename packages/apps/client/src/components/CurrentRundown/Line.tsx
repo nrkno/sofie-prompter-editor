@@ -1,19 +1,22 @@
 import React, { SyntheticEvent } from 'react'
 import { observer } from 'mobx-react-lite'
 import { UILine } from 'src/model/UILine'
-import classes from './CurrentRundown.module.scss'
 import { LineTypeIcon } from './LineTypeIcon'
 import { TimeSpan } from '../TimeSpan/TimeSpan'
 import { removeMarkdownish } from '@sofie-prompter-editor/shared-lib'
 
+import classes from './Line.module.scss'
+
 const Line = observer(
 	({
+		segmentName,
 		line,
 		edited,
 		onFocus,
 		selected,
 		onRecall,
 	}: {
+		segmentName: string | undefined
 		line: UILine | undefined
 		selected: boolean
 		edited: boolean
@@ -48,6 +51,11 @@ const Line = observer(
 				tabIndex={0}
 				role="treeitem"
 			>
+				<div className={classes.LineFlagNew}></div>
+				<div className={classes.LineFlagCaret}></div>
+				<div className={classes.LineFlagOutput}></div>
+				<div className={classes.LineSegmentName}>{segmentName}</div>
+				<div className={classes.LineFlagOnAir}></div>
 				<div className={classes.LineIdentifier}>{line.identifier}</div>
 				<div className={classes.LineType}>
 					<LineTypeIcon type={line.lineType?.style}>{line.lineType?.label}</LineTypeIcon>
@@ -57,11 +65,11 @@ const Line = observer(
 					{line.isEditable ? '' : 'READ ONLY '}
 					{line.script ? removeMarkdownish(line.script) : null}
 				</div>
-				<div className={classes.LineDuration}>
-					<TimeSpan>{line.expectedDuration}</TimeSpan>
-				</div>
 				<div className={classes.ReadTime}>
 					<TimeSpan>{line.readTime}</TimeSpan>
+				</div>
+				<div className={classes.LineDuration}>
+					<TimeSpan>{line.expectedDuration}</TimeSpan>
 				</div>
 			</li>
 		)
