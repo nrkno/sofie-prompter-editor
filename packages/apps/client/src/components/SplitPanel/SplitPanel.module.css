@@ -3,7 +3,6 @@
 	display: grid;
 	grid-template-rows: auto;
 	grid-template-columns: [PaneA] var(--position-a, 1fr) [Divider] var(--divider-width) [PaneB] var(--position-b, 1fr);
-	gap: 2px;
 }
 
 .Pane {

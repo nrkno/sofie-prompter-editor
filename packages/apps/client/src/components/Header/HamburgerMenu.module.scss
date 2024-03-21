@@ -1,0 +1,33 @@
+.HamburgerMenu {
+	text-align: center;
+}
+
+.Toggle {
+	background: none;
+	border: none;
+	position: relative;
+}
+
+.Toggle:disabled {
+	background: none;
+	border: none;
+}
+
+.Toggle:hover,
+.Toggle:active,
+.Toggle:global(.dropdown-toggle.show) {
+	background: var(--color-dark-1);
+	border: none;
+}
+
+.Toggle:focus-visible {
+	outline: var(--bs-primary) solid 2px;
+}
+
+.Toggle::after {
+	display: none;
+}
+
+.Toggle svg {
+	vertical-align: top;
+}

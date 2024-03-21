@@ -1,13 +1,13 @@
 import { useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import classes from './RundownScript.module.scss'
-import { CurrentRundown } from 'src/components/CurrentRundown/CurrentRundown'
 import { Helmet } from 'react-helmet-async'
 import { RundownPlaylistId, protectString } from '@sofie-prompter-editor/shared-model'
 import { RootAppStore } from 'src/stores/RootAppStore'
 import { useParams } from 'react-router-dom'
 import { SplitPanel } from 'src/components/SplitPanel/SplitPanel'
 import { EditorAndPreviewPanel } from './EditorAndPreviewPanel'
+import { CurrentRundownAndHeader } from './CurrentRundownAndHeader'
 
 const RundownScript = observer((): React.JSX.Element => {
 	const params = useParams()
@@ -34,7 +34,7 @@ const RundownScript = observer((): React.JSX.Element => {
 				position={RootAppStore.uiStore.viewDividerPosition}
 				onChange={onChange}
 				className={classes.RundownScript}
-				childrenBegin={<CurrentRundown />}
+				childrenBegin={<CurrentRundownAndHeader />}
 				childrenEnd={<EditorAndPreviewPanel />}
 				classNameEnd={classes.EditorAndPreviewPanel}
 			/>

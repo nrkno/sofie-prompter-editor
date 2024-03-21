@@ -1,0 +1,25 @@
+.CurrentRundownAndHeader {
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+	max-height: 100%;
+}
+
+.Header {
+	flex-grow: 0;
+	flex-shrink: 1;
+	position: relative;
+}
+
+.Content {
+	position: relative;
+	flex-grow: 1;
+	flex-shrink: 1;
+	overflow: auto;
+}
+
+.RundownTitle {
+	font-size: 1.3em;
+	margin: 0;
+	padding: 0;
+}

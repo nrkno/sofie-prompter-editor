@@ -3,7 +3,7 @@ $primary: #1769ff;
 $primary-dark: #132039;
 //$dark: #252627; // this is Origo's original dark color
 $dark-1: #535353;
-$dark-2: #1d1d1d;
+$dark-2: #2d2d2d;
 $dark: $dark-1;
 $body-bg-dark: $dark;
 
@@ -26,6 +26,7 @@ $list-background-selected: #1b4193;
 $theme-colors: (
 	'primary': $primary,
 	'dark': $dark,
+	'dropdown-bg': $dark-2,
 );
 
 @import 'bootstrap/scss/bootstrap';
@@ -60,4 +61,9 @@ $theme-colors: (
 /* Optional: Customize .focus-visible */
 :focus-visible {
 	outline: $primary solid 2px;
+}
+
+.dropdown-menu {
+	--bs-dropdown-bg: var(--color-dark-2);
+	--bs-dropdown-link-hover-bg: var(--color-list-background-selected);
 }
