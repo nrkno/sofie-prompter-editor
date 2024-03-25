@@ -8,6 +8,7 @@ import { useParams } from 'react-router-dom'
 import { SplitPanel } from 'src/components/SplitPanel/SplitPanel'
 import { EditorAndPreviewPanel } from './EditorAndPreviewPanel'
 import { CurrentRundownAndHeader } from './CurrentRundownAndHeader'
+import { OpenRundownDialog } from '../OpenRundownDialog/OpenRundownDialog'
 
 const RundownScript = observer((): React.JSX.Element => {
 	const params = useParams()
@@ -30,6 +31,7 @@ const RundownScript = observer((): React.JSX.Element => {
 				<title>Rundown</title>
 				<body data-bs-theme="dark" />
 			</Helmet>
+			<OpenRundownDialog />
 			<SplitPanel
 				position={RootAppStore.uiStore.viewDividerPosition}
 				onChange={onChange}
