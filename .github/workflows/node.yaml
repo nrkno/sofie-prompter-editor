@@ -168,7 +168,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push to GHCR
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.check-ghcr.outputs.enable == 'true' && steps.ghcr-tag.outputs.tags != 0
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           provenance: false
@@ -176,7 +176,7 @@ jobs:
           tags: "${{ steps.ghcr-tag.outputs.tags }}"
       - name: Build and push to DockerHub
         if: steps.check-build-and-push.outputs.enable == 'true' && steps.dockerhub.outputs.dockerhub-publish == '1'
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           push: true
           provenance: false
