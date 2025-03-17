@@ -80,9 +80,10 @@ export class OutputSettingsService extends EventEmitter<Definition.Events> imple
 		return this.get(null)
 	}
 
-	public async subscribe(_: unknown, params: Params): Promise<void> {
+	public async subscribe(_: unknown, params: Params): Promise<Data> {
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.OutputSettings()).join(params.connection)
+		return this.get(null)
 	}
 }
 type Result = Definition.Result

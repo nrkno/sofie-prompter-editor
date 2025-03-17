@@ -49,13 +49,13 @@ export class UISegment {
 		}
 	}
 
-	updateFromJson(json: Segment) {
+	updateFromJson = action('updateFromJson', (json: Segment) => {
 		this.name = json.label
 		this.rank = json.rank
 		this.rundownId = json.rundownId
 
 		this.ready = true
-	}
+	})
 
 	get linesInOrder(): UILine[] {
 		return Array.from(this.lines.values()).sort((a, b) => a.rank - b.rank)
@@ -90,22 +90,22 @@ export class UISegment {
 		existing.updateFromJson(json)
 	})
 
-	private onSegmentRemoved = action('onSegmentRemoved', (json: Pick<Segment, '_id'>) => {
+	private onSegmentRemoved =  (json: Pick<Segment, '_id'>) => {
 		if (this.id !== json._id) return
 
 		this.remove()
-	})
+	}
 
-	private onSegmentUpdated = action('onSegmentUpdated', (json: Segment) => {
+	private onSegmentUpdated = (json: Segment) => {
 		if (this.id !== json._id) return
 
 		this.updateFromJson(json)
-	})
+	}
 
-	remove(): void {
+	remove = action('remove',(): void => {
 		this.owner.segments.delete(this.id)
 		this.dispose()
-	}
+	})
 
 	dispose(): void {
 		this.lines.forEach((line) => line.dispose())

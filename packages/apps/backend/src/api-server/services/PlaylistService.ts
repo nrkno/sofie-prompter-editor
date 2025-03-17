@@ -120,10 +120,11 @@ export class PlaylistService extends EventEmitter<Definition.Events> implements 
 	// 	throw new Error('Not implemented')
 	// }
 
-	public async subscribeToPlaylists(_: unknown, params: Params): Promise<void> {
+	public async subscribeToPlaylists(_: unknown, params: Params): Promise<Data[]> {
 		if (!params.connection) throw new Error('No connection!')
 
 		this.app.channel(PublishChannels.AllPlaylists()).join(params.connection)
+		return this.find()
 	}
 
 	public async tmpPing(_payload: string): Promise<string> {

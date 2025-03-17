@@ -7,12 +7,13 @@ import {
 	RundownPlaylistId,
 } from '@sofie-prompter-editor/shared-model'
 import { PublishChannels } from '../PublishChannels.js'
-import { CustomFeathersService } from './lib.js'
+import { CustomFeathersService, UNSUBSCRIBE_DELAY } from './lib.js'
 import { Store } from '../../data-stores/Store.js'
 import { Lambda, observe } from 'mobx'
 import { LoggerInstance } from '../../lib/logger.js'
 import { NotFound, NotImplemented } from '@feathersjs/errors'
 import { SofieCoreConnection } from '../../sofie-core-connection/SofieCoreConnection.js'
+import { ApiServer } from '../ApiServer.js'
 
 export type RundownFeathersService = CustomFeathersService<Definition.Service, Definition.Events>
 
@@ -22,9 +23,10 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		log: LoggerInstance,
 		app: Application<ServiceTypes, any>,
 		store: Store,
-		coreConnection: SofieCoreConnection | undefined
+		coreConnection: SofieCoreConnection | undefined,
+		api: ApiServer
 	): RundownFeathersService {
-		app.use(Services.Rundown, new RundownService(log.category('RundownService'), app, store, coreConnection), {
+		app.use(Services.Rundown, new RundownService(log.category('RundownService'), app, store, coreConnection, api), {
 			methods: Definition.ALL_METHODS,
 			serviceEvents: Definition.ALL_EVENTS,
 		})
@@ -52,7 +54,8 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		private log: LoggerInstance,
 		private app: Application<ServiceTypes, any>,
 		private store: Store,
-		private coreConnection: SofieCoreConnection | undefined
+		private coreConnection: SofieCoreConnection | undefined,
+		private api: ApiServer
 	) {
 		super()
 
@@ -111,22 +114,39 @@ export class RundownService extends EventEmitter<Definition.Events> implements D
 		throw new NotImplemented(`Not supported`)
 	}
 
-	public async subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
+	public async subscribeToRundownsInPlaylist(
+		playlistId: RundownPlaylistId,
+		params: Params
+	): Promise<SubscribeInitialData> {
 		this.coreConnection?.subscribeToPlaylist(playlistId)
 
 		if (!params.connection) throw new Error('No connection!')
 		this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).join(params.connection)
+
+		const [rundowns, segments] = await Promise.all([
+			await this.find({ query: { playlistId } }),
+			await this.api.segment.find({ query: { playlistId } }),
+		])
+
+		return {
+			rundowns,
+			segments,
+		}
 	}
 	public async unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params: Params): Promise<void> {
 		if (params.connection) {
 			this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).leave(params.connection)
 		}
 
-		const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
-		this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
+		// Wait a little bit before checking, to avoid unsubscribing and resubscribing in quick succession:
+		setTimeout(() => {
+			const subscriberCount = this.app.channel(PublishChannels.RundownsInPlaylist(playlistId)).length
+			this.coreConnection?.unsubscribeFromPlaylistIfNoOneIsListening(playlistId, subscriberCount)
+		}, UNSUBSCRIBE_DELAY)
 	}
 }
 type Result = Definition.Result
 type Id = Definition.Id
 type NullId = Definition.NullId
 type Data = Definition.Data
+type SubscribeInitialData = Definition.SubscribeInitialData

@@ -3,7 +3,7 @@ name: "Prune container images"
 on:
   workflow_dispatch:
   schedule:
-    - cron: '24 11 * * *'
+    - cron: "24 11 * * *"
 
 jobs:
   prune-container-images:
@@ -15,5 +15,7 @@ jobs:
       tags-to-keep-regex: |
         ^release(\d+)
         ^r(\d+)
+        develop
     secrets:
       prune-token: ${{ secrets.GHCR_PRUNE_TOKEN }}
+

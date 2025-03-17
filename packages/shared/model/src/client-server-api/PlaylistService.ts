@@ -37,7 +37,7 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 	remove(id: NullId, params?: Params): Promise<Result>
 
 	/** Subscribe to a list of all playlists */
-	subscribeToPlaylists(_?: unknown, params?: Params): Promise<void>
+	subscribeToPlaylists(_?: unknown, params?: Params): Promise<Data[]>
 
 	//
 	tmpPing(payload: string): Promise<string>

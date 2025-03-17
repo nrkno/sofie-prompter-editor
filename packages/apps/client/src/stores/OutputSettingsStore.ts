@@ -35,31 +35,20 @@ export class OutputSettingsStore {
 		this.initializing = true
 
 		this.setupSubscription()
-		this.loadInitialData()
 	}
 
 	private setupSubscription = action(() => {
 		this.reactions.push(
-			reaction(
-				() => this.appStore.connected,
-				async (connected) => {
-					if (!connected) return
+			this.appStore.whenConnected(async () => {
+				// Setup subscription and load initial data:
+				const initialData = await this.connection.outputSettings.subscribe()
+				this.onUpdatedOutputSettings(initialData)
 
-					await this.connection.outputSettings.subscribe()
-				},
-				{
-					fireImmediately: true,
-				}
-			)
+				this.initialized = true
+			})
 		)
 
 		this.connection.outputSettings.on('updated', this.onUpdatedOutputSettings)
-	})
-	private loadInitialData = flow(function* (this: OutputSettingsStore) {
-		const outputSettings = yield this.connection.outputSettings.get(null)
-		this.onUpdatedOutputSettings(outputSettings)
-
-		this.initialized = true
 	})
 
 	private onUpdatedOutputSettings = action('onUpdatedOutputSettings', (newData: OutputSettings) => {

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef } from 'react'
 import { PartId } from '@sofie-prompter-editor/shared-model'
 import { undo, redo, history } from 'prosemirror-history'
 import { keymap } from 'prosemirror-keymap'
-import { EditorState, SelectionBookmark } from 'prosemirror-state'
+import { EditorState, Selection, SelectionBookmark, TextSelection } from 'prosemirror-state'
 import { EditorView } from 'prosemirror-view'
 import { Fragment, Node, Slice } from 'prosemirror-model'
 import { baseKeymap } from 'prosemirror-commands'
@@ -18,6 +18,9 @@ import { RootAppStore } from 'src/stores/RootAppStore'
 import { IReactionDisposer, reaction } from 'mobx'
 import { AnyTriggerAction } from 'src/lib/triggerActions/triggerActions'
 import { findMatchingAncestor } from 'src/lib/findMatchingAncestor'
+import { UILineId } from 'src/model/UILine'
+import { reportCaretPosition } from './plugins/reportCaretPosition'
+import { findNode, getNodeRange, nearestElement } from './lib'
 
 export function Editor({
 	className,
@@ -82,7 +85,49 @@ export function Editor({
 		}
 	}, [])
 
-	const updateLineScript = useCallback((lineId: PartId, script: string | null) => {
+	useEffect(() => {
+		function onScrollEditorToLine(e: { lineId: UILineId }) {
+			console.log('onScrollEditorToLine', e)
+
+			if (!editorView.current) return
+
+			const lineId = e.lineId
+			let editorState = editorView.current.state
+
+			console.log(editorState.tr.selection, e.lineId)
+
+			const line = findNode(editorState.doc, (node) => node.attrs['lineId'] === lineId)
+			if (!line) return
+
+			editorView.current.dom.focus()
+
+			const { beginOffset, endOffset } = getNodeRange(line)
+
+			const selectionAllPart = TextSelection.create(editorState.doc, beginOffset, endOffset)
+			const trSelection0 = editorState.tr.setSelection(selectionAllPart).scrollIntoView()
+
+			editorView.current.dispatch(trSelection0)
+
+			editorState = editorView.current.state
+
+			setTimeout(() => {
+				if (!editorView.current) return
+
+				const selectionBegin = TextSelection.create(editorState.doc, beginOffset, beginOffset)
+				const trSelection1 = editorState.tr.setSelection(selectionBegin).scrollIntoView()
+
+				editorView.current.dispatch(trSelection1)
+			})
+		}
+
+		RootAppStore.uiStore.on('scrollEditorToLine', onScrollEditorToLine)
+
+		return () => {
+			RootAppStore.uiStore.removeListener('scrollEditorToLine', onScrollEditorToLine)
+		}
+	}, [])
+
+	const updateLineScript = useCallback((lineId: PartId, script: string | null, _isEditable: boolean) => {
 		if (!editorView.current) return
 
 		const editorState = editorView.current.state
@@ -91,21 +136,7 @@ export function Editor({
 
 		if (!line) return
 
-		const ranges: { offset: number; size: number }[] = []
-
-		line.node.forEach((node, offset) => {
-			if (node.type !== schema.nodes.paragraph) return
-			ranges.push({ offset, size: node.nodeSize })
-		})
-		ranges.sort((a, b) => a.offset - b.offset)
-
-		let beginOffset: number = line.node.nodeSize - 1
-		let endOffset: number = beginOffset
-
-		if (ranges.length !== 0) {
-			beginOffset = line.pos + 1 + ranges[0].offset
-			endOffset = line.pos + 1 + ranges[ranges.length - 1].offset + ranges[ranges.length - 1].size
-		}
+		const { beginOffset, endOffset } = getNodeRange(line)
 
 		let selectionBookmark: SelectionBookmark | undefined
 
@@ -184,9 +215,9 @@ export function Editor({
 							...segment.linesInOrder.map((lines) => {
 								lineReactionDisposers.push(
 									reaction(
-										() => lines.reactiveObj.script,
-										(script) => {
-											updateLineScript(lines.id, script)
+										() => ({ script: lines.reactiveObj.script, isEditable: lines.reactiveObj.isEditable }),
+										({ script, isEditable }) => {
+											updateLineScript(lines.id, script, isEditable)
 										},
 										{
 											fireImmediately: false,
@@ -241,14 +272,22 @@ function makeNewEditorState(doc: Node): EditorState {
 			keymap(formatingKeymap),
 			keymap(baseKeymap),
 			readOnlyNodeFilter(),
+			reportCaretPosition((lineId) => {
+				const openRundown = RootAppStore.rundownStore.openRundown
+				if (!openRundown) return
+
+				openRundown.updatePartWithCaret(lineId)
+			}),
 			updateModel((lineId, lineNodes) => {
 				// Future: debounce? locking? require manual triggering of the save?
 				const openRundown = RootAppStore.rundownStore.openRundown
-				if (openRundown) {
-					const compiledMarkdown = toMarkdown(lineNodes)
+				if (!openRundown) return
 
-					openRundown.updatePartScript(lineId, compiledMarkdown)
-				}
+				const compiledMarkdown = toMarkdown(lineNodes)
+
+				// TODO - discard if readonly
+
+				openRundown.updatePartScript(lineId, compiledMarkdown)
 			}),
 		],
 		doc,
@@ -285,29 +324,6 @@ function preserveSelection(state: EditorState): SelectionBookmark {
 function restoreSelection(state: EditorState, preservedSelection: SelectionBookmark): EditorState {
 	const restoreSelectionTr = state.tr.setSelection(preservedSelection.resolve(state.doc))
 	return state.apply(restoreSelectionTr)
-}
-
-function nearestElement(node: globalThis.Node | null): HTMLElement | null {
-	return node?.parentElement ?? null
-}
-
-function findNode(
-	node: Node,
-	predicate: (needle: Node, offset: number, index: number) => boolean
-): undefined | NodeWithPosition {
-	let found: NodeWithPosition | undefined = undefined
-	node.descendants((maybeNode, pos, _, index) => {
-		if (found) return
-		const isOK = predicate(maybeNode, pos, index)
-		if (isOK) found = { node: maybeNode, pos }
-	})
-
-	return found
-}
-
-type NodeWithPosition = {
-	node: Node
-	pos: number
 }
 
 type OnChangeEvent = {

@@ -6,7 +6,7 @@ import {
 	assertConstIsValid,
 	assertConstIncludesAllMethods,
 } from './lib.js'
-import { Rundown, RundownPlaylistId } from '../model/index.js'
+import { Part, Rundown, RundownPlaylistId, Segment } from '../model/index.js'
 import { Diff } from '../patch.js'
 
 /** List of all method names */
@@ -35,7 +35,7 @@ interface Methods extends Omit<ServiceMethods, 'patch'> {
 	remove(id: NullId, params?: Params): Promise<Result>
 
 	/** Subscribe to all info within a specific playlist */
-	subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
+	subscribeToRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<SubscribeInitialData>
 
 	unSubscribeFromRundownsInPlaylist(playlistId: RundownPlaylistId, params?: Params): Promise<void>
 }
@@ -66,6 +66,12 @@ export type RemovedData = { _id: Id; playlistId: Data['playlistId'] }
 export type Result = Pick<Data, '_id'>
 export type Id = Data['_id']
 export type NullId = Id | null
+
+export interface SubscribeInitialData {
+	rundowns: Rundown[]
+	segments: Segment[]
+	// parts: Part[] // initial Parts are not needed by the GUI
+}
 
 // ============================================================================
 // Type check: ensure that Methods and ALL_METHODS are in sync:
