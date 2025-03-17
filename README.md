@@ -1,3 +1,6 @@
+> [!NOTE]  
+> This repository was archived on 2025/03/17 and will not receive any updates.
+
 # Sofie Prompter Editor
 
 This is the _Sofie Prompter Editor_ application of the [_**Sofie** TV Automation System_](https://github.com/nrkno/Sofie-TV-automation/), allowing WYSIWYG editing nad realtime control of the _Sofie_ prompter.
