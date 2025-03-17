@@ -4,9 +4,19 @@ import { EmphasisNode, StrongNode, Node, ParentNodeBase } from '../astNodes'
 export function emphasisAndStrong(): NodeConstruct {
 	function emphasisOrStrong(char: string, state: ParserState): CharHandlerResult | void {
 		if (state.nodeCursor === null) throw new Error('cursor === null assertion')
+
+		let len = 1
+		let peeked = state.peek(len)
+		while (peeked && peeked.length === len && peeked.slice(-1) === char) {
+			len++
+			peeked = state.peek(len)
+		}
+
+		if (len > 2) return // this parser only handles 2 chars
+
 		if (state.nodeCursor && isEmphasisOrStrongNode(state.nodeCursor)) {
 			if (state.nodeCursor.code.startsWith(char)) {
-				if (state.peek() === char) {
+				if (state.nodeCursor.type === 'strong' && len === 2) {
 					state.consume()
 				}
 
@@ -20,7 +30,7 @@ export function emphasisAndStrong(): NodeConstruct {
 
 		let type: 'emphasis' | 'strong' = 'emphasis'
 
-		if (state.peek() === char) {
+		if (len === 2) {
 			type = 'strong'
 			char += state.consume()
 		}
